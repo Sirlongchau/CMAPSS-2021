@@ -1,9 +1,11 @@
-from ncmapss_gft_features import extract_features, Config
-from gft_ncmapss import fit_gft, predict_gft, GFTConfig, inspect_consequents
-from gft_analysis_1 import analyze
+from ncmapss_features import cycle_features
+from gft import fit_gft, predict_gft, inspect
+from gft_analysis import analyze
 
-feats, _ = extract_features("N-CMAPSS_DS02-006.h5", Config(split="dev"))
-model = fit_gft(feats, GFTConfig(gens=200, residualize=True, smooth_span=5))
-pred  = predict_gft(feats, model)
-analyze(feats, pred, model=model, surfaces=True, surface_kind="contour")
-inspect_consequents(model)
+feats = cycle_features("N-CMAPSS_DS02-006.h5", split="dev")
+model = fit_gft(feats, gens=300, residualize=True)   # rul_cap=75 also works
+pred = predict_gft(feats, model)
+
+analyze(feats, pred, model=model, surfaces=True, surface_kind="contour",
+        savedir="figures")   # figures/ created if missing, old .png replaced
+inspect(model)
