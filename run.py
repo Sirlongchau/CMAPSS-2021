@@ -2,7 +2,7 @@ from ncmapss_features import cycle_features
 from gft import fit_gft, predict_gft, inspect
 from gft_analysis import analyze
 
-feats = cycle_features("N-CMAPSS_DS01-005.h5", split="dev")
+feats = cycle_features("N-CMAPSS_DS08c-008.h5", split="dev")
 
 # Hybrid loss: leaves supervised on theta (theta_weight), whole tree on RUL.
 # theta_weight=0 -> pure RUL training; raise it to trust the theta labels more.

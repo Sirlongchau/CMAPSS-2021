@@ -81,18 +81,40 @@ def _fis(cols, centers, singletons):
 # A node with a theta target is a supervised leaf (output = theta_hat); a node
 # with target None is latent (spool damage in [0,1], or the RUL root).
 # Children must precede parents. Max 3 inputs per node. Root must be named "RUL".
+#
+# MEMBERSHIP FUNCTIONS PER INPUT: an input is either a bare name (uses the
+# default n_terms passed to fit_gft/build_tree) or a ("name", k) pair giving
+# that input its own k fuzzy sets. Mix freely, e.g.
+#     ("hpt_eff", [("T48", 5), ("P40", 3), "P45"], "HPT_eff_mod")
+# gives T48 five sets, P40 three, P45 the default. A node's rule count is the
+# PRODUCT of its inputs' set counts, so (5, 3, 3) -> 45 rules.
 
 TREE = [
-    ("hpt_eff",  ["T48", "P40", "P45"], "HPT_eff_mod"),
-    ("hpt_flow", ["T48", "P40", "P45"], "HPT_flow_mod"),
-    ("lpt_eff",  ["T50", "P50", "epr"], "LPT_eff_mod"),
-    ("lpt_flow", ["T50", "P50", "epr"], "LPT_flow_mod"),
-    ("hp",  ["hpt_eff", "hpt_flow"], None),      # HP-shaft damage  (in [0,1])
-    ("lp",  ["lpt_eff", "lpt_flow"], None),      # LP-shaft damage  (in [0,1])
-    ("RUL", ["hp", "lp", "age"], None),          # prognosis        (root)
+    ("hpt_eff",  ["T48", "P40", "Nc"],   "HPT_eff_mod"),   # HP: eff  -> speed
+    ("hpt_flow", ["T48", "P40", "Ps30"], "HPT_flow_mod"),  # HP: flow -> pressure
+    ("lpt_eff",  ["T50", "P50", "Nf"],   "LPT_eff_mod"),   # LP: eff  -> speed
+    ("lpt_flow", ["T50", "P50", "P24"],  "LPT_flow_mod"),  # LP: flow -> pressure
+    ("hp",  ["hpt_eff", "hpt_flow"], None),      # global HP-shaft damage
+    ("lp",  ["lpt_eff", "lpt_flow"], None),      # global LP-shaft damage
+    ("RUL", ["hp", "lp", "age"], None),          # prognosis (root)
 ]
+# Inputs are REAL measured sensors only (C-MAPSS Table 2, X_s):
+#   Wf Nf Nc T24 T30 T48 T50 P15 P21 P24 Ps30 P40 P50.
+# Virtual sensors (Table 3, X_v: T40 P30 P45 W* epr Sm* NR* PCNfR phi) are NOT
+# used. Symmetric by construction: each shaft (HP=HPT, LP=Fan/LPC/LPT) gets an
+# eff + a flow leaf feeding a global shaft-damage node. Every degrading modifier
+# is supervised; in DS02 HPT_flow is ~constant, so its leaf simply predicts that
+# constant (the tight consequent box keeps it noise-free) -- and the same tree
+# still works on failure modes where HPT flow actually moves.
 
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
+
+
+def _parse_input(inp, default):
+    """('name', k) -> (name, k);  'name' -> (name, default)."""
+    if isinstance(inp, (tuple, list)):
+        return inp[0], int(inp[1])
+    return inp, default
 
 
 def _node_names(tree):
@@ -101,32 +123,45 @@ def _node_names(tree):
 
 def _leaf_sensors(tree):
     names = _node_names(tree)
-    return sorted({c for _, ins, _ in tree for c in ins
-                   if c not in names and c != "age"})
+    out = set()
+    for _, ins, _ in tree:
+        for raw in ins:
+            c, _k = _parse_input(raw, 0)
+            if c not in names and c != "age":
+                out.add(c)
+    return sorted(out)
 
 
-def build_tree(frame, tree=TREE, n_terms=5):
-    """Resolve inputs against the frame and fix the fuzzy centres. Also record
-    each node's OUTPUT domain (theta quantiles / [0,1]) so parents can place
-    their own input centres consistently."""
+def _domain_centers(dom, k):
+    """k centres over a child node's output domain (theta quantiles / [0,1])."""
+    kind, data = dom
+    return _centers(data, k) if kind == "theta" else np.linspace(0, 1, k)
+
+
+def build_tree(frame, tree=TREE, n_terms=3):
+    """Resolve inputs against the frame and fix the fuzzy centres. Each input's
+    number of membership functions is its per-input k (or the default n_terms).
+    Records each node's OUTPUT domain so parents can partition it consistently."""
     out_dom, meta = {}, []
     for name, inputs, target in tree:
         tgt = target if (target in frame.columns) else None
         ins = []
-        for inp in inputs:
+        for raw in inputs:
+            inp, k = _parse_input(raw, n_terms)
             if inp in out_dom:                                 # child node output
-                ins.append({"kind": "node", "src": inp, "centers": out_dom[inp]})
+                ins.append({"kind": "node", "src": inp,
+                            "centers": _domain_centers(out_dom[inp], k)})
             elif inp in frame.columns:                         # sensor / age
                 x = frame[inp].to_numpy(float)
                 mu, sd = float(x.mean()), float(x.std()) or 1.0
                 ins.append({"kind": "col", "src": inp, "mu": mu, "sd": sd,
-                            "centers": _centers((x - mu) / sd, n_terms)})
+                            "centers": _centers((x - mu) / sd, k)})
         if not ins:
             continue
         n_rules = int(np.prod([len(i["centers"]) for i in ins]))
-        # output domain: theta quantiles for supervised leaves, else [0,1]
-        out_dom[name] = (_centers(frame[tgt].to_numpy(float), n_terms)
-                         if tgt is not None else np.linspace(0, 1, n_terms))
+        # output domain for this node's parents: theta data (any resolution) or [0,1]
+        out_dom[name] = (("theta", frame[tgt].to_numpy(float))
+                         if tgt is not None else ("unit", None))
         meta.append({"name": name, "inputs": ins, "n_rules": n_rules,
                      "target": tgt, "root": name == "RUL"})
     return meta
@@ -145,8 +180,13 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
             a, b = 0.0, rul_hi
         elif m["target"] is not None:
             y = frame[m["target"]].to_numpy(float)
-            span = (y.max() - y.min()) or 1.0
-            a, b = y.min() - cons_pad * span, y.max() + cons_pad * span
+            span = float(y.max() - y.min())
+            if span <= 1e-9:                 # (near-)constant target: pin tightly
+                v = float(y.mean())          # -> the leaf predicts ~this constant
+                eps = max(1e-6, abs(v) * 1e-3)
+                a, b = v - eps, v + eps
+            else:
+                a, b = y.min() - cons_pad * span, y.max() + cons_pad * span
         else:
             a, b = 0.0, 1.0
         lo += [a] * m["n_rules"]
@@ -196,7 +236,7 @@ def _tournament(fit, rng):
     return idx[np.argmin(fit[idx])]
 
 
-def genetic_optimize(loss, lo, hi, pop=200, gens=120, seed=1, x0=None,
+def genetic_optimize(loss, lo, hi, pop=80, gens=120, seed=0, x0=None,
                      verbose=True, label=""):
     """Tournament selection + BLX-alpha crossover + Gaussian mutation, with
     elitism and a slowly cooling mutation step. Returns (best, history)."""
@@ -215,7 +255,7 @@ def genetic_optimize(loss, lo, hi, pop=200, gens=120, seed=1, x0=None,
             lo_c = np.minimum(pa, pb) - 0.3 * np.abs(pa - pb)
             hi_c = np.maximum(pa, pb) + 0.3 * np.abs(pa - pb)
             child = rng.uniform(lo_c, hi_c)
-            mask = rng.random(n) < 0.35
+            mask = rng.random(n) < 0.2
             child[mask] += rng.normal(0, 1, mask.sum()) * sigma * span[mask]
             newP.append(np.clip(child, lo, hi))
         P = np.array(newP)
@@ -223,7 +263,7 @@ def genetic_optimize(loss, lo, hi, pop=200, gens=120, seed=1, x0=None,
         if fit.min() < best_fit:
             best_fit, best = fit.min(), P[fit.argmin()].copy()
         history.append(best_fit)
-        sigma = max(0.1, sigma * 0.97)
+        sigma = max(0.05, sigma * 0.97)
         if verbose and (t % 10 == 0 or t == gens - 1):
             print(f"  [{label}] gen {t + 1:3d}/{gens}  best={best_fit:.4f}  sigma={sigma:.3f}")
     return best, history
@@ -259,21 +299,42 @@ def apply_baselines(frame, coefs, conds):
     return f
 
 
+def smooth_inputs(frame, cols, span):
+    """EWMA-smooth `cols` along cycles WITHIN each unit (span<=1 = no-op).
+
+    The FIS is memoryless: it maps one cycle's cruise-mean sensors to theta_hat
+    with no temporal context, so per-cycle sensor noise passes straight into the
+    prediction. Smoothing the inputs here (identically at fit and predict time)
+    is the direct cure for the cycle-to-cycle jitter in theta_hat / RUL_hat."""
+    if not span or span <= 1:
+        return frame
+    order = frame.index
+    f = frame.sort_values(["unit", "cycle"]).copy()
+    for c in cols:
+        if c in f.columns:
+            f[c] = f.groupby("unit")[c].transform(
+                lambda s: s.ewm(span=span, min_periods=1).mean())
+    return f.loc[order]
+
+
 # ==========================================================================
 # 6. Fit / predict
 # ==========================================================================
 
 def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residualize=True,
-            rul_cap=None, theta_weight=1.0, seed=0, verbose=True):
+            smooth_span=0, rul_cap=None, theta_weight=1.0, seed=0, verbose=True):
     """Train the tree end-to-end on a hybrid loss:
         loss = NASA_score(RUL)  +  theta_weight * mean_leaf( RMSE(theta)/range ).
-    theta_weight=0 recovers pure RUL training. Returns a plain-dict model."""
+    theta_weight=0 recovers pure RUL training. smooth_span>1 applies EWMA
+    denoising to the sensor inputs per unit (0 = off; ~5-10 tames theta jitter).
+    Returns a plain-dict model."""
     frame = frame.reset_index(drop=True)
     conds = [c for c in CONDITIONS if c in frame.columns]
     baselines = None
     if residualize and len(conds) >= 2:
         baselines = fit_baselines(frame, _leaf_sensors(tree), conds)
         frame = apply_baselines(frame, baselines, conds)
+    frame = smooth_inputs(frame, _leaf_sensors(tree), smooth_span)
 
     meta = build_tree(frame, tree, n_terms)
     y = frame["RUL"].to_numpy(float)
@@ -304,7 +365,7 @@ def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residualize=True,
                                        verbose=verbose, label="GFT")
     return {"tree": tree, "meta": meta, "genome": genome, "history": history,
             "baselines": baselines, "conds": conds, "rul_cap": rul_cap,
-            "theta_weight": theta_weight}
+            "theta_weight": theta_weight, "smooth_span": smooth_span}
 
 
 def predict_gft(frame, model):
@@ -313,6 +374,8 @@ def predict_gft(frame, model):
     frame = frame.reset_index(drop=True)
     if model["baselines"] is not None:
         frame = apply_baselines(frame, model["baselines"], model["conds"])
+    frame = smooth_inputs(frame, _leaf_sensors(model["tree"]),
+                          model.get("smooth_span", 0))
     vals = predict_tree(frame, model["meta"], model["genome"])
     out = frame[["unit", "cycle"]].copy()
     for m in model["meta"]:
@@ -362,8 +425,10 @@ def _synthetic_frame(units=6, cycles=60, seed=0):
             rows.append({
                 "unit": u, "cycle": k, "age": float(k),
                 "alt": alt, "Mach": mach, "TRA": tra, "T2": t2,
-                "T48": sens(9.0), "P40": sens(2.0), "P45": sens(1.5),   # HPT
-                "T50": sens(7.0), "P50": sens(1.5), "epr": sens(1.0),   # LPT
+                "T48": sens(9.0), "P40": sens(2.0), "Nc": sens(1.5),      # HPT
+                "Ps30": sens(1.3),
+                "T50": sens(7.0), "P50": sens(1.5), "Nf": sens(1.0),      # LPT
+                "P24": sens(1.2),
                 "HPT_eff_mod": -d,        "HPT_flow_mod": -0.6 * d,
                 "LPT_eff_mod": -0.8 * d,  "LPT_flow_mod": -0.5 * d,
                 "since_onset": float(max(0, k - onset)),

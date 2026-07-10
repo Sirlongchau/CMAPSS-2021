@@ -25,12 +25,11 @@ except ImportError:  # pragma: no cover
 
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 
-# Sensors the tree may use (from X_s and X_v). Extend freely; missing ones are
-# just skipped. theta names are kept too (handy for diagnostics/plots).
-SENSORS = ["Nf", "Nc", "Wf", "T24", "T30", "T48", "T50",
-           "P15", "P21", "P24", "Ps30", "P30", "P40", "P45", "P50",
-           "W22", "W25", "W48", "W50", "epr", "NRf", "NRc",
-           "SmFan", "SmLPC", "SmHPC"]
+# REAL measured sensors only (C-MAPSS Table 2, X_s). Virtual sensors (Table 3,
+# X_v: T40 P30 P45 W21 W22 W25 W31 W32 W48 W50 epr Sm* NR* PCNfR phi) are
+# deliberately NOT loaded, so nothing downstream can use a virtual sensor.
+SENSORS = ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
+           "P15", "P21", "P24", "Ps30", "P40", "P50"]
 THETA = ["HPT_eff_mod", "HPT_flow_mod", "LPT_eff_mod", "LPT_flow_mod"]
 
 
@@ -51,8 +50,9 @@ def load_raw(path, split="dev") -> pd.DataFrame:
 
     with h5py.File(path, "r") as h:
         parts, cols = [], []
-        for grp, var in [("A", "A_var"), ("W", "W_var"), ("X_s", "X_s_var"),
-                         ("X_v", "X_v_var"), ("T", "T_var")]:
+        # X_v (virtual sensors) is intentionally NOT loaded -- real sensors only.
+        for grp, var in [("A", "A_var"), ("W", "W_var"),
+                         ("X_s", "X_s_var"), ("T", "T_var")]:
             data = get(h, f"{grp}_{split}")
             if data is not None:
                 parts.append(data)
