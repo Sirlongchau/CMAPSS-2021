@@ -1,0 +1,7 @@
+ocp_env/
+.venv/
+.vscode/
+__pycache__/
+*.py[cod]
+*$py.class
+*.h5
