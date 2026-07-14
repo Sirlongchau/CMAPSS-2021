@@ -1,264 +1,335 @@
-"""
-gft_analysis.py
-===============
+r"""
+gft_analysis.py -- read predictions from predict_gft() and draw diagnostics.
 
-Turn the raw (unit, cycle) prediction table from predict_gft() into readable
-REAL-vs-PREDICTED plots, in the visual style of the NASA/Kaggle N-CMAPSS
-notebook (one colour per engine unit, traces vs flight cycle).
+    print_metrics       : per-unit RUL RMSE (+ NASA score).
+    plot_theta          : predicted vs actual theta -- ONE FIGURE PER modifier.
+    plot_nodes          : latent spool health (*_h) vs cycle.
+    plot_rul            : RUL vs cycle, per unit, real vs predicted.
+    plot_scatter        : predicted vs true RUL with the y=x line.
+    plot_fitness        : GA best-loss per generation.
+    plot_surfaces       : learned control surface -- ONE FIGURE PER sub-FIS.
+    analyze             : do all of the above in one call.
+    save_figures        : write every figure to a folder (created if needed,
+                          existing .png replaced).
 
-It joins:
-    feats  -> ground truth   (theta__<comp>__<mod>, target__-__RUL)
-    pred   -> predictions     (theta__<comp>__<mod>__hat, RUL_hat)
-on (id__-__unit, id__-__cycle), then draws:
-
-    1. plot_theta   : theta modifiers vs cycle, per unit, real (solid line)
-                      vs predicted (dashed) -- like the notebook's theta plots.
-    2. plot_rul     : RUL vs cycle, per unit, real vs predicted.
-    3. plot_scatter : predicted vs true RUL, y=x diagonal (prognostics view).
-    4. per_unit_metrics / print_metrics : numbers, so print() is useful too.
-
-Usage
------
-    from ncmapss_gft_features import extract_features, Config
-    from gft_ncmapss import fit_gft, predict_gft, GFTConfig
-    from gft_analysis import analyze
-
-    feats, _ = extract_features("N-CMAPSS_DS02.h5", Config(split="dev"))
-    model = fit_gft(feats, GFTConfig())
-    pred  = predict_gft(feats, model)
-
-    analyze(feats, pred, show=True)          # or save_prefix="ds02_"
+Each node is {name, inputs, n_rules, target, root}; a genome slice per node
+holds its singletons. Surfaces are evaluated with the same maths as gft._fis,
+with sensor axes shown in raw units and theta/[0,1] node axes in their own.
 """
 
 from __future__ import annotations
-
-from typing import List, Optional
+import os
+import glob
+import itertools
 
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
-KEYS = ["id__-__unit", "id__-__cycle"]
+import gft
 
-# default degrading modifiers (match the notebook's parallel-coordinates pick)
-DEFAULT_MODS = ["theta__HPT__eff", "theta__LPT__eff", "theta__LPT__flow"]
-
-# 20-colour per-unit palette, same idea as the notebook's color_dic_unit
-_PALETTE = [f"C{i}" for i in range(20)]
+_PAL = [f"C{i}" for i in range(20)]
 
 
-def _color(unit) -> str:
-    return _PALETTE[(int(unit) - 1) % len(_PALETTE)]
+def _color(u):
+    return _PAL[(int(u) - 1) % len(_PAL)]
 
 
-def _grid(n: int):
-    """Rows/cols for a compact subplot grid (<=4 columns), notebook-style."""
-    cols = min(int(np.floor(n ** 0.5)), 4) or 1
-    rows = int(np.ceil(n / cols))
-    return rows, cols
+def _grid(n):
+    cols = min(int(np.floor(n ** 0.5)), 3) or 1
+    return int(np.ceil(n / cols)), cols
 
 
-def merge_truth_pred(feats: pd.DataFrame, pred: pd.DataFrame) -> pd.DataFrame:
-    """Inner-join truth and predictions on (unit, cycle)."""
-    keep = KEYS + [c for c in feats.columns
-                   if c.startswith("theta__") or c == "target__-__RUL"]
-    m = feats[keep].merge(pred, on=KEYS, how="inner")
-    return m.sort_values(KEYS).reset_index(drop=True)
+def _slice(meta, genome, node):
+    k = 0
+    for m in meta:
+        if m is node:
+            return genome[k:k + m["n_rules"]]
+        k += m["n_rules"]
+    raise KeyError(node["name"])
 
 
-# ==========================================================================
-# Plots
-# ==========================================================================
-
-def plot_theta(feats: pd.DataFrame, pred: pd.DataFrame,
-               mods: Optional[List[str]] = None, labelsize: int = 15,
-               size: int = 12, save: Optional[str] = None, show: bool = True):
-    """
-    theta vs cycle, one subplot per modifier, one colour per unit.
-    Solid line = real theta, dashed line = predicted theta_hat.
-    """
-    m = merge_truth_pred(feats, pred)
-    mods = mods or [c for c in (mods or DEFAULT_MODS) if c in feats.columns] \
-        or [c for c in feats.columns if c.startswith("theta__")]
-
-    rows, cols = _grid(len(mods))
-    fig = plt.figure(figsize=(size, max(size, rows * 3)))
-    gs = gridspec.GridSpec(rows, cols)
-
-    for n, mod in enumerate(mods):
-        ax = fig.add_subplot(gs[n])
-        for u in np.unique(m["id__-__unit"]):
-            d = m[m["id__-__unit"] == u].sort_values("id__-__cycle")
-            x = d["id__-__cycle"].to_numpy()
-            ax.plot(x, d[mod], "-", color=_color(u), alpha=0.9, lw=1.8)
-            if mod + "__hat" in d.columns:
-                ax.plot(x, d[mod + "__hat"], "--", color=_color(u),
-                        alpha=0.9, lw=1.4)
-        ax.set_xlabel("Time [cycle]", fontsize=labelsize)
-        ax.set_ylabel(mod.replace("theta__", "θ ").replace("__", " ") + " [-]",
-                      fontsize=labelsize)
-        ax.tick_params(labelsize=labelsize - 3)
-    # one shared legend explaining the linestyle code
-    fig.legend([plt.Line2D([0], [0], color="k", ls="-"),
-                plt.Line2D([0], [0], color="k", ls="--")],
-               ["real θ", "predicted θ̂"], loc="upper right", fontsize=labelsize)
-    fig.suptitle("Health parameters: real vs predicted", fontsize=labelsize + 2)
-    plt.tight_layout(rect=[0, 0, 1, 0.97])
-    _finish(fig, save, "theta", show)
-
-
-def plot_rul(feats: pd.DataFrame, pred: pd.DataFrame, labelsize: int = 15,
-             size: int = 12, save: Optional[str] = None, show: bool = True):
-    """RUL vs cycle, one subplot per unit: real (solid) vs predicted (markers)."""
-    m = merge_truth_pred(feats, pred)
-    units = np.unique(m["id__-__unit"])
-    rows, cols = _grid(len(units))
-    fig = plt.figure(figsize=(size, max(size, rows * 2.6)))
-    gs = gridspec.GridSpec(rows, cols)
-
-    for n, u in enumerate(units):
-        ax = fig.add_subplot(gs[n])
-        d = m[m["id__-__unit"] == u].sort_values("id__-__cycle")
-        x = d["id__-__cycle"].to_numpy()
-        ax.plot(x, d["target__-__RUL"], "-", color=_color(u), lw=2, label="real")
-        ax.plot(x, d["RUL_hat"], "o", color=_color(u), mfc="none",
-                ms=4, alpha=0.8, label="pred")
-        ax.set_title(f"Unit {int(u)}", fontsize=labelsize - 2)
-        ax.set_xlabel("Time [cycle]", fontsize=labelsize - 3)
-        ax.set_ylabel("RUL [cycle]", fontsize=labelsize - 3)
-        ax.tick_params(labelsize=labelsize - 4)
-        if n == 0:
-            ax.legend(fontsize=labelsize - 4)
-    fig.suptitle("RUL: real vs predicted", fontsize=labelsize + 2)
-    plt.tight_layout(rect=[0, 0, 1, 0.97])
-    _finish(fig, save, "rul", show)
-
-
-def plot_scatter(feats: pd.DataFrame, pred: pd.DataFrame, labelsize: int = 15,
-                 size: int = 7, save: Optional[str] = None, show: bool = True):
-    """Predicted vs true RUL, coloured per unit, with the y=x reference line."""
-    m = merge_truth_pred(feats, pred)
-    fig, ax = plt.subplots(figsize=(size, size))
-    for u in np.unique(m["id__-__unit"]):
-        d = m[m["id__-__unit"] == u]
-        ax.plot(d["target__-__RUL"], d["RUL_hat"], "o", color=_color(u),
-                mfc="none", ms=4, alpha=0.6, label=f"Unit {int(u)}")
-    lim = [0, float(m["target__-__RUL"].max()) * 1.05]
-    ax.plot(lim, lim, "k--", lw=1)
-    ax.set_xlim(lim); ax.set_ylim(lim)
-    ax.set_xlabel("True RUL [cycle]", fontsize=labelsize)
-    ax.set_ylabel("Predicted RUL [cycle]", fontsize=labelsize)
-    ax.set_title(f"RUL parity  (RMSE = {_rmse(m['target__-__RUL'], m['RUL_hat']):.2f})",
-                 fontsize=labelsize)
-    ax.tick_params(labelsize=labelsize - 3)
-    ax.legend(fontsize=labelsize - 5, ncol=2)
-    plt.tight_layout()
-    _finish(fig, save, "scatter", show)
-
-
-# ==========================================================================
-# Metrics  (so print() is informative, not a wall of numbers)
-# ==========================================================================
-
-def plot_fitness(model: dict, labelsize: int = 15, size: int = 12,
-                 save: Optional[str] = None, show: bool = True):
-    """
-    GA training curves: best fitness (loss) per epoch, one panel per stage.
-    The two stages use different loss units (Stage 1 = theta RMSE, Stage 2 =
-    RUL RMSE in cycles), so they get separate axes.
-    """
-    panels = [("Stage 1  (θ RMSE)", model.get("history1")),
-              ("Stage 2  (RUL NASA score)", model.get("history2"))]
-    panels = [(t, h) for t, h in panels if h]
-    fig = plt.figure(figsize=(size, max(4, size * 0.35)))
-    gs = gridspec.GridSpec(1, len(panels))
-    for n, (title, hist) in enumerate(panels):
-        ax = fig.add_subplot(gs[n])
-        ep = np.arange(1, len(hist) + 1)
-        ax.plot(ep, hist, "-o", color=_PALETTE[n], ms=3, alpha=0.9)
-        ax.set_title(title, fontsize=labelsize)
-        ax.set_xlabel("Epoch (generation)", fontsize=labelsize - 2)
-        ax.set_ylabel("Best fitness (loss)", fontsize=labelsize - 2)
-        ax.tick_params(labelsize=labelsize - 4)
-        ax.grid(alpha=0.3)
-        # annotate the final value so the plateau is readable
-        ax.annotate(f"{hist[-1]:.4g}", xy=(ep[-1], hist[-1]),
-                    xytext=(-40, 12), textcoords="offset points",
-                    fontsize=labelsize - 4)
-    fig.suptitle("GA fitness evolution", fontsize=labelsize + 2)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-    _finish(fig, save, "fitness", show)
-
-
-def _rmse(a, b) -> float:
-    return float(np.sqrt(np.mean((np.asarray(a, float) - np.asarray(b, float)) ** 2)))
-
-
-def per_unit_metrics(feats: pd.DataFrame, pred: pd.DataFrame) -> pd.DataFrame:
-    """Per-unit RUL RMSE and mean theta RMSE across modifiers."""
-    m = merge_truth_pred(feats, pred)
-    theta_mods = [c for c in feats.columns if c.startswith("theta__")
-                  and c + "__hat" in pred.columns]
-    rows = []
-    for u in np.unique(m["id__-__unit"]):
-        d = m[m["id__-__unit"] == u]
-        th = np.mean([_rmse(d[c], d[c + "__hat"]) for c in theta_mods]) \
-            if theta_mods else np.nan
-        rows.append({"unit": int(u), "n_cycles": len(d),
-                     "theta_RMSE": round(th, 5),
-                     "RUL_RMSE": round(_rmse(d["target__-__RUL"], d["RUL_hat"]), 3)})
-    df = pd.DataFrame(rows)
-    df.loc["ALL"] = {"unit": "ALL", "n_cycles": len(m),
-                     "theta_RMSE": round(np.mean(df["theta_RMSE"]), 5),
-                     "RUL_RMSE": round(_rmse(m["target__-__RUL"], m["RUL_hat"]), 3)}
-    return df
-
-
-def print_metrics(feats: pd.DataFrame, pred: pd.DataFrame) -> pd.DataFrame:
-    df = per_unit_metrics(feats, pred)
-    print(df.to_string(index=False))
-    return df
-
-
-# ==========================================================================
-# Convenience + IO
-# ==========================================================================
-
-def _finish(fig, save: Optional[str], name: str, show: bool):
+def _finish(fig, save, name, show):
     if save:
-        path = f"{save}{name}.png"
-        fig.savefig(path, dpi=150, bbox_inches="tight")
-        print("saved:", path)
+        p = f"{save}{name}.png"
+        fig.savefig(p, dpi=150, bbox_inches="tight")
+        print("saved:", p)
     if show:
         plt.show()
     plt.close(fig)
 
 
-def analyze(feats: pd.DataFrame, pred: pd.DataFrame,
-            model: Optional[dict] = None, mods: Optional[List[str]] = None,
-            save_prefix: Optional[str] = None, show: bool = True):
-    """Print metrics and draw the figures in one call. Pass `model` to also
-    plot the GA fitness curves."""
+def _prepare_dir(folder, clear=True):
+    """Create `folder` if missing; wipe existing .png so a rerun replaces them.
+    Returns a filename prefix ('folder/') for _finish."""
+    os.makedirs(folder, exist_ok=True)
+    if clear:
+        for p in glob.glob(os.path.join(folder, "*.png")):
+            os.remove(p)
+    return os.path.join(folder, "")
+
+
+# ==========================================================================
+# metrics
+# ==========================================================================
+
+def print_metrics(feats, pred):
+    m = feats[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
+    rows = []
+    for u in np.unique(m["unit"]):
+        d = m[m["unit"] == u]
+        rows.append({"unit": int(u), "n": len(d),
+                     "RUL_RMSE": round(gft.rmse(d["RUL"], d["RUL_hat"]), 2),
+                     "NASA": round(gft.nasa_score(d["RUL"], d["RUL_hat"]), 3)})
+    df = pd.DataFrame(rows)
+    df.loc["ALL"] = {"unit": "ALL", "n": len(m),
+                     "RUL_RMSE": round(gft.rmse(m["RUL"], m["RUL_hat"]), 2),
+                     "NASA": round(gft.nasa_score(m["RUL"], m["RUL_hat"]), 3)}
+    print(df.to_string(index=False))
+    return df
+
+
+# ==========================================================================
+# theta: predicted vs actual, ONE FIGURE PER modifier
+# ==========================================================================
+
+def plot_theta(feats, pred, size=8, save=None, show=True):
+    """For every predicted theta (a '*_hat' column that matches a truth column
+    in `feats`) draw its own figure: real (solid) vs predicted (dashed),
+    one colour per unit."""
+    mods = [c[:-4] for c in pred.columns
+            if c.endswith("_hat") and c != "RUL_hat" and c[:-4] in feats.columns]
+    for mod in mods:
+        m = feats[["unit", "cycle", mod]].merge(
+            pred[["unit", "cycle", mod + "_hat"]], on=["unit", "cycle"])
+        fig, ax = plt.subplots(figsize=(size, size * 0.6))
+        for u in np.unique(m["unit"]):
+            d = m[m["unit"] == u].sort_values("cycle")
+            ax.plot(d["cycle"], d[mod], "-", color=_color(u), lw=1.8,
+                    label=f"Unit {int(u)}")
+            ax.plot(d["cycle"], d[mod + "_hat"], "--", color=_color(u), lw=1.4)
+        ax.set_xlabel("cycle"); ax.set_ylabel(mod)
+        ax.set_title(f"{mod}: real (—) vs predicted (- -)   "
+                     f"RMSE={gft.rmse(m[mod], m[mod + '_hat']):.4f}")
+        ax.legend(fontsize=8, ncol=2)
+        plt.tight_layout()
+        _finish(fig, save, f"theta_{mod}", show)
+
+
+def plot_nodes(pred, size=10, save=None, show=True):
+    """Latent spool health (*_h) vs cycle, one subplot per node, per unit."""
+    nodes = [c for c in pred.columns if c.endswith("_h")]
+    if not nodes:
+        return
+    rows, cols = _grid(len(nodes))
+    fig = plt.figure(figsize=(size, max(size * 0.4, rows * 3)))
+    gs = gridspec.GridSpec(rows, cols)
+    for n, col in enumerate(nodes):
+        ax = fig.add_subplot(gs[n])
+        for u in np.unique(pred["unit"]):
+            d = pred[pred["unit"] == u].sort_values("cycle")
+            ax.plot(d["cycle"], d[col], "-", color=_color(u), lw=1.6, alpha=0.9)
+        ax.set_ylim(-0.02, 1.02)
+        ax.set_xlabel("cycle"); ax.set_ylabel(col); ax.set_title(col)
+    fig.suptitle("Latent spool health vs cycle")
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    _finish(fig, save, "nodes", show)
+
+
+# ==========================================================================
+# RUL plots
+# ==========================================================================
+
+def plot_rul(feats, pred, size=12, save=None, show=True):
+    m = feats[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
+    units = np.unique(m["unit"])
+    rows, cols = _grid(len(units))
+    fig = plt.figure(figsize=(size, max(size, rows * 2.6)))
+    gs = gridspec.GridSpec(rows, cols)
+    for n, u in enumerate(units):
+        ax = fig.add_subplot(gs[n])
+        d = m[m["unit"] == u].sort_values("cycle")
+        ax.plot(d["cycle"], d["RUL"], "-", color=_color(u), lw=2, label="real")
+        ax.plot(d["cycle"], d["RUL_hat"], "o", color=_color(u), mfc="none",
+                ms=4, alpha=0.8, label="pred")
+        ax.set_title(f"Unit {int(u)}"); ax.set_xlabel("cycle"); ax.set_ylabel("RUL")
+        if n == 0:
+            ax.legend()
+    fig.suptitle("RUL: real vs predicted")
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    _finish(fig, save, "rul", show)
+
+
+def plot_scatter(feats, pred, size=7, save=None, show=True):
+    m = feats[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
+    fig, ax = plt.subplots(figsize=(size, size))
+    for u in np.unique(m["unit"]):
+        d = m[m["unit"] == u]
+        ax.plot(d["RUL"], d["RUL_hat"], "o", color=_color(u), mfc="none",
+                ms=4, alpha=0.6, label=f"Unit {int(u)}")
+    lim = [0, float(m["RUL"].max()) * 1.05]
+    ax.plot(lim, lim, "k--", lw=1); ax.set_xlim(lim); ax.set_ylim(lim)
+    ax.set_xlabel("True RUL"); ax.set_ylabel("Predicted RUL")
+    ax.set_title(f"RUL parity (RMSE={gft.rmse(m['RUL'], m['RUL_hat']):.2f})")
+    ax.legend(ncol=2, fontsize=8)
+    plt.tight_layout()
+    _finish(fig, save, "scatter", show)
+
+
+def plot_fitness(model, size=7, save=None, show=True):
+    h = model["history"]
+    fig, ax = plt.subplots(figsize=(size, size * 0.6))
+    ax.plot(np.arange(1, len(h) + 1), h, "-o", ms=3)
+    ax.set_xlabel("generation"); ax.set_ylabel("best loss (NASA + λ·θ)")
+    ax.set_title("GA fitness"); ax.grid(alpha=0.3)
+    ax.annotate(f"{h[-1]:.4g}", xy=(len(h), h[-1]),
+                xytext=(-40, 12), textcoords="offset points")
+    plt.tight_layout()
+    _finish(fig, save, "fitness", show)
+
+
+# ==========================================================================
+# control surfaces: ONE FIGURE PER sub-FIS
+# ==========================================================================
+
+def _disp_range(inp):
+    """Axis [lo, hi] in display units (raw for sensors, native for nodes)."""
+    c = inp["centers"]
+    if inp["kind"] == "col":
+        return inp["mu"] + c.min() * inp["sd"], inp["mu"] + c.max() * inp["sd"]
+    return float(c.min()), float(c.max())
+
+
+def _eval_disp(node, Xdisp, singletons):
+    """Evaluate a node's FIS at display-unit points Xdisp (n, d)."""
+    cols, centers = [], []
+    for k, inp in enumerate(node["inputs"]):
+        x = Xdisp[:, k]
+        if inp["kind"] == "col":
+            x = (x - inp["mu"]) / inp["sd"]
+        cols.append(x); centers.append(inp["centers"])
+    return gft._fis(cols, centers, singletons)
+
+
+def _surface(node, singletons, ix, iy, res=45):
+    d = len(node["inputs"])
+    xlo, xhi = _disp_range(node["inputs"][ix])
+    ylo, yhi = _disp_range(node["inputs"][iy])
+    XX, YY = np.meshgrid(np.linspace(xlo, xhi, res), np.linspace(ylo, yhi, res))
+    P = np.empty((XX.size, d))
+    for k in range(d):
+        if k == ix:
+            P[:, k] = XX.ravel()
+        elif k == iy:
+            P[:, k] = YY.ravel()
+        else:
+            lo, hi = _disp_range(node["inputs"][k])
+            P[:, k] = 0.5 * (lo + hi)
+    return XX, YY, _eval_disp(node, P, singletons).reshape(XX.shape)
+
+
+def _out_label(node):
+    return node["target"] or ("RUL" if node["root"] else node["name"])
+
+
+def plot_surface_node(node, singletons, kind="surface", res=45, size=5,
+                      save=None, show=True):
+    """One figure for a single sub-FIS: a curve (1 input), or one panel per
+    input-pair (2-3 inputs), the remaining input frozen at its centre."""
+    d = len(node["inputs"])
+    pairs = list(itertools.combinations(range(d), 2))
+    olabel = _out_label(node)
+
+    if d == 1:                                            # 1-input curve
+        fig, ax = plt.subplots(figsize=(size, size * 0.8))
+        lo, hi = _disp_range(node["inputs"][0])
+        xs = np.linspace(lo, hi, res)
+        ys = _eval_disp(node, xs.reshape(-1, 1), singletons)
+        ax.plot(xs, ys, lw=2)
+        ax.set_xlabel(node["inputs"][0]["src"]); ax.set_ylabel(olabel)
+        ax.set_title(node["name"])
+        plt.tight_layout()
+        _finish(fig, save, f"surface_{node['name']}", show)
+        return
+
+    ncols = len(pairs)
+    fig = plt.figure(figsize=(size * ncols, size))
+    for j, (ix, iy) in enumerate(pairs):
+        xlab = node["inputs"][ix]["src"]
+        ylab = node["inputs"][iy]["src"]
+        XX, YY, ZZ = _surface(node, singletons, ix, iy, res)
+        if kind == "contour":
+            ax = fig.add_subplot(1, ncols, j + 1)
+            cf = ax.contourf(XX, YY, ZZ, levels=18, cmap="viridis")
+            for cx in _disp_axis_centers(node["inputs"][ix]):
+                ax.axvline(cx, color="w", lw=0.6, alpha=0.5)
+            for cy in _disp_axis_centers(node["inputs"][iy]):
+                ax.axhline(cy, color="w", lw=0.6, alpha=0.5)
+            fig.colorbar(cf, ax=ax, fraction=0.046, pad=0.04)
+        else:
+            ax = fig.add_subplot(1, ncols, j + 1, projection="3d")
+            ax.plot_surface(XX, YY, ZZ, cmap="viridis", linewidth=0, alpha=0.95)
+            ax.set_zlabel(olabel); ax.view_init(elev=28, azim=-125)
+        ax.set_xlabel(xlab); ax.set_ylabel(ylab)
+        ax.set_title(f"{xlab} × {ylab}")
+    fig.suptitle(f"{node['name']}  →  {olabel}   [{kind}]")
+    if kind == "contour":
+        plt.tight_layout(rect=[0, 0, 1, 0.94])
+    else:
+        fig.subplots_adjust(top=0.88, bottom=0.08, wspace=0.15)
+    _finish(fig, save, f"surface_{node['name']}", show)
+
+
+def _disp_axis_centers(inp):
+    c = inp["centers"]
+    if inp["kind"] == "col":
+        return inp["mu"] + c * inp["sd"]
+    return c
+
+
+def plot_surfaces(model, kind="surface", res=45, size=5, save=None, show=True):
+    """Draw every sub-FIS as its OWN figure (surface_<node>.png)."""
+    for node in model["meta"]:
+        sing = _slice(model["meta"], model["genome"], node)
+        plot_surface_node(node, sing, kind=kind, res=res, size=size,
+                          save=save, show=show)
+
+
+# ==========================================================================
+# entry points
+# ==========================================================================
+
+def analyze(feats, pred, model=None, surfaces=False, surface_kind="surface",
+            savedir=None, show=True):
+    """Print metrics and draw every figure. If `savedir` is given, all figures
+    are written there (folder created if needed, existing .png replaced)."""
+    save = _prepare_dir(savedir) if savedir else None
     print_metrics(feats, pred)
+    plot_theta(feats, pred, save=save, show=show)     # one fig per theta
+    plot_nodes(pred, save=save, show=show)
+    plot_rul(feats, pred, save=save, show=show)
+    plot_scatter(feats, pred, save=save, show=show)
     if model is not None:
-        plot_fitness(model, save=save_prefix, show=show)
-    plot_theta(feats, pred, mods=mods, save=save_prefix, show=show)
-    plot_rul(feats, pred, save=save_prefix, show=show)
-    plot_scatter(feats, pred, save=save_prefix, show=show)
+        plot_fitness(model, save=save, show=show)
+        if surfaces:
+            plot_surfaces(model, kind=surface_kind, save=save, show=show)
 
 
-# ==========================================================================
-# Self-test: reuse the GFT synthetic pipeline, save example figures
-# ==========================================================================
+def save_figures(feats, pred, model=None, folder="figures",
+                 surfaces=True, surface_kind="contour"):
+    """Save every figure into `folder` (no on-screen display)."""
+    analyze(feats, pred, model=model, surfaces=surfaces,
+            surface_kind=surface_kind, savedir=folder, show=False)
+
 
 if __name__ == "__main__":
-    matplotlib.use("Agg")  # headless for the self-test
-    from gft_ncmapss import _synthetic_frame, fit_gft, predict_gft, GFTConfig
-
-    df = _synthetic_frame(units=6, cycles=60, seed=1)
-    model = fit_gft(df, GFTConfig(n_terms=3, pop=40, gens=40))
-    pred = predict_gft(df, model)
-
-    analyze(df, pred, model=model, save_prefix="/home/claude/_demo_", show=False)
+    import matplotlib
+    matplotlib.use("Agg")
+    df = gft._synthetic_frame(units=6, cycles=60, seed=1)
+    model = gft.fit_gft(df, gens=60, pop=60, verbose=False)
+    pred = gft.predict_gft(df, model)
+    save_figures(df, pred, model=model, folder="/home/claude/figures",
+                 surface_kind="contour")
+    print("analysis self-test OK")
