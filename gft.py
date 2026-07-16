@@ -6,26 +6,26 @@ A REAL tree of small zero-order Sugeno sub-FIS (each 1-3 inputs -> 1 output),
 trained by a genetic algorithm on a HYBRID loss:
 
   * LEAF FIS predict the physical health parameters theta directly
-    ([sensors] -> theta_hat), supervised by a theta RMSE term -- so every leaf
-    output is comparable to a real modifier and can be plotted vs the truth.
+    ([sensors] -> theta_hat), supervised by a theta RMSE term.
   * The upper (spool + root) FIS have NO target of their own; they are pulled
     only by the RUL term (NASA score). The GA optimises the whole tree at once.
-
-Topology follows the engine (C-MAPSS, Fig. 1): HP shaft = HPC+HPT, LP shaft =
-Fan+LPC+LPT. In DS02 only HPT and LPT degrade, so the default tree supervises
-the HPT/LPT modifiers and aggregates them per shaft:
 
     sensors --> [hpt_eff][hpt_flow]      [lpt_eff][lpt_flow]     (leaf -> theta)
                      \       /                \       /
                      [ hp ] (HP damage)       [ lp ] (LP damage)  (spool, in[0,1])
                           \                      /
-                          [ RUL(hp, lp, age) ]                    (root -> RUL)
+                            [ RUL(hp, lp) ]                       (root -> RUL)
 
 Each FIS: Ruspini partition (triangles summing to 1) + product t-norm on a full
 rule grid -> firing weights sum to 1, so the Sugeno output is a weighted average
-of per-rule singletons. Antecedent centres are FIXED from data (sensors: data
-quantiles in z-space; theta-node inputs: quantiles of that theta; [0,1] nodes:
-0..1). The GA only tunes the singletons. Edit TREE to grow/prune.
+of per-rule singletons.
+
+THE GENOME HOLDS BOTH HALVES OF THE FUZZY SYSTEM:
+  * the ANTECEDENTS -- where the membership functions sit (section 1b), and
+  * the CONSEQUENTS -- one singleton per rule.
+
+Score models with evaluate() / loo_cv() on HELD-OUT units, against the baselines
+in baselines() (section 7). Edit TREE to grow/prune.
 """
 
 from __future__ import annotations
@@ -63,15 +63,58 @@ def _memberships(x, c):
     return M
 
 
-def _fis(cols, centers, singletons):
+def _fis(cols, centers_, singletons):
     """One FIS: product firing over the full grid, then weighted-average."""
-    F = _memberships(cols[0], centers[0])
-    for d in range(1, len(centers)):
-        Md = _memberships(cols[d], centers[d])
+    F = _memberships(cols[0], centers_[0])
+    for d in range(1, len(centers_)):
+        Md = _memberships(cols[d], centers_[d])
         F = (F[:, :, None] * Md[:, None, :]).reshape(F.shape[0], -1)
     denom = F.sum(1)
     denom[denom == 0] = 1.0
     return (F @ singletons) / denom
+
+
+# ==========================================================================
+# 1b. Learnable membership functions  (the antecedent half of the GFS)
+# ==========================================================================
+# Under a Ruspini partition the fuzzy sets of a variable ARE its ordered centres
+# c_1 < ... < c_k -- there is nothing else to tune. So we evolve them. But a GA
+# mutating positions directly keeps producing out-of-order (invalid) partitions.
+#
+# Fix: evolve the GAPS, not the positions. k+1 positive genes, normalised to sum
+# to 1, give k breakpoints inside the padded domain [dlo, dhi]:
+#
+#       c_i = dlo + (dhi - dlo) * (w_1 + ... + w_i),      w = g / sum(g)
+#
+# Gaps are positive, so the centres come out ORDERED, always. No repair operator,
+# no penalty term, no invalid genome possible. The partition stays Ruspini, so
+# "firing strengths sum to 1 -> Sugeno output is a dot product" still holds.
+#
+# WHY IT MATTERS: theta is ~0 for most of a unit's life, so its data QUANTILES
+# drop two of three centres on top of each other at zero and squeeze the whole
+# degraded regime onto one triangle's ramp. That is what flattens hp_h after
+# cycle ~32. A learnable centre can just move to where the signal actually is.
+
+GAP_MIN, MF_PAD = 0.02, 0.05     # min gap gene; domain padding (frac of span)
+
+
+def _domain(lo, hi):
+    s = (float(hi) - float(lo)) or 1.0
+    return float(lo) - MF_PAD * s, float(hi) + MF_PAD * s
+
+
+def _decode(inp, genes):
+    """k ordered centres from k+1 positive gap genes."""
+    w = np.maximum(genes, 1e-9)
+    return inp["dlo"] + (inp["dhi"] - inp["dlo"]) * np.cumsum(w / w.sum())[:inp["k"]]
+
+
+def _encode(inp, c):
+    """Inverse of _decode. Used to SEED the GA at the old quantile placement, so
+    learning the MFs can never start off worse than not learning them."""
+    z = np.clip((np.asarray(c, float) - inp["dlo"]) / (inp["dhi"] - inp["dlo"]),
+                1e-3, 1 - 1e-3)
+    return np.clip(np.diff(np.concatenate(([0.0], z, [1.0]))), GAP_MIN, 1.0)
 
 
 # ==========================================================================
@@ -82,30 +125,24 @@ def _fis(cols, centers, singletons):
 # with target None is latent (spool damage in [0,1], or the RUL root).
 # Children must precede parents. Max 3 inputs per node. Root must be named "RUL".
 #
-# MEMBERSHIP FUNCTIONS PER INPUT: an input is either a bare name (uses the
-# default n_terms passed to fit_gft/build_tree) or a ("name", k) pair giving
-# that input its own k fuzzy sets. Mix freely, e.g.
-#     ("hpt_eff", [("T48", 5), ("P40", 3), "P45"], "HPT_eff_mod")
-# gives T48 five sets, P40 three, P45 the default. A node's rule count is the
-# PRODUCT of its inputs' set counts, so (5, 3, 3) -> 45 rules.
+# Per-input membership counts: a bare name uses the default n_terms; ("name", k)
+# gives that input k fuzzy sets. A node's rule count is the PRODUCT of its
+# inputs' set counts, so (5, 3, 3) -> 45 rules.
 
-TREE = [
+_LEAVES = [
     ("hpt_eff",  ["T48", "P40", "Nc"],   "HPT_eff_mod"),   # HP: eff  -> speed
     ("hpt_flow", ["T48", "P40", "Ps30"], "HPT_flow_mod"),  # HP: flow -> pressure
     ("lpt_eff",  ["T50", "P50", "Nf"],   "LPT_eff_mod"),   # LP: eff  -> speed
     ("lpt_flow", ["T50", "P50", "P24"],  "LPT_flow_mod"),  # LP: flow -> pressure
     ("hp",  ["hpt_eff", "hpt_flow"], None),      # global HP-shaft damage
     ("lp",  ["lpt_eff", "lpt_flow"], None),      # global LP-shaft damage
-    ("RUL", ["hp", "lp", "age"], None),          # prognosis (root)
 ]
-# Inputs are REAL measured sensors only (C-MAPSS Table 2, X_s):
-#   Wf Nf Nc T24 T30 T48 T50 P15 P21 P24 Ps30 P40 P50.
-# Virtual sensors (Table 3, X_v: T40 P30 P45 W* epr Sm* NR* PCNfR phi) are NOT
-# used. Symmetric by construction: each shaft (HP=HPT, LP=Fan/LPC/LPT) gets an
-# eff + a flow leaf feeding a global shaft-damage node. Every degrading modifier
-# is supervised; in DS02 HPT_flow is ~constant, so its leaf simply predicts that
-# constant (the tight consequent box keeps it noise-free) -- and the same tree
-# still works on failure modes where HPT flow actually moves.
+
+# DEFAULT: the root sees ONLY the two shaft-damage nodes. `age` is ABLATED -- with
+# a few units of similar lifetime it is a shortcut, RUL ~= mean_EOL - age is
+# learnable without touching a single sensor, and the GA will take that deal.
+TREE     = _LEAVES + [("RUL", ["hp", "lp"], None)]
+TREE_AGE = _LEAVES + [("RUL", ["hp", "lp", "age"], None)]   # ablation control
 
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 
@@ -117,65 +154,94 @@ def _parse_input(inp, default):
     return inp, default
 
 
-def _node_names(tree):
-    return {n for n, _, _ in tree}
-
-
 def _leaf_sensors(tree):
-    names = _node_names(tree)
-    out = set()
-    for _, ins, _ in tree:
-        for raw in ins:
-            c, _k = _parse_input(raw, 0)
-            if c not in names and c != "age":
-                out.add(c)
-    return sorted(out)
+    names = {n for n, _, _ in tree}
+    return sorted({_parse_input(r, 0)[0] for _, ins, _ in tree for r in ins}
+                  - names - {"age"})
 
 
-def _domain_centers(dom, k):
-    """k centres over a child node's output domain (theta quantiles / [0,1])."""
-    kind, data = dom
-    return _centers(data, k) if kind == "theta" else np.linspace(0, 1, k)
+def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True):
+    """Resolve inputs against the frame, seed each input's centres at the data
+    quantiles, and hand every node its slice of the genome.
 
-
-def build_tree(frame, tree=TREE, n_terms=3):
-    """Resolve inputs against the frame and fix the fuzzy centres. Each input's
-    number of membership functions is its per-input k (or the default n_terms).
-    Records each node's OUTPUT domain so parents can partition it consistently."""
-    out_dom, meta = {}, []
+    GENOME LAYOUT, per node in order:  [ gap genes of its inputs | its singletons ]
+    An input's slice is inp["mf"]; a node's singletons are node["rules"].
+    learn_mf=False gives every input zero gap genes -> the old fixed-MF model."""
+    out_dom, meta, k = {}, [], 0
     for name, inputs, target in tree:
         tgt = target if (target in frame.columns) else None
         ins = []
         for raw in inputs:
-            inp, k = _parse_input(raw, n_terms)
-            if inp in out_dom:                                 # child node output
-                ins.append({"kind": "node", "src": inp,
-                            "centers": _domain_centers(out_dom[inp], k)})
-            elif inp in frame.columns:                         # sensor / age
-                x = frame[inp].to_numpy(float)
+            src, n = _parse_input(raw, n_terms)
+            if src in out_dom:                                # a child node's output
+                th = out_dom[src]                             # theta data, or None
+                c0 = _centers(th, n) if th is not None else np.linspace(0, 1, n)
+                dlo, dhi = _domain(*((th.min(), th.max()) if th is not None
+                                     else (0.0, 1.0)))
+                i = {"kind": "node", "src": src, "mu": 0.0, "sd": 1.0}
+            elif src in frame.columns:                        # a sensor / age
+                x = frame[src].to_numpy(float)
                 mu, sd = float(x.mean()), float(x.std()) or 1.0
-                ins.append({"kind": "col", "src": inp, "mu": mu, "sd": sd,
-                            "centers": _centers((x - mu) / sd, k)})
+                z = (x - mu) / sd
+                c0, (dlo, dhi) = _centers(z, n), _domain(z.min(), z.max())
+                i = {"kind": "col", "src": src, "mu": mu, "sd": sd}
+            else:
+                continue
+            i.update(k=n, c0=c0, centers=c0, dlo=dlo, dhi=dhi,
+                     n_mf=(n + 1) if (learn_mf and n >= 2) else 0)
+            i["mf"] = slice(k, k + i["n_mf"])                  # gap genes ...
+            k += i["n_mf"]
+            ins.append(i)
         if not ins:
             continue
-        n_rules = int(np.prod([len(i["centers"]) for i in ins]))
-        # output domain for this node's parents: theta data (any resolution) or [0,1]
-        out_dom[name] = (("theta", frame[tgt].to_numpy(float))
-                         if tgt is not None else ("unit", None))
-        meta.append({"name": name, "inputs": ins, "n_rules": n_rules,
-                     "target": tgt, "root": name == "RUL"})
+        n_rules = int(np.prod([i["k"] for i in ins]))
+        meta.append({"name": name, "inputs": ins, "n_rules": n_rules, "target": tgt,
+                     "root": name == "RUL", "rules": slice(k, k + n_rules)})
+        k += n_rules                                          # ... then singletons
+        out_dom[name] = frame[tgt].to_numpy(float) if tgt is not None else None
     return meta
 
 
 def n_params(meta):
-    return int(sum(m["n_rules"] for m in meta))
+    return int(max(m["rules"].stop for m in meta)) if meta else 0
+
+
+def n_mf_params(meta):
+    return int(sum(i["n_mf"] for m in meta for i in m["inputs"]))
+
+
+def centers(node, genome):
+    """This node's Ruspini centres, one array per input: decoded from the genome
+    if the antecedents are learned, else the fixed quantile ones."""
+    return [_decode(i, genome[i["mf"]]) if i["n_mf"] else i["c0"]
+            for i in node["inputs"]]
+
+
+def seed_genome(meta, lo, hi):
+    """GA seed = the previous model: quantile centres, mid-box singletons."""
+    x0 = 0.5 * (lo + hi)
+    for m in meta:
+        for i in m["inputs"]:
+            if i["n_mf"]:
+                x0[i["mf"]] = _encode(i, i["c0"])
+    return x0
+
+
+def bake_centers(meta, genome):
+    """Store the learned centres in meta so inspect() and the plots see them."""
+    for m in meta:
+        for i, c in zip(m["inputs"], centers(m, genome)):
+            i["centers"] = c
+    return meta
 
 
 def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
-    """Singleton box per node: theta range for supervised leaves, [0,1] for
-    latent spool nodes, [0, rul_hi] for the root."""
-    lo, hi = [], []
+    """Box for the whole genome. Gap genes: [GAP_MIN, 1]. Singletons: the theta
+    range (supervised leaf) / [0,1] (spool) / [0, rul_hi] (root)."""
+    lo, hi = np.zeros(n_params(meta)), np.zeros(n_params(meta))
     for m in meta:
+        for i in m["inputs"]:
+            lo[i["mf"]], hi[i["mf"]] = GAP_MIN, 1.0
         if m["root"]:
             a, b = 0.0, rul_hi
         elif m["target"] is not None:
@@ -189,27 +255,21 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
                 a, b = y.min() - cons_pad * span, y.max() + cons_pad * span
         else:
             a, b = 0.0, 1.0
-        lo += [a] * m["n_rules"]
-        hi += [b] * m["n_rules"]
-    return np.array(lo), np.array(hi)
+        lo[m["rules"]], hi[m["rules"]] = a, b
+    return lo, hi
 
 
 def predict_tree(frame, meta, genome):
-    """Evaluate the whole tree; returns {node_name: output_array}."""
-    vals, k = {}, 0
+    """Evaluate the whole tree; returns {node_name: output_array}. BOTH the
+    centres and the singletons are read out of the genome."""
+    vals = {}
     for m in meta:
-        s = genome[k:k + m["n_rules"]]
-        k += m["n_rules"]
-        cols, centers = [], []
-        for i in m["inputs"]:
-            if i["kind"] == "node":
-                cols.append(vals[i["src"]])            # already in its domain
-            else:
-                cols.append((frame[i["src"]].to_numpy(float) - i["mu"]) / i["sd"])
-            centers.append(i["centers"])
-        y = _fis(cols, centers, s)
+        cols = [vals[i["src"]] if i["kind"] == "node"
+                else (frame[i["src"]].to_numpy(float) - i["mu"]) / i["sd"]
+                for i in m["inputs"]]
+        y = _fis(cols, centers(m, genome), genome[m["rules"]])
         # latent spool nodes are clamped to [0,1]; theta leaves / root unclamped
-        vals[m["name"]] = y if (m["root"] or m["target"] is not None) else np.clip(y, 0, 1)
+        vals[m["name"]] = y if (m["root"] or m["target"]) else np.clip(y, 0, 1)
     return vals
 
 
@@ -263,7 +323,7 @@ def genetic_optimize(loss, lo, hi, pop=80, gens=120, seed=0, x0=None,
         if fit.min() < best_fit:
             best_fit, best = fit.min(), P[fit.argmin()].copy()
         history.append(best_fit)
-        sigma = max(0.05, sigma * 0.97)
+        sigma = max(0.12, sigma * 0.97)
         if verbose and (t % 10 == 0 or t == gens - 1):
             print(f"  [{label}] gen {t + 1:3d}/{gens}  best={best_fit:.4f}  sigma={sigma:.3f}")
     return best, history
@@ -278,24 +338,35 @@ def _design(frame, conds):
     return np.column_stack([np.ones(len(W)), W, W ** 2])
 
 
-def _healthy_mask(frame):
-    if "since_onset" in frame.columns:
-        m = frame["since_onset"].to_numpy() <= 0
-        if m.sum() >= 20:
-            return m
-    return frame["age"].to_numpy() <= np.median(frame["age"].to_numpy())
+def residualize(frame, sensors, conds, ref_cycles=20):
+    """Subtract each engine's OWN new-condition signature.
 
+    For every unit, fit  x_s ~ [1, w, w^2]  on its FIRST `ref_cycles` cycles, then
+    subtract that model from all of its cycles. So "T48 residual" means "hotter
+    than THIS engine ran when it was new" -- a damage signal.
 
-def fit_baselines(frame, sensors, conds):
-    X, mask = _design(frame, conds), _healthy_mask(frame)
-    return {s: np.linalg.lstsq(X[mask], frame[s].to_numpy(float)[mask], rcond=None)[0]
-            for s in sensors if s in frame.columns}
+    A single fleet-wide baseline (the previous version) instead means "hotter than
+    the AVERAGE engine ran when new", which is damage + manufacturing scatter +
+    flight-class bias. That extra noise lands straight in the leaves, and pooling
+    ten datasets multiplies it. Hence per-unit.
 
-
-def apply_baselines(frame, coefs, conds):
-    X, f = _design(frame, conds), frame.copy()
-    for s, b in coefs.items():
-        f[s] = f[s].to_numpy(float) - X @ b
+    No leakage: it uses only early-life SENSOR data from the engine itself, which
+    you have at deployment. It touches neither RUL nor the hs flag, so it works
+    identically on a held-out unit -- there is nothing to store and re-apply."""
+    conds = [c for c in conds if c in frame.columns]
+    cols = [s for s in sensors if s in frame.columns]
+    if len(conds) < 2 or not cols:
+        return frame
+    f = frame.reset_index(drop=True)
+    X, Y = _design(f, conds), f[cols].to_numpy(float)
+    u, cyc, R = f["unit"].to_numpy(), f["cycle"].to_numpy(), Y.copy()
+    for k in np.unique(u):
+        m = np.flatnonzero(u == k)
+        m = m[np.argsort(cyc[m])]
+        ref = m[:max(ref_cycles, X.shape[1] + 2)]        # too short -> use all
+        B = np.linalg.lstsq(X[ref], Y[ref], rcond=None)[0]
+        R[m] = Y[m] - X[m] @ B
+    f[cols] = R
     return f
 
 
@@ -317,71 +388,82 @@ def smooth_inputs(frame, cols, span):
     return f.loc[order]
 
 
+def _prep(frame, tree, residual, ref_cycles, smooth_span):
+    """The preprocessing both fit and predict must apply, identically."""
+    sensors = _leaf_sensors(tree)
+    if residual:
+        frame = residualize(frame, sensors, CONDITIONS, ref_cycles)
+    return smooth_inputs(frame, sensors, smooth_span)
+
+
 # ==========================================================================
 # 6. Fit / predict
 # ==========================================================================
 
-def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residualize=True,
-            smooth_span=0, rul_cap=None, theta_weight=1.0, seed=0, verbose=True):
+def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
+            ref_cycles=20, smooth_span=0, rul_cap=None, theta_weight=1.0,
+            learn_mf=True, seed=0, verbose=True):
     """Train the tree end-to-end on a hybrid loss:
         loss = NASA_score(RUL)  +  theta_weight * mean_leaf( RMSE(theta)/range ).
-    theta_weight=0 recovers pure RUL training. smooth_span>1 applies EWMA
-    denoising to the sensor inputs per unit (0 = off; ~5-10 tames theta jitter).
-    Returns a plain-dict model."""
-    frame = frame.reset_index(drop=True)
-    conds = [c for c in CONDITIONS if c in frame.columns]
-    baselines = None
-    if residualize and len(conds) >= 2:
-        baselines = fit_baselines(frame, _leaf_sensors(tree), conds)
-        frame = apply_baselines(frame, baselines, conds)
-    frame = smooth_inputs(frame, _leaf_sensors(tree), smooth_span)
 
-    meta = build_tree(frame, tree, n_terms)
-    y = frame["RUL"].to_numpy(float)
-    if rul_cap:
-        y = np.minimum(y, float(rul_cap))
+    learn_mf   : also evolve the membership functions (section 1b). The GA is
+                 seeded at the quantile placement, so this contains the fixed-MF
+                 model -- it cannot start worse. False = antecedent ablation.
+    residual   : subtract each engine's OWN new-condition signature, fitted on its
+                 first `ref_cycles` cycles (section 5). Nothing is stored: the same
+                 transform is recomputed at predict time on the held-out unit.
+    rul_cap    : y = min(RUL, cap). RECOMMENDED. Before onset the engine is
+                 healthy, theta is flat and RUL is set by the unit's LIFETIME,
+                 not by any sensor; an uncapped target makes the loss reward an
+                 age-regressor. See suggest_rul_cap().
+    smooth_span: EWMA span on the sensors (~5-10 tames the theta jitter).
+
+    Fits on `frame`. Score with evaluate() on a HELD-OUT frame -- in-sample
+    numbers here are not evidence. Returns a plain-dict model."""
+    frame = _prep(frame.reset_index(drop=True), tree, residual, ref_cycles,
+                  smooth_span)
+    meta = build_tree(frame, tree, n_terms, learn_mf)
+    y = cap(frame["RUL"], rul_cap)
     lo, hi = genome_bounds(meta, frame, float(y.max()))
 
-    theta_nodes = [m for m in meta if m["target"] is not None]
-    Yt = {m["name"]: frame[m["target"]].to_numpy(float) for m in theta_nodes}
-    span = {m["name"]: (Yt[m["name"]].max() - Yt[m["name"]].min()) or 1.0
-            for m in theta_nodes}
+    leaves = [m for m in meta if m["target"]]
+    Yt = {m["name"]: frame[m["target"]].to_numpy(float) for m in leaves}
+    span = {n: (v.max() - v.min()) or 1.0 for n, v in Yt.items()}
 
     def loss(g):
         vals = predict_tree(frame, meta, g)
         l = nasa_score(y, vals["RUL"])
-        if theta_nodes:
-            l += theta_weight * np.mean(
-                [rmse(Yt[m["name"]], vals[m["name"]]) / span[m["name"]]
-                 for m in theta_nodes])
+        if leaves:
+            l += theta_weight * np.mean([rmse(Yt[m["name"]], vals[m["name"]])
+                                         / span[m["name"]] for m in leaves])
         return l
 
     if verbose:
-        print("tree:", " ".join(m["name"] for m in meta),
-              "| params:", n_params(meta),
-              "| supervised leaves:", [m["target"] for m in theta_nodes])
-    genome, history = genetic_optimize(loss, lo, hi, pop=pop, gens=gens,
-                                       seed=seed, x0=0.5 * (lo + hi),
+        print(f"tree: {' '.join(m['name'] for m in meta)} | params: {n_params(meta)}"
+              f" ({n_mf_params(meta)} antecedent + "
+              f"{n_params(meta) - n_mf_params(meta)} rule)"
+              f" | leaves: {[m['target'] for m in leaves]}")
+    genome, history = genetic_optimize(loss, lo, hi, pop=pop, gens=gens, seed=seed,
+                                       x0=seed_genome(meta, lo, hi),
                                        verbose=verbose, label="GFT")
+    bake_centers(meta, genome)
     return {"tree": tree, "meta": meta, "genome": genome, "history": history,
-            "baselines": baselines, "conds": conds, "rul_cap": rul_cap,
-            "theta_weight": theta_weight, "smooth_span": smooth_span}
+            "rul_cap": rul_cap, "theta_weight": theta_weight, "learn_mf": learn_mf,
+            "residual": residual, "ref_cycles": ref_cycles,
+            "smooth_span": smooth_span}
 
 
 def predict_gft(frame, model):
     """Full inference. Returns unit, cycle, each theta_hat, each latent node
     health (*_h), and RUL_hat."""
-    frame = frame.reset_index(drop=True)
-    if model["baselines"] is not None:
-        frame = apply_baselines(frame, model["baselines"], model["conds"])
-    frame = smooth_inputs(frame, _leaf_sensors(model["tree"]),
-                          model.get("smooth_span", 0))
+    frame = _prep(frame.reset_index(drop=True), model["tree"], model["residual"],
+                  model["ref_cycles"], model["smooth_span"])
     vals = predict_tree(frame, model["meta"], model["genome"])
     out = frame[["unit", "cycle"]].copy()
     for m in model["meta"]:
         if m["root"]:
             continue
-        if m["target"] is not None:
+        if m["target"]:
             out[m["target"] + "_hat"] = vals[m["name"]]      # comparable to theta
         else:
             out[m["name"] + "_h"] = vals[m["name"]]          # latent [0,1]
@@ -389,21 +471,137 @@ def predict_gft(frame, model):
     return out.sort_values(["unit", "cycle"]).reset_index(drop=True)
 
 
+def disp(inp, c):
+    """Centres back in display units (raw sensor units for `col` inputs)."""
+    return inp["mu"] + np.asarray(c, float) * inp["sd"]
+
+
 def inspect(model):
-    """Print each FIS's inputs, target, grid shape and learned singleton range."""
-    g, k = model["genome"], 0
-    for m in model["meta"]:
-        s = g[k:k + m["n_rules"]]
-        k += m["n_rules"]
-        shape = tuple(len(i["centers"]) for i in m["inputs"])
-        srcs = [i["src"] for i in m["inputs"]]
+    """Per FIS: inputs, target, grid, singleton range, and -- when the
+    antecedents were learned -- the tuned centres next to the quantile seed."""
+    meta, g = model["meta"], model["genome"]
+    print(f"genome: {n_mf_params(meta)} antecedent + "
+          f"{n_params(meta) - n_mf_params(meta)} rule = {n_params(meta)} params")
+    for m in meta:
+        s = g[m["rules"]]
         tgt = m["target"] or ("RUL" if m["root"] else "-")
-        print(f"{m['name']:9s} <- {srcs}  ->{tgt:14s} grid{shape}  "
+        print(f"{m['name']:9s} <- {[i['src'] for i in m['inputs']]}  ->{tgt:14s} "
+              f"grid{tuple(i['k'] for i in m['inputs'])}  "
               f"out=[{s.min():.3g}, {s.max():.3g}]")
+        for i, c in zip(m["inputs"], centers(m, g)):
+            if i["n_mf"]:
+                print(f"    {i['src']:>10s}  centres {np.round(disp(i, c), 4)}"
+                      f"   (was {np.round(disp(i, i['c0']), 4)})")
 
 
 # ==========================================================================
-# 7. Self-test on a signal-bearing synthetic frame
+# 7. Held-out evaluation + the baselines the tree has to beat
+# ==========================================================================
+# The tree has ~200 free genes against ~300 cycle rows. In-sample numbers mean
+# nothing: split by UNIT (loo_cv), and always print `RUL = c - age` next to it.
+
+def cap(y, rul_cap):
+    """Piecewise-linear (capped) RUL convention: min(RUL, cap)."""
+    y = np.asarray(y, float)
+    return np.minimum(y, float(rul_cap)) if rul_cap else y
+
+
+def suggest_rul_cap(frame, q=0.5):
+    """RUL at degradation onset (q-quantile over units) -- the natural place to
+    flatten the target, since nothing before it is visible in the sensors."""
+    post = frame[frame.get("since_onset", pd.Series(0, index=frame.index)) > 0]
+    if post.empty:
+        return None
+    return float(np.quantile(post.groupby("unit")["RUL"].max().to_numpy(float), q))
+
+
+def split_units(frame, holdout):
+    """Split by UNIT -- never by row; rows within a unit are not independent."""
+    hold = set(np.atleast_1d(holdout).ravel().tolist())
+    return (frame[~frame["unit"].isin(hold)].reset_index(drop=True),
+            frame[frame["unit"].isin(hold)].reset_index(drop=True))
+
+
+def r2(y, yhat):
+    y, yhat = np.asarray(y, float), np.asarray(yhat, float)
+    ss = float(np.sum((y - y.mean()) ** 2))
+    return 1.0 - float(np.sum((y - yhat) ** 2)) / ss if ss > 1e-12 else 0.0
+
+
+def unit_rho(frame, y, yhat):
+    """Mean per-unit Pearson correlation. For a memoryless FIS the plain RMSE is
+    dominated by the per-cycle noise floor; rho asks the question that matters --
+    does the estimate MOVE WITH the truth."""
+    def rho(a, b):
+        a, b = a - a.mean(), b - b.mean()
+        d = float(np.sqrt((a @ a) * (b @ b)))
+        return float(a @ b) / d if d > 1e-12 else 0.0
+    u, y, yhat = frame["unit"].to_numpy(), np.asarray(y, float), np.asarray(yhat, float)
+    return float(np.mean([rho(y[u == k], yhat[u == k]) for k in np.unique(u)]))
+
+
+def _score(frame, yhat, rul_cap):
+    y = cap(frame["RUL"], rul_cap)
+    return {"RMSE": rmse(y, yhat), "MAE": float(np.mean(np.abs(y - yhat))),
+            "NASA": nasa_score(y, yhat), "R2": r2(y, yhat)}
+
+
+def baselines(train, test, rul_cap=None):
+    """The sensor-free references. `RUL = c - age` uses ZERO sensors and ONE
+    parameter; if the fuzzy tree cannot beat it, the tree is decoration."""
+    y, a = cap(train["RUL"], rul_cap), train["age"].to_numpy(float)
+    ok = (y < float(rul_cap) - 1e-9) if rul_cap else np.ones(len(y), bool)
+    c = float(np.mean(y[ok] + a[ok])) if ok.sum() > 1 else float(np.mean(y + a))
+    mu = float(np.mean(y))
+    age_hat = np.clip(c - test["age"].to_numpy(float), 0.0, rul_cap or None)
+    return pd.DataFrame([
+        dict(model="mean RUL", n_params=1, **_score(test, np.full(len(test), mu), rul_cap)),
+        dict(model="age only (RUL = c - age)", n_params=1, **_score(test, age_hat, rul_cap)),
+    ])
+
+
+def evaluate(frame, model, name="GFT"):
+    """Score a fitted model on a HELD-OUT frame. Reports theta as R2 and per-unit
+    correlation -- an RMSE of 8e-4 on a variable whose range is 1.3e-2 sounds tiny
+    and means almost nothing."""
+    pr = predict_gft(frame, model)
+    f = frame.sort_values(["unit", "cycle"]).reset_index(drop=True)
+    yh = pr["RUL_hat"].to_numpy(float)
+    out = dict(model=name, n_params=n_params(model["meta"]),
+               **_score(f, yh, model["rul_cap"]))
+    out["rho_RUL"] = unit_rho(f, cap(f["RUL"], model["rul_cap"]), yh)
+    for m in model["meta"]:
+        if m["target"]:
+            y, t = f[m["target"]].to_numpy(float), pr[m["target"] + "_hat"].to_numpy(float)
+            out[f"{m['target']}:R2"] = r2(y, t)
+            out[f"{m['target']}:rho"] = unit_rho(f, y, t)
+    return out
+
+
+def loo_cv(frame, tree=TREE, name="GFT", seeds=(0,), **fit_kw):
+    """Leave-ONE-UNIT-out CV. With 6 units this is the only honest protocol."""
+    rows = []
+    for u in np.sort(frame["unit"].unique()):
+        tr, te = split_units(frame, u)
+        for s in seeds:
+            model = fit_gft(tr, tree=tree, seed=s, verbose=False, **fit_kw)
+            r = evaluate(te, model, name)
+            r.update(fold=int(u), seed=int(s))
+            rows.append(r)
+            print(f"  [{name}] hold-out unit {int(u)} seed {s}: "
+                  f"RMSE={r['RMSE']:.2f}  NASA={r['NASA']:.3f}  R2={r['R2']:.3f}")
+    return pd.DataFrame(rows)
+
+
+def summarize(df, keys=("RMSE", "MAE", "NASA", "R2")):
+    """mean +/- sd across folds/seeds -- one GA run on a 200-D non-convex
+    landscape is an anecdote, not a result."""
+    g = df.groupby("model")[list(keys)]
+    return g.mean().round(3).join(g.std().round(3), rsuffix="_sd")
+
+
+# ==========================================================================
+# 8. Self-test on a signal-bearing synthetic frame
 # ==========================================================================
 
 def _synthetic_frame(units=6, cycles=60, seed=0):
@@ -437,28 +635,43 @@ def _synthetic_frame(units=6, cycles=60, seed=0):
 
 
 def _self_test():
-    df = _synthetic_frame(units=8, cycles=60, seed=1)
-    train = df[df.unit <= 6].reset_index(drop=True)
-    test = df[df.unit > 6].reset_index(drop=True)
+    df = _synthetic_frame(units=6, cycles=60, seed=1)
+    rc = suggest_rul_cap(df)
 
-    c = _centers(train["T48"].to_numpy(), 3)
-    M = _memberships(np.linspace(-3, 3, 2000), c)
-    print(f"Ruspini partition-of-unity max|sum-1| = {np.abs(M.sum(1) - 1).max():.1e}\n")
+    # the learned partition must stay a valid Ruspini partition for ANY genome
+    meta = build_tree(df, TREE, 3, learn_mf=True)
+    lo, hi = genome_bounds(meta, df, rc)
+    rng = np.random.default_rng(0)
+    worst = 0.0
+    for _ in range(100):
+        g = rng.uniform(lo, hi)
+        for node in meta:
+            for c in centers(node, g):
+                assert np.all(np.diff(c) > 0), "centres out of order!"
+                M = _memberships(np.linspace(c[0] - 5, c[-1] + 5, 400), c)
+                worst = max(worst, float(np.abs(M.sum(1) - 1).max()))
+    print(f"100 random genomes: centres always ordered, max|sum(mu)-1| = {worst:.1e}")
 
-    model = fit_gft(train, gens=120, pop=80, theta_weight=1.0, verbose=True)
-    pr_tr, pr_te = predict_gft(train, model), predict_gft(test, model)
+    # the GA seed must decode back to the OLD quantile centres, exactly
+    x0, fixed = seed_genome(meta, lo, hi), build_tree(df, TREE, 3, learn_mf=False)
+    err = max(float(np.abs(c - i["c0"]).max())
+              for a, b in zip(meta, fixed)
+              for c, i in zip(centers(a, x0), b["inputs"]))
+    print(f"GA seed reproduces the quantile centres: max err = {err:.1e}")
 
-    theta_cols = [m["target"] for m in model["meta"] if m["target"]]
-    th_tr = np.mean([rmse(train[c], pr_tr[c + "_hat"]) for c in theta_cols])
-    th_te = np.mean([rmse(test[c], pr_te[c + "_hat"]) for c in theta_cols])
-    base = rmse(test["RUL"], np.full(len(test), train["RUL"].mean()))
-    print("\n--- results ---")
-    print(f"theta RMSE  train={th_tr:.4f}   test={th_te:.4f}")
-    print(f"RUL RMSE    train={rmse(pr_tr['RUL_hat'], train['RUL']):.2f}"
-          f"   test={rmse(pr_te['RUL_hat'], test['RUL']):.2f}"
-          f"   (baseline mean={base:.2f})")
-    print(f"RUL NASA    test={nasa_score(test['RUL'], pr_te['RUL_hat']):.3f}\n")
-    inspect(model)
+    print(f"\nrul_cap = {rc:.0f}   (RUL at degradation onset)\n")
+    tr, te = split_units(df, holdout=6)
+    print(baselines(tr, te, rc).round(3).to_string(index=False), "\n")
+
+    rows = []
+    for lm in (False, True):
+        m = fit_gft(tr, gens=80, pop=60, rul_cap=rc, smooth_span=7,
+                    theta_weight=5.0, learn_mf=lm, verbose=False)
+        rows.append(evaluate(te, m, f"GFT learn_mf={lm}"))
+    print(pd.DataFrame(rows)[["model", "n_params", "RMSE", "NASA", "R2",
+                              "HPT_eff_mod:R2"]].round(3).to_string(index=False))
+    print()
+    inspect(m)
 
 
 if __name__ == "__main__":

@@ -43,12 +43,9 @@ def _grid(n):
 
 
 def _slice(meta, genome, node):
-    k = 0
-    for m in meta:
-        if m is node:
-            return genome[k:k + m["n_rules"]]
-        k += m["n_rules"]
-    raise KeyError(node["name"])
+    """This node's rule consequents (the genome also holds the antecedent
+    gap genes -- node["rules"] is the slice that skips them)."""
+    return genome[node["rules"]]
 
 
 def _finish(fig, save, name, show):
@@ -196,9 +193,7 @@ def plot_fitness(model, size=7, save=None, show=True):
 
 def _disp_range(inp):
     """Axis [lo, hi] in display units (raw for sensors, native for nodes)."""
-    c = inp["centers"]
-    if inp["kind"] == "col":
-        return inp["mu"] + c.min() * inp["sd"], inp["mu"] + c.max() * inp["sd"]
+    c = gft.disp(inp, inp["centers"])
     return float(c.min()), float(c.max())
 
 
@@ -283,10 +278,46 @@ def plot_surface_node(node, singletons, kind="surface", res=45, size=5,
 
 
 def _disp_axis_centers(inp):
-    c = inp["centers"]
-    if inp["kind"] == "col":
-        return inp["mu"] + c * inp["sd"]
-    return c
+    return gft.disp(inp, inp["centers"])
+
+
+# ==========================================================================
+# membership functions: what the GA did to the antecedents
+# ==========================================================================
+
+def plot_memberships(model, size=3.2, save=None, show=True):
+    """One panel per FIS input: the LEARNED Ruspini partition (solid, coloured)
+    over the quantile partition it was seeded from (dashed grey).
+
+    THIS is the figure that shows whether tuning the antecedents earned its keep.
+    Watch the theta inputs of hp/lp: with quantile centres nearly all the
+    resolution sits in the healthy plateau (theta ~ 0), which is why hp_h used to
+    flatten out. If the GA has dragged centres towards the degraded tail, the
+    partition is now spending its resolution where the signal is."""
+    meta, g = model["meta"], model["genome"]
+    ins = [(m, i, c) for m in meta
+           for i, c in zip(m["inputs"], gft.centers(m, g))]
+    ncol = min(4, len(ins))
+    nrow = int(np.ceil(len(ins) / ncol))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(size * ncol, size * nrow),
+                             squeeze=False)
+    for ax, (m, inp, c) in zip(axes.ravel(), ins):
+        cL, c0 = gft.disp(inp, c), gft.disp(inp, inp["c0"])
+        lo, hi = min(cL.min(), c0.min()), max(cL.max(), c0.max())
+        pad = 0.05 * ((hi - lo) or 1.0)
+        xs = np.linspace(lo - pad, hi + pad, 500)
+        M0, ML = gft._memberships(xs, c0), gft._memberships(xs, cL)
+        for j in range(M0.shape[1]):
+            ax.plot(xs, M0[:, j], "--", lw=1.4, color="0.65")
+            ax.plot(xs, ML[:, j], "-", lw=1.8, color=f"C{j}")
+        ax.set_title(f"{m['name']} <- {inp['src']}", fontsize=9)
+        ax.set_ylim(-0.05, 1.08)
+        ax.tick_params(labelsize=7)
+    for ax in axes.ravel()[len(ins):]:
+        ax.axis("off")
+    fig.suptitle("Membership functions:  learned (solid)  vs  quantile seed (dashed)")
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    _finish(fig, save, "memberships", show)
 
 
 def plot_surfaces(model, kind="surface", res=45, size=5, save=None, show=True):
@@ -313,6 +344,8 @@ def analyze(feats, pred, model=None, surfaces=False, surface_kind="surface",
     plot_scatter(feats, pred, save=save, show=show)
     if model is not None:
         plot_fitness(model, save=save, show=show)
+        if model.get("learn_mf"):
+            plot_memberships(model, save=save, show=show)
         if surfaces:
             plot_surfaces(model, kind=surface_kind, save=save, show=show)
 
