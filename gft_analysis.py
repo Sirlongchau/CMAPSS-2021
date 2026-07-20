@@ -43,9 +43,10 @@ def _grid(n):
 
 
 def _slice(meta, genome, node):
-    """This node's rule consequents (the genome also holds the antecedent
-    gap genes -- node["rules"] is the slice that skips them)."""
-    return genome[node["rules"]]
+    """This node's rule consequents, decoded. For a monotone node the genome
+    stores [base | steps]; gft.node_singletons rebuilds the actual grid so the
+    control surface reflects what the model computes."""
+    return gft.node_singletons(node, genome)
 
 
 def _finish(fig, save, name, show):

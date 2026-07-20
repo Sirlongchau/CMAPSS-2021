@@ -24,7 +24,7 @@ import gft
 import datasets as ds
 from gft_analysis import analyze
 
-GENS, POP, SEEDS = 1000, 120, (0, 1)
+GENS, POP, SEEDS = 400, 120, (0, 1, 2)
 THETA_W, SMOOTH = 5.0, 7
 
 pd.set_option("display.width", 200, "display.max_columns", 40)
@@ -45,33 +45,37 @@ banner(f"rul_cap = {RUL_CAP:.0f} cycles (RUL at degradation onset, train units)"
 # ---- model selection: everything below is scored on VAL -------------------
 banner("VALIDATION  (mean +/- sd over seeds)")
 rows = [gft.baselines(train, val, RUL_CAP)]
-for name, tree, mf in [("GFT (hp,lp) +MF",      gft.TREE,     True),
-                       ("GFT (hp,lp) fixed-MF", gft.TREE,     False),
-                       ("GFT (hp,lp,age) +MF",  gft.TREE_AGE, True)]:
+#  name                        tree          learn_mf  monotone
+arms = [("GFT full",           gft.TREE,     True,     True),
+        ("GFT free-grid",      gft.TREE,     True,     False),   # monotone ablation
+        ("GFT fixed-MF",       gft.TREE,     False,    True),    # antecedent ablation
+        ("GFT +age",           gft.TREE_AGE, True,     True)]    # age ablation
+for name, tree, mf, mono in arms:
     for s in SEEDS:
-        m = gft.fit_gft(train, tree, learn_mf=mf, seed=s, verbose=False, **FIT)
+        m = gft.fit_gft(train, tree, learn_mf=mf, monotone=mono, seed=s,
+                        verbose=False, **FIT)
         rows.append(pd.DataFrame([gft.evaluate(val, m, name)]))
-        print(f"  {name:22s} seed {s}: RMSE={rows[-1]['RMSE'][0]:.2f}")
+        print(f"  {name:16s} seed {s}: RMSE={rows[-1]['RMSE'][0]:.2f}")
 res = pd.concat(rows, ignore_index=True)
 print(gft.summarize(res).to_string())
 print("""
-  +MF vs 'age only'      -- do the sensors and the fuzzy tree contribute anything?
-  +MF vs fixed-MF        -- what tuning the ANTECEDENTS bought. Seeded at the
-                            quantile placement, so it cannot START worse; if it is
-                            worse on VAL, the extra genes are overfitting -> cut
-                            n_terms rather than add more.
-  (hp,lp,age) vs (hp,lp) -- how much of the old score was the age shortcut.""")
+  full vs 'age only'   -- do the sensors and the fuzzy tree contribute anything?
+  full vs free-grid    -- what the MONOTONICITY constraint bought. free-grid lets
+                          hp/lp/RUL fold; if full is >= free-grid on VAL, the
+                          physical prior is free accuracy AND a readable surface.
+  full vs fixed-MF     -- what tuning the ANTECEDENTS bought.
+  +age vs full         -- how much of the score is still the age shortcut.""")
 
 tcols = [c for c in res.columns if ":" in c]
 banner("held-out theta quality (R2 and per-unit correlation)")
-print(res[res["model"] == "GFT (hp,lp) +MF"][tcols].mean().round(3).to_string())
+print(res[res["model"] == "GFT full"][tcols].mean().round(3).to_string())
 
 # ---- final: refit on train+val, score ONCE on test ------------------------
 banner("TEST  (fit on train+val, scored once)")
 full = pd.concat([train, val], ignore_index=True)
-model = gft.fit_gft(full, gft.TREE, learn_mf=True, seed=0, **FIT)
+model = gft.fit_gft(full, gft.TREE, learn_mf=True, monotone=True, seed=0, **FIT)
 final = pd.concat([gft.baselines(full, test, RUL_CAP),
-                   pd.DataFrame([gft.evaluate(test, model, "GFT (hp,lp) +MF")])],
+                   pd.DataFrame([gft.evaluate(test, model, "GFT full")])],
                   ignore_index=True)
 print(final[["model", "n_params", "RMSE", "MAE", "NASA", "R2"]].round(3)
       .to_string(index=False))
@@ -81,7 +85,7 @@ gft.inspect(model)
 banner("LEAVE-ONE-DATASET-OUT  (unseen failure mode)")
 loso = []
 for tr, te, name in ds.leave_one_dataset_out(feats):
-    m = gft.fit_gft(tr, gft.TREE, learn_mf=True, seed=0, verbose=False, **FIT)
+    m = gft.fit_gft(tr, gft.TREE, learn_mf=True, monotone=True, seed=0, verbose=False, **FIT)
     r = gft.evaluate(te, m, name)
     r.update(gft.baselines(tr, te, RUL_CAP).iloc[1][["RMSE"]].add_prefix("age_"))
     loso.append(r)

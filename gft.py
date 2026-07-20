@@ -129,6 +129,47 @@ def _encode(inp, c):
 # gives that input k fuzzy sets. A node's rule count is the PRODUCT of its
 # inputs' set counts, so (5, 3, 3) -> 45 rules.
 
+# MONOTONE NODES (see section 2b). A node listed here has its output constrained
+# to be monotone in each input BY CONSTRUCTION -- its singleton grid is built from
+# non-negative steps, so no genome the GA can produce will violate it.
+#
+# The value is either a single sign broadcast over ALL of the node's inputs, or a
+# per-input tuple. -1 = non-increasing, +1 = non-decreasing. A scalar is preferred
+# when every input shares a sign, because it stays correct if the node's arity
+# changes (e.g. TREE vs TREE_AGE give the root 2 vs 3 inputs).
+#
+#   hp / lp : inputs are damage MODIFIERS (more negative = more degraded), output
+#             is shaft DAMAGE, which can only RISE as a modifier falls
+#             -> non-increasing in each input.
+#   RUL     : inputs are shaft DAMAGE in [0,1] (and, in TREE_AGE, `age`). More
+#             damage means less remaining life; more accumulated cycles likewise
+#             -> non-increasing in every input.
+#
+# The signs are physics, not preference: damage cannot fall with more damage. The
+# LEAVES are deliberately absent -- their monotonicity depends on how cleanly the
+# per-unit residual isolated the health effect, which is not yet guaranteed.
+MONOTONE = {
+    "hp":  -1,
+    "lp":  -1,
+    "RUL": -1,
+}
+
+
+def _mono_signs(name, n_inputs, monotone=True):
+    """Resolve MONOTONE[name] to a per-input sign tuple, or None if unconstrained.
+    A scalar broadcasts over every input; a tuple must match the node's arity."""
+    if not monotone or name not in MONOTONE:
+        return None
+    s = MONOTONE[name]
+    if np.isscalar(s):
+        return tuple(int(np.sign(s)) for _ in range(n_inputs))
+    if len(s) != n_inputs:
+        raise ValueError(
+            f"MONOTONE[{name!r}] gives {len(s)} signs but the node has {n_inputs} "
+            f"inputs. Use a scalar (e.g. -1) to broadcast over all inputs, which "
+            f"stays correct when the node's arity changes (TREE vs TREE_AGE).")
+    return tuple(int(np.sign(v)) for v in s)
+
 _LEAVES = [
     ("hpt_eff",  ["T48", "P40", "Nc"],   "HPT_eff_mod"),   # HP: eff  -> speed
     ("hpt_flow", ["T48", "P40", "Ps30"], "HPT_flow_mod"),  # HP: flow -> pressure
@@ -147,6 +188,51 @@ TREE_AGE = _LEAVES + [("RUL", ["hp", "lp", "age"], None)]   # ablation control
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 
 
+# ==========================================================================
+# 2b. Structural monotone consequents
+# ==========================================================================
+# A Sugeno rule grid is a generic approximator: nothing stops the singletons from
+# folding into a non-monotone surface, and on noisy data the GA WILL buy a fold if
+# it shaves training loss. For the damage/RUL nodes that is unphysical -- the true
+# surface is monotone. So we bake monotonicity into the parametrization.
+#
+# A grid is stored as [ base | non-negative steps ] (prod(shape) genes, same count
+# as free singletons). The steps are cumulatively summed along every axis, so the
+# result is monotone from a corner; per-axis signs choose the direction. This is
+# the same idea as the MF gap-encoding: the non-monotone region is removed from the
+# search space entirely -- no penalty, no weight to tune, no possible violation,
+# and the GA wastes no budget rediscovering that folds are bad.
+
+def _mono_decode(base, steps, shape, signs):
+    """Monotone grid (flattened) from a base value + non-negative steps.
+    Multidim cumsum of non-negative increments is non-decreasing from a corner;
+    decreasing axes are flipped so their running total grows the other way."""
+    s = np.maximum(np.asarray(steps, float), 0.0).copy()
+    s[0] = 0.0                                      # corner carries the base only
+    G = s.reshape(shape)
+    rev = tuple(slice(None, None, -1) if sg < 0 else slice(None) for sg in signs)
+    G = G[rev]
+    for ax in range(G.ndim):
+        G = np.cumsum(G, axis=ax)
+    G = G[rev]
+    return (float(base) + G).ravel()
+
+
+def _mono_encode(grid, shape, signs):
+    """Inverse: recover (base, steps) from a monotone grid, to seed the GA at a
+    valid monotone start. `steps` come out non-negative iff `grid` is monotone."""
+    G = np.asarray(grid, float).reshape(shape)
+    corner = tuple(-1 if sg < 0 else 0 for sg in signs)
+    base = float(G[corner])
+    rev = tuple(slice(None, None, -1) if sg < 0 else slice(None) for sg in signs)
+    A = (G - base)[rev]
+    for ax in range(A.ndim):
+        A = np.diff(A, axis=ax, prepend=0)
+    out = A[rev].ravel().copy()
+    out[0] = base
+    return out
+
+
 def _parse_input(inp, default):
     """('name', k) -> (name, k);  'name' -> (name, default)."""
     if isinstance(inp, (tuple, list)):
@@ -160,13 +246,17 @@ def _leaf_sensors(tree):
                   - names - {"age"})
 
 
-def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True):
+def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True, monotone=True):
     """Resolve inputs against the frame, seed each input's centres at the data
     quantiles, and hand every node its slice of the genome.
 
     GENOME LAYOUT, per node in order:  [ gap genes of its inputs | its singletons ]
     An input's slice is inp["mf"]; a node's singletons are node["rules"].
-    learn_mf=False gives every input zero gap genes -> the old fixed-MF model."""
+    learn_mf=False gives every input zero gap genes -> the old fixed-MF model.
+
+    monotone=True encodes the nodes named in MONOTONE as structural monotone grids
+    (section 2b): their rule slice holds [base | non-negative steps] rather than raw
+    singletons, so the surface cannot fold. monotone=False = free grids (ablation)."""
     out_dom, meta, k = {}, [], 0
     for name, inputs, target in tree:
         tgt = target if (target in frame.columns) else None
@@ -194,9 +284,12 @@ def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True):
             ins.append(i)
         if not ins:
             continue
-        n_rules = int(np.prod([i["k"] for i in ins]))
+        shape = tuple(i["k"] for i in ins)
+        n_rules = int(np.prod(shape))
+        signs = _mono_signs(name, len(ins), monotone)
         meta.append({"name": name, "inputs": ins, "n_rules": n_rules, "target": tgt,
-                     "root": name == "RUL", "rules": slice(k, k + n_rules)})
+                     "root": name == "RUL", "rules": slice(k, k + n_rules),
+                     "shape": shape, "mono": signs})
         k += n_rules                                          # ... then singletons
         out_dom[name] = frame[tgt].to_numpy(float) if tgt is not None else None
     return meta
@@ -217,8 +310,21 @@ def centers(node, genome):
             for i in node["inputs"]]
 
 
+def node_singletons(node, genome):
+    """This node's rule consequents as a flat singleton vector. For a monotone
+    node the rule slice stores [base | steps]; decode it. For a free node it is
+    the singletons directly."""
+    g = genome[node["rules"]]
+    if node.get("mono") is not None:
+        return _mono_decode(g[0], g, node["shape"], node["mono"])
+    return g
+
+
 def seed_genome(meta, lo, hi):
-    """GA seed = the previous model: quantile centres, mid-box singletons."""
+    """GA seed = the previous model: quantile centres, mid-box singletons. For a
+    monotone node, genome index rules.start doubles as the grid `base` (its bounds
+    were set to the output range, not [0, span]), and _mono_decode ignores it as a
+    step -- so the plain mid-box is already a valid, if steep, monotone seed."""
     x0 = 0.5 * (lo + hi)
     for m in meta:
         for i in m["inputs"]:
@@ -236,8 +342,13 @@ def bake_centers(meta, genome):
 
 
 def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
-    """Box for the whole genome. Gap genes: [GAP_MIN, 1]. Singletons: the theta
-    range (supervised leaf) / [0,1] (spool) / [0, rul_hi] (root)."""
+    """Box for the whole genome. Gap genes: [GAP_MIN, 1]. Free-node singletons:
+    the theta range (supervised leaf) / [0,1] (spool) / [0, rul_hi] (root).
+
+    A MONOTONE node's slice is [base | steps]: `base` gets the node's output range,
+    and each `step` is bounded [0, span] -- non-negative (enforcing monotonicity)
+    and no larger than the whole range (a single step cannot exceed the output
+    span). The corner step (index 0) is unused by _mono_decode; it is pinned to 0."""
     lo, hi = np.zeros(n_params(meta)), np.zeros(n_params(meta))
     for m in meta:
         for i in m["inputs"]:
@@ -255,7 +366,21 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
                 a, b = y.min() - cons_pad * span, y.max() + cons_pad * span
         else:
             a, b = 0.0, 1.0
-        lo[m["rules"]], hi[m["rules"]] = a, b
+        if m.get("mono") is not None:                 # [base | non-negative steps]
+            # The decoded grid spans base + (steps summed along a corner-to-corner
+            # path). All signs here are non-increasing, so the base sits at the HIGH
+            # corner and steps carry the surface DOWN to the opposite corner. That
+            # path crosses (k-1) steps on EVERY axis, so the maximum total descent is
+            # sum_axes (k_axis - 1) * step_cap. Capping each step at
+            # (b-a) / sum_axes(k_axis - 1) guarantees the far corner cannot fall
+            # below `a`, so the surface stays in [a, b] with no post-hoc clipping.
+            span = b - a
+            r = m["rules"]
+            path = sum(k - 1 for k in m["shape"]) or 1
+            lo[r], hi[r] = 0.0, span / path
+            lo[r.start], hi[r.start] = a, b           # base spans the output range
+        else:
+            lo[m["rules"]], hi[m["rules"]] = a, b
     return lo, hi
 
 
@@ -267,7 +392,7 @@ def predict_tree(frame, meta, genome):
         cols = [vals[i["src"]] if i["kind"] == "node"
                 else (frame[i["src"]].to_numpy(float) - i["mu"]) / i["sd"]
                 for i in m["inputs"]]
-        y = _fis(cols, centers(m, genome), genome[m["rules"]])
+        y = _fis(cols, centers(m, genome), node_singletons(m, genome))
         # latent spool nodes are clamped to [0,1]; theta leaves / root unclamped
         vals[m["name"]] = y if (m["root"] or m["target"]) else np.clip(y, 0, 1)
     return vals
@@ -323,7 +448,7 @@ def genetic_optimize(loss, lo, hi, pop=80, gens=120, seed=0, x0=None,
         if fit.min() < best_fit:
             best_fit, best = fit.min(), P[fit.argmin()].copy()
         history.append(best_fit)
-        sigma = max(0.12, sigma * 0.97)
+        sigma = max(0.05, sigma * 0.97)
         if verbose and (t % 10 == 0 or t == gens - 1):
             print(f"  [{label}] gen {t + 1:3d}/{gens}  best={best_fit:.4f}  sigma={sigma:.3f}")
     return best, history
@@ -402,13 +527,15 @@ def _prep(frame, tree, residual, ref_cycles, smooth_span):
 
 def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
             ref_cycles=20, smooth_span=0, rul_cap=None, theta_weight=1.0,
-            learn_mf=True, seed=0, verbose=True):
+            learn_mf=True, monotone=True, seed=0, verbose=True):
     """Train the tree end-to-end on a hybrid loss:
         loss = NASA_score(RUL)  +  theta_weight * mean_leaf( RMSE(theta)/range ).
 
     learn_mf   : also evolve the membership functions (section 1b). The GA is
                  seeded at the quantile placement, so this contains the fixed-MF
                  model -- it cannot start worse. False = antecedent ablation.
+    monotone   : constrain the nodes in MONOTONE (hp, lp, RUL) to monotone surfaces
+                 by construction (section 2b). False = free grids, for the ablation.
     residual   : subtract each engine's OWN new-condition signature, fitted on its
                  first `ref_cycles` cycles (section 5). Nothing is stored: the same
                  transform is recomputed at predict time on the held-out unit.
@@ -422,7 +549,7 @@ def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
     numbers here are not evidence. Returns a plain-dict model."""
     frame = _prep(frame.reset_index(drop=True), tree, residual, ref_cycles,
                   smooth_span)
-    meta = build_tree(frame, tree, n_terms, learn_mf)
+    meta = build_tree(frame, tree, n_terms, learn_mf, monotone)
     y = cap(frame["RUL"], rul_cap)
     lo, hi = genome_bounds(meta, frame, float(y.max()))
 
@@ -439,17 +566,19 @@ def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
         return l
 
     if verbose:
+        mono = [m["name"] for m in meta if m.get("mono") is not None]
         print(f"tree: {' '.join(m['name'] for m in meta)} | params: {n_params(meta)}"
               f" ({n_mf_params(meta)} antecedent + "
               f"{n_params(meta) - n_mf_params(meta)} rule)"
-              f" | leaves: {[m['target'] for m in leaves]}")
+              f" | leaves: {[m['target'] for m in leaves]}"
+              f" | monotone: {mono}")
     genome, history = genetic_optimize(loss, lo, hi, pop=pop, gens=gens, seed=seed,
                                        x0=seed_genome(meta, lo, hi),
                                        verbose=verbose, label="GFT")
     bake_centers(meta, genome)
     return {"tree": tree, "meta": meta, "genome": genome, "history": history,
             "rul_cap": rul_cap, "theta_weight": theta_weight, "learn_mf": learn_mf,
-            "residual": residual, "ref_cycles": ref_cycles,
+            "monotone": monotone, "residual": residual, "ref_cycles": ref_cycles,
             "smooth_span": smooth_span}
 
 
@@ -478,16 +607,18 @@ def disp(inp, c):
 
 def inspect(model):
     """Per FIS: inputs, target, grid, singleton range, and -- when the
-    antecedents were learned -- the tuned centres next to the quantile seed."""
+    antecedents were learned -- the tuned centres next to the quantile seed.
+    Monotone nodes are flagged and their singletons are the DECODED grid."""
     meta, g = model["meta"], model["genome"]
     print(f"genome: {n_mf_params(meta)} antecedent + "
           f"{n_params(meta) - n_mf_params(meta)} rule = {n_params(meta)} params")
     for m in meta:
-        s = g[m["rules"]]
+        s = node_singletons(m, g)
         tgt = m["target"] or ("RUL" if m["root"] else "-")
+        tag = f"  MONO{m['mono']}" if m.get("mono") is not None else ""
         print(f"{m['name']:9s} <- {[i['src'] for i in m['inputs']]}  ->{tgt:14s} "
               f"grid{tuple(i['k'] for i in m['inputs'])}  "
-              f"out=[{s.min():.3g}, {s.max():.3g}]")
+              f"out=[{s.min():.3g}, {s.max():.3g}]{tag}")
         for i, c in zip(m["inputs"], centers(m, g)):
             if i["n_mf"]:
                 print(f"    {i['src']:>10s}  centres {np.round(disp(i, c), 4)}"
@@ -659,15 +790,34 @@ def _self_test():
               for c, i in zip(centers(a, x0), b["inputs"]))
     print(f"GA seed reproduces the quantile centres: max err = {err:.1e}")
 
+    # every monotone node's surface must be monotone for ANY genome
+    mm = build_tree(df, TREE, 3, learn_mf=True, monotone=True)
+    lo2, hi2 = genome_bounds(mm, df, rc)
+    bad = 0
+    for _ in range(200):
+        g = rng.uniform(lo2, hi2)
+        for node in mm:
+            if node.get("mono") is None:
+                continue
+            G = node_singletons(node, g).reshape(node["shape"])
+            for ax, sg in enumerate(node["mono"]):
+                d = np.diff(G, axis=ax)
+                if sg < 0 and np.any(d > 1e-9):
+                    bad += 1
+                if sg > 0 and np.any(d < -1e-9):
+                    bad += 1
+    print(f"200 random genomes: monotone nodes never violate their sign "
+          f"({'OK' if bad == 0 else str(bad) + ' VIOLATIONS'})")
+
     print(f"\nrul_cap = {rc:.0f}   (RUL at degradation onset)\n")
     tr, te = split_units(df, holdout=6)
     print(baselines(tr, te, rc).round(3).to_string(index=False), "\n")
 
     rows = []
-    for lm in (False, True):
+    for mono in (False, True):
         m = fit_gft(tr, gens=80, pop=60, rul_cap=rc, smooth_span=7,
-                    theta_weight=5.0, learn_mf=lm, verbose=False)
-        rows.append(evaluate(te, m, f"GFT learn_mf={lm}"))
+                    theta_weight=5.0, learn_mf=True, monotone=mono, verbose=False)
+        rows.append(evaluate(te, m, f"GFT monotone={mono}"))
     print(pd.DataFrame(rows)[["model", "n_params", "RMSE", "NASA", "R2",
                               "HPT_eff_mod:R2"]].round(3).to_string(index=False))
     print()
