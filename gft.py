@@ -525,25 +525,51 @@ def _prep(frame, tree, residual, ref_cycles, smooth_span):
 # 6. Fit / predict
 # ==========================================================================
 
+def _unit_corr(units, y, yhat):
+    """Mean per-unit Pearson correlation (nan-safe). A unit whose theta or
+    prediction is flat contributes 0 (no correlation to speak of), not nan."""
+    y, yhat = np.asarray(y, float), np.asarray(yhat, float)
+    rs = []
+    for k in np.unique(units):
+        m = units == k
+        a, b = y[m] - y[m].mean(), yhat[m] - yhat[m].mean()
+        d = float(np.sqrt((a @ a) * (b @ b)))
+        rs.append(float(a @ b) / d if d > 1e-12 else 0.0)
+    return float(np.mean(rs)) if rs else 0.0
+
+
 def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
             ref_cycles=20, smooth_span=0, rul_cap=None, theta_weight=1.0,
-            learn_mf=True, monotone=True, seed=0, verbose=True):
-    """Train the tree end-to-end on a hybrid loss:
-        loss = NASA_score(RUL)  +  theta_weight * mean_leaf( RMSE(theta)/range ).
+            trend_weight=0.0, learn_mf=True, monotone=True, seed=0, verbose=True):
+    """Train the tree end-to-end on a hybrid loss.
 
-    learn_mf   : also evolve the membership functions (section 1b). The GA is
-                 seeded at the quantile placement, so this contains the fixed-MF
-                 model -- it cannot start worse. False = antecedent ablation.
-    monotone   : constrain the nodes in MONOTONE (hp, lp, RUL) to monotone surfaces
-                 by construction (section 2b). False = free grids, for the ablation.
-    residual   : subtract each engine's OWN new-condition signature, fitted on its
-                 first `ref_cycles` cycles (section 5). Nothing is stored: the same
-                 transform is recomputed at predict time on the held-out unit.
-    rul_cap    : y = min(RUL, cap). RECOMMENDED. Before onset the engine is
-                 healthy, theta is flat and RUL is set by the unit's LIFETIME,
-                 not by any sensor; an uncapped target makes the loss reward an
-                 age-regressor. See suggest_rul_cap().
-    smooth_span: EWMA span on the sensors (~5-10 tames the theta jitter).
+    LOSS (every term is in 'fraction of a trivial baseline's error', so the weights
+    are interpretable and a leaf's variance no longer sets its influence):
+
+        loss =        NASA(RUL)      / NASA(age-only baseline)
+             + w_th * mean_leaf[ RMSE(theta)     / std(theta_leaf) ]
+             + w_tr * mean_leaf[ 1 - mean_unit_corr(theta_hat, theta) ]
+
+    * The RUL term is divided by the NASA score of `RUL = c - age`, so a value of 1
+      means 'as good as the zero-sensor baseline'; the tree must drive it below 1.
+    * Each leaf's RMSE is divided by std(theta_leaf) = RMSE(predict-the-mean), its
+      OWN trivial error. A near-constant leaf (small std -- the HPT_flow problem in
+      the pool) no longer explodes and drowns the informative leaves.
+    * trend_weight adds a per-unit CORRELATION term. Runs show the leaves capture
+      the SHAPE of degradation (per-unit rho ~ 0.5-0.6) while missing the SCALE
+      (negative R2). RMSE punishes scale error and gives shape no credit; this term
+      rewards shape directly -- what a memoryless FIS on noisy sensors can actually
+      deliver. Try 0.5-1.0. 0 = off.
+
+    theta_weight : weight on the (baseline-normalized) leaf RMSE term.
+    trend_weight : weight on the per-unit correlation term (0 = off).
+    learn_mf     : also evolve the membership functions (section 1b). Seeded at the
+                   quantile placement, so it cannot start worse. False = ablation.
+    monotone     : constrain MONOTONE nodes (hp, lp, RUL) to monotone surfaces by
+                   construction (section 2b). False = free grids, for the ablation.
+    residual     : subtract each engine's OWN new-condition signature (section 5).
+    rul_cap      : y = min(RUL, cap). RECOMMENDED -- see suggest_rul_cap().
+    smooth_span  : EWMA span on the sensors (~5-10 tames the theta jitter).
 
     Fits on `frame`. Score with evaluate() on a HELD-OUT frame -- in-sample
     numbers here are not evidence. Returns a plain-dict model."""
@@ -551,18 +577,31 @@ def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
                   smooth_span)
     meta = build_tree(frame, tree, n_terms, learn_mf, monotone)
     y = cap(frame["RUL"], rul_cap)
-    lo, hi = genome_bounds(meta, frame, float(y.max()))
+    yv = np.asarray(y, float)
+    lo, hi = genome_bounds(meta, frame, float(yv.max()))
+    units = frame["unit"].to_numpy()
+
+    # --- per-term normalizers, computed ONCE from trivial baselines ----------
+    a = frame["age"].to_numpy(float)                     # RUL: age-only NASA score
+    ok = (yv < float(rul_cap) - 1e-9) if rul_cap else np.ones(len(yv), bool)
+    c_age = float(np.mean(yv[ok] + a[ok])) if ok.sum() > 1 else float(np.mean(yv + a))
+    nasa0 = nasa_score(y, np.clip(c_age - a, 0.0, rul_cap or None)) or 1.0
 
     leaves = [m for m in meta if m["target"]]
     Yt = {m["name"]: frame[m["target"]].to_numpy(float) for m in leaves}
-    span = {n: (v.max() - v.min()) or 1.0 for n, v in Yt.items()}
+    theta0 = {n: (float(np.std(v)) or 1.0) for n, v in Yt.items()}   # std = trivial RMSE
 
     def loss(g):
         vals = predict_tree(frame, meta, g)
-        l = nasa_score(y, vals["RUL"])
-        if leaves:
-            l += theta_weight * np.mean([rmse(Yt[m["name"]], vals[m["name"]])
-                                         / span[m["name"]] for m in leaves])
+        l = nasa_score(y, vals["RUL"]) / nasa0
+        if leaves and theta_weight:
+            l += theta_weight * np.mean(
+                [rmse(Yt[m["name"]], vals[m["name"]]) / theta0[m["name"]]
+                 for m in leaves])
+        if leaves and trend_weight:
+            l += trend_weight * np.mean(
+                [1.0 - _unit_corr(units, Yt[m["name"]], vals[m["name"]])
+                 for m in leaves])
         return l
 
     if verbose:
@@ -571,13 +610,14 @@ def fit_gft(frame, tree=TREE, n_terms=3, pop=80, gens=120, residual=True,
               f" ({n_mf_params(meta)} antecedent + "
               f"{n_params(meta) - n_mf_params(meta)} rule)"
               f" | leaves: {[m['target'] for m in leaves]}"
-              f" | monotone: {mono}")
+              f" | monotone: {mono} | w_th={theta_weight} w_tr={trend_weight}")
     genome, history = genetic_optimize(loss, lo, hi, pop=pop, gens=gens, seed=seed,
                                        x0=seed_genome(meta, lo, hi),
                                        verbose=verbose, label="GFT")
     bake_centers(meta, genome)
     return {"tree": tree, "meta": meta, "genome": genome, "history": history,
-            "rul_cap": rul_cap, "theta_weight": theta_weight, "learn_mf": learn_mf,
+            "rul_cap": rul_cap, "theta_weight": theta_weight,
+            "trend_weight": trend_weight, "learn_mf": learn_mf,
             "monotone": monotone, "residual": residual, "ref_cycles": ref_cycles,
             "smooth_span": smooth_span}
 

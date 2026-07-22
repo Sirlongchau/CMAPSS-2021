@@ -25,7 +25,12 @@ import datasets as ds
 from gft_analysis import analyze
 
 GENS, POP, SEEDS = 400, 120, (0, 1, 2)
-THETA_W, SMOOTH = 5.0, 7
+# Loss weights. The loss is now in 'fraction of trivial baseline' units (each term
+# ~O(1)), so THETA_W no longer needs to be large to be felt -- 1.0 means the leaf
+# RMSE term matters as much as the RUL term. TREND_W turns on the per-unit
+# correlation term, which rewards leaves that track the SHAPE of degradation even
+# when their scale is off (the rho-high / R2-negative case seen in every run).
+THETA_W, TREND_W, SMOOTH = 1.0, 1.0, 7
 
 pd.set_option("display.width", 200, "display.max_columns", 40)
 
@@ -38,7 +43,8 @@ feats = ds.pooled()
 train, val, test = ds.split(feats, fracs=(0.8, 0.1, 0.1), seed=0)
 
 RUL_CAP = gft.suggest_rul_cap(train)          # from TRAIN only -- never from test
-FIT = dict(gens=GENS, pop=POP, theta_weight=THETA_W, smooth_span=SMOOTH,
+FIT = dict(gens=GENS, pop=POP, theta_weight=THETA_W, trend_weight=TREND_W,
+           smooth_span=SMOOTH,
            rul_cap=RUL_CAP)
 banner(f"rul_cap = {RUL_CAP:.0f} cycles (RUL at degradation onset, train units)")
 
