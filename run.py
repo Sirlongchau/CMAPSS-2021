@@ -51,12 +51,18 @@ banner(f"rul_cap = {RUL_CAP:.0f} cycles (RUL at degradation onset, train units)"
 # ---- model selection: everything below is scored on VAL -------------------
 banner("VALIDATION  (mean +/- sd over seeds)")
 rows = [gft.baselines(train, val, RUL_CAP)]
-#  name                        tree          learn_mf  monotone
-arms = [("GFT full",           gft.TREE,     True,     True),
-        ("GFT free-grid",      gft.TREE,     True,     False),   # monotone ablation
-        ("GFT fixed-MF",       gft.TREE,     False,    True),    # antecedent ablation
-        ("GFT +age",           gft.TREE_AGE, True,     True)]    # age ablation
-for name, tree, mf, mono in arms:
+#  name                        tree          learn_mf  monotone  selectable?
+#  `selectable` marks configs you would actually DEPLOY, i.e. the ones eligible to
+#  be chosen for the test set. The others are diagnostics only:
+#    free-grid drops the monotonicity that the interpretability claim rests on;
+#    +age restores the shortcut the whole design is built to avoid. Either can
+#    "win" on RMSE while being the wrong thing to report.
+arms = [("GFT full",           gft.TREE,     True,     True,   True),
+        ("GFT LP-specific",    gft.TREE_LP1, True,     True,   True),   # drop coupled lpt_eff
+        ("GFT fixed-MF",       gft.TREE,     False,    True,   True),   # antecedent ablation
+        ("GFT free-grid",      gft.TREE,     True,     False,  False),  # monotone ablation
+        ("GFT +age",           gft.TREE_AGE, True,     True,   False)]  # age ablation
+for name, tree, mf, mono, _sel in arms:
     for s in SEEDS:
         m = gft.fit_gft(train, tree, learn_mf=mf, monotone=mono, seed=s,
                         verbose=False, **FIT)
@@ -66,6 +72,12 @@ res = pd.concat(rows, ignore_index=True)
 print(gft.summarize(res).to_string())
 print("""
   full vs 'age only'   -- do the sensors and the fuzzy tree contribute anything?
+  full vs LP-specific  -- LP-specific DROPS lpt_eff, which leaf_search found to be
+                          predictive (R2 .45) but NOT spool-specific (specificity
+                          -.07: it reads the HP spool as well as the LP). If the
+                          RUL cost is small, TAKE LP-SPECIFIC -- every remaining
+                          leaf then genuinely diagnoses its own component, which is
+                          a far cleaner claim, on 109 params instead of 158.
   full vs free-grid    -- what the MONOTONICITY constraint bought. free-grid lets
                           hp/lp/RUL fold; if full is >= free-grid on VAL, the
                           physical prior is free accuracy AND a readable surface.
@@ -77,11 +89,21 @@ banner("held-out theta quality (R2 and per-unit correlation)")
 print(res[res["model"] == "GFT full"][tcols].mean().round(3).to_string())
 
 # ---- final: refit on train+val, score ONCE on test ------------------------
-banner("TEST  (fit on train+val, scored once)")
+# ---- final: refit the WINNING val arm on train+val, score ONCE on test ----
+# Selecting the arm is the entire point of the validation split. Hardcoding one
+# config here (an earlier bug) can send the worst arm to test: in one run "full"
+# had val RMSE 9.62 +/- 1.26 while "fixed-MF" had 9.34 +/- 0.02, and testing
+# "full" lost to the age baseline that "fixed-MF" would have beaten.
+sel = [a[0] for a in arms if a[4]]
+best_name = gft.summarize(res).loc[sel, "RMSE"].idxmin()
+best_cfg = next(a for a in arms if a[0] == best_name)
+banner(f"TEST  (winning deployable val arm = {best_name}; fit on train+val, once)")
+_, best_tree, best_mf, best_mono, _ = best_cfg
 full = pd.concat([train, val], ignore_index=True)
-model = gft.fit_gft(full, gft.TREE, learn_mf=True, monotone=True, seed=0, **FIT)
+model = gft.fit_gft(full, best_tree, learn_mf=best_mf, monotone=best_mono,
+                    seed=0, **FIT)
 final = pd.concat([gft.baselines(full, test, RUL_CAP),
-                   pd.DataFrame([gft.evaluate(test, model, "GFT full")])],
+                   pd.DataFrame([gft.evaluate(test, model, best_name)])],
                   ignore_index=True)
 print(final[["model", "n_params", "RMSE", "MAE", "NASA", "R2"]].round(3)
       .to_string(index=False))

@@ -46,14 +46,10 @@ from ncmapss_features import SENSORS, THETA
 #   HPT (high-pressure turbine)  : hot-section temps/pressures + core speed
 #   LPT (low-pressure turbine)   : LPT exit temp/pressure + fan speed + bypass
 CANDIDATES = {
-    "HPT_eff_mod":  ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
-          "P15", "P21", "P24", "Ps30", "P40", "P50"],
-    "HPT_flow_mod": ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
-          "P15", "P21", "P24", "Ps30", "P40", "P50"],
-    "LPT_eff_mod":  ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
-          "P15", "P21", "P24", "Ps30", "P40", "P50"],
-    "LPT_flow_mod": ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
-          "P15", "P21", "P24", "Ps30", "P40", "P50"],
+    "HPT_eff_mod":  ["T48", "T30", "P40", "Ps30", "Nc", "Nf", "Wf", "T50"],
+    "HPT_flow_mod": ["T48", "T30", "P40", "Ps30", "Nc", "Nf", "Wf", "P24"],
+    "LPT_eff_mod":  ["T50", "P50", "Nf", "Nc", "P24", "T48", "Wf", "P21"],
+    "LPT_flow_mod": ["T50", "P50", "P24", "Nf", "P21", "P15", "Nc", "Wf"],
 }
 
 # The current engineering choice, for reference in the output table.
@@ -182,7 +178,7 @@ def _prep(frame, sensors, residual, ref_cycles, smooth_span):
 
 def search_target(feats, target, k=3, all_sensors=False, residual=True,
                   ref_cycles=20, smooth_span=7, gens=120, pop=50, seed=0,
-                  top=13):
+                  top=8):
     """Rank every k-subset of the candidate sensors for one theta target."""
     pool = SENSORS if all_sensors else CANDIDATES.get(target, SENSORS)
     pool = [s for s in pool if s in feats.columns]
@@ -203,17 +199,22 @@ def search_target(feats, target, k=3, all_sensors=False, residual=True,
     print()
     df = pd.DataFrame(rows).sort_values("rho", ascending=False).reset_index(drop=True)
 
-    base = "+".join(BASELINE.get(target, []))
-    df["is_baseline"] = df["inputs"] == base
+    base = BASELINE.get(target, [])
+    baseset = frozenset(base)
+    # NB: compare as SETS. itertools.combinations emits sensors in pool order, so
+    # the engineering choice ["T48","P40","Nc"] comes out as "Nc+T48+P40" and a
+    # plain string comparison silently never matches (it made is_baseline all-False
+    # in --all-sensors runs, so the "engineering choice ranks #N" line never fired).
+    df["is_baseline"] = df["inputs"].map(lambda s: frozenset(s.split("+")) == baseset)
     rank = df.index[df["is_baseline"]].tolist()
     print(f"top {top} by per-unit rho:")
     print(df.head(top).to_string(index=False))
     if rank:
         r = rank[0]
-        print(f"  engineering choice ({base}) ranks #{r + 1}/{len(df)}: "
-              f"rho={df.loc[r,'rho']:.3f}  R2={df.loc[r,'R2']:.3f}")
+        print(f"  engineering choice ({'+'.join(base)}) ranks "
+              f"#{r + 1}/{len(df)}: rho={df.loc[r,'rho']:.3f}  R2={df.loc[r,'R2']:.3f}")
     else:
-        print(f"  engineering choice ({base}) not in candidate pool "
+        print(f"  engineering choice ({'+'.join(base)}) not in candidate pool "
               f"(try --all-sensors)")
     return df
 
@@ -268,7 +269,9 @@ def confirm_target(feats, target, shortlist, seeds=(0, 1, 2, 3, 4), **fit_kw):
     foil = FOIL.get(target)
     combos = [tuple(c.split("+")) for c in shortlist]
     base = tuple(BASELINE.get(target, []))
-    if base and base not in combos:
+    # set-compare, so a shortlist entry like "Nc+T48+P40" is recognised as the
+    # baseline ["T48","P40","Nc"] rather than being appended a second time
+    if base and not any(frozenset(c) == frozenset(base) for c in combos):
         combos.append(base)
 
     print(f"\n{target}: confirming {len(combos)} combos over {len(seeds)} seeds "
@@ -276,7 +279,7 @@ def confirm_target(feats, target, shortlist, seeds=(0, 1, 2, 3, 4), **fit_kw):
     rows = []
     for i, combo in enumerate(combos):
         r = _score_multi(feats, combo, target, foil, seeds, **fit_kw)
-        r["is_baseline"] = (combo == base)
+        r["is_baseline"] = (frozenset(combo) == frozenset(base))
         rows.append(r)
         print(f"  {i + 1}/{len(combos)} done", end="\r")
     print()
@@ -299,6 +302,37 @@ def _shortlist_from_csv(path, target, n):
     return df["inputs"].head(n).tolist()
 
 
+def _prescreen(feats, target, all_combos, n, seed=0, min_rho=0.0, **fit_kw):
+    """Cheap ONE-seed specificity screen over the WHOLE candidate list, to pick the
+    shortlist for the expensive multi-seed confirm.
+
+    Why not just confirm the top-n by rho? Because rho and specificity disagree:
+    the most component-SPECIFIC combo can sit well down the rho ranking (and a
+    not-yet-converged search only fixes the ordering loosely anyway). This scans
+    every combo once, ranks by (single-seed) specificity, and returns the top n --
+    so a genuinely specific combo that the rho leaderboard buried still gets its
+    full multi-seed hearing. min_rho drops combos too weak to be worth confirming
+    regardless of specificity."""
+    foil = FOIL.get(target)
+    rows = []
+    for i, combo in enumerate(all_combos):
+        inp = tuple(combo.split("+"))
+        r = _score_multi(feats, inp, target, foil, seeds=(seed,), **fit_kw)
+        rows.append(r)
+        if (i + 1) % 20 == 0 or i + 1 == len(all_combos):
+            print(f"  prescreen {i + 1}/{len(all_combos)}", end="\r")
+    print()
+    df = pd.DataFrame(rows)
+    df = df[df["rho"] >= min_rho]
+    df = df.sort_values("specificity", ascending=False)
+    return df["inputs"].head(n).tolist()
+
+
+def _all_combos_from_csv(path, target):
+    df = pd.read_csv(path)
+    return df[df["target"] == target]["inputs"].tolist()
+
+
 def main():
     p = argparse.ArgumentParser(description="Per-leaf sensor-input ablation.")
     p.add_argument("--target", choices=THETA, help="one target (default: all four)")
@@ -316,9 +350,16 @@ def main():
                    help="seed-robustness + cross-spool specificity on the top-N "
                         "combos from an earlier search CSV (default leaf_search.csv)")
     p.add_argument("--topn", type=int, default=5,
-                   help="how many top-rho combos per target to confirm (default 5)")
+                   help="how many combos per target to confirm (default 5)")
     p.add_argument("--seeds", type=int, default=5,
                    help="number of seeds for confirm mode (default 5)")
+    p.add_argument("--by-specificity", action="store_true",
+                   help="pick the confirm shortlist by a cheap 1-seed specificity "
+                        "PRESCREEN over the WHOLE csv, not by top-rho. Surfaces "
+                        "component-specific combos the rho leaderboard buried.")
+    p.add_argument("--min-rho", type=float, default=0.35,
+                   help="in --by-specificity, drop combos below this rho before "
+                        "ranking on specificity (default 0.35)")
     a = p.parse_args()
 
     feats = ds.pooled()
@@ -331,7 +372,14 @@ def main():
         seeds = tuple(range(a.seeds))
         allres = []
         for t in targets:
-            shortlist = _shortlist_from_csv(a.confirm, t, a.topn)
+            if a.by_specificity:
+                all_combos = _all_combos_from_csv(a.confirm, t)
+                print(f"\n{t}: specificity prescreen over {len(all_combos)} combos "
+                      f"(1 seed) -> top {a.topn} by specificity, min_rho={a.min_rho}")
+                shortlist = _prescreen(feats, t, all_combos, a.topn,
+                                       seed=0, min_rho=a.min_rho, **fit_kw)
+            else:
+                shortlist = _shortlist_from_csv(a.confirm, t, a.topn)
             df = confirm_target(feats, t, shortlist, seeds=seeds, **fit_kw)
             df.insert(0, "target", t)
             allres.append(df)

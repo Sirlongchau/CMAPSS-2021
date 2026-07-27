@@ -171,12 +171,31 @@ def _mono_signs(name, n_inputs, monotone=True):
     return tuple(int(np.sign(v)) for v in s)
 
 _LEAVES = [
+    # Leaf inputs and membership are the OUTPUT of leaf_search.py, not a guess.
+    # Each was fitted standalone and scored on HELD-OUT units, over 5 seeds, with a
+    # cross-spool specificity check (does it read ITS component, or global damage?).
+    #
+    #   leaf       rho    R2    specificity   verdict
+    #   hpt_eff   0.61   0.65     +0.07       strongest & most stable leaf -> keep
+    #   lpt_flow  0.59   0.44     +0.38*      best rho AND R2 of any candidate
+    #   lpt_eff   0.55   0.45     -0.07       predictive but NOT spool-specific
+    #   hpt_flow  0.25   0.13     -0.34       unreadable: DROPPED (see below)
+    #   (*) the flow-pair specificity is inflated -- its foil, HPT_flow, is itself
+    #       unpredictable, so foil_rho is low for any LPT_flow combo. Judge lpt_flow
+    #       on rho/R2, not on that number.
     ("hpt_eff",  ["T48", "P40", "Nc"],   "HPT_eff_mod"),   # HP: eff  -> speed
-    ("hpt_flow", ["T48", "P40", "Ps30"], "HPT_flow_mod"),  # HP: flow -> pressure
-    ("lpt_eff",  ["T50", "P50", "Nf"],   "LPT_eff_mod"),   # LP: eff  -> speed
     ("lpt_flow", ["T50", "P50", "P24"],  "LPT_flow_mod"),  # LP: flow -> pressure
-    ("hp",  ["hpt_eff", "hpt_flow"], None),      # global HP-shaft damage
-    ("lp",  ["lpt_eff", "lpt_flow"], None),      # global LP-shaft damage
+    ("lpt_eff",  ["T50", "P50", "Nf"],   "LPT_eff_mod"),   # LP: eff  -> speed
+
+    # HPT_flow_mod is deliberately ABSENT. An exhaustive search over all 286
+    # 3-sensor combinations of the 13 measured sensors put its ceiling at rho=0.27
+    # (every other modifier reaches ~0.63), with negative held-out R2 throughout and
+    # a specificity of -0.34: candidate inputs predicted the OTHER spool better than
+    # HPT flow itself. It is not observable from cruise-mean sensors by a memoryless
+    # FIS. Keeping it would have fed the tree a leaf that diagnoses nothing.
+
+    ("hp", ["hpt_eff"],             None),   # HP-shaft damage (single input)
+    ("lp", ["lpt_flow", "lpt_eff"], None),   # LP-shaft damage
 ]
 
 # DEFAULT: the root sees ONLY the two shaft-damage nodes. `age` is ABLATED -- with
@@ -184,6 +203,14 @@ _LEAVES = [
 # learnable without touching a single sensor, and the GA will take that deal.
 TREE     = _LEAVES + [("RUL", ["hp", "lp"], None)]
 TREE_AGE = _LEAVES + [("RUL", ["hp", "lp", "age"], None)]   # ablation control
+
+# LPT_eff is predictive (R2 0.45) but reads global damage as much as the LP spool
+# (specificity -0.07). TREE_LP1 drops it, leaving a fully spool-SPECIFIC tree of two
+# leaves. Run both on validation: if dropping it barely costs RUL accuracy, take
+# TREE_LP1 -- it is the cleaner claim.
+TREE_LP1 = [l for l in _LEAVES if l[0] != "lpt_eff"]
+TREE_LP1 = [(n, ["lpt_flow"], t) if n == "lp" else (n, i, t)
+            for n, i, t in TREE_LP1] + [("RUL", ["hp", "lp"], None)]
 
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 
@@ -203,10 +230,17 @@ CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 # search space entirely -- no penalty, no weight to tune, no possible violation,
 # and the GA wastes no budget rediscovering that folds are bad.
 
-def _mono_decode(base, steps, shape, signs):
+def _mono_decode(base, steps, shape, signs, out=None):
     """Monotone grid (flattened) from a base value + non-negative steps.
     Multidim cumsum of non-negative increments is non-decreasing from a corner;
-    decreasing axes are flipped so their running total grows the other way."""
+    decreasing axes are flipped so their running total grows the other way.
+
+    `base` is the grid MINIMUM (the corner where the cumsum is 0), so the grid
+    spans [base, base + total_steps] -- which a box constraint alone cannot hold
+    inside the node's output range. `out=(lo, hi)` clips it there. Clipping is a
+    monotone map, so the surface stays monotone; without it a spool grid can run
+    past 1 and saturate against the [0,1] clamp in predict_tree, wasting the
+    node's whole dynamic range."""
     s = np.maximum(np.asarray(steps, float), 0.0).copy()
     s[0] = 0.0                                      # corner carries the base only
     G = s.reshape(shape)
@@ -215,7 +249,10 @@ def _mono_decode(base, steps, shape, signs):
     for ax in range(G.ndim):
         G = np.cumsum(G, axis=ax)
     G = G[rev]
-    return (float(base) + G).ravel()
+    G = float(base) + G
+    if out is not None:
+        G = np.clip(G, out[0], out[1])
+    return G.ravel()
 
 
 def _mono_encode(grid, shape, signs):
@@ -312,11 +349,13 @@ def centers(node, genome):
 
 def node_singletons(node, genome):
     """This node's rule consequents as a flat singleton vector. For a monotone
-    node the rule slice stores [base | steps]; decode it. For a free node it is
-    the singletons directly."""
+    node the rule slice stores [base | steps]; decode it (and clip to the node's
+    output range, which genome_bounds recorded as out_lo/out_hi)."""
     g = genome[node["rules"]]
     if node.get("mono") is not None:
-        return _mono_decode(g[0], g, node["shape"], node["mono"])
+        out = ((node["out_lo"], node["out_hi"])
+               if "out_lo" in node else None)
+        return _mono_decode(g[0], g, node["shape"], node["mono"], out)
     return g
 
 
@@ -366,18 +405,15 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
                 a, b = y.min() - cons_pad * span, y.max() + cons_pad * span
         else:
             a, b = 0.0, 1.0
-        if m.get("mono") is not None:                 # [base | non-negative steps]
-            # The decoded grid spans base + (steps summed along a corner-to-corner
-            # path). All signs here are non-increasing, so the base sits at the HIGH
-            # corner and steps carry the surface DOWN to the opposite corner. That
-            # path crosses (k-1) steps on EVERY axis, so the maximum total descent is
-            # sum_axes (k_axis - 1) * step_cap. Capping each step at
-            # (b-a) / sum_axes(k_axis - 1) guarantees the far corner cannot fall
-            # below `a`, so the surface stays in [a, b] with no post-hoc clipping.
-            span = b - a
+        m["out_lo"], m["out_hi"] = a, b           # used to clip monotone grids
+        if m.get("mono") is not None:             # [base | non-negative steps]
+            # base is the grid MINIMUM and the grid spans [base, base+total], so a
+            # box alone cannot keep it inside [a, b] -- node_singletons clips. The
+            # per-step cap still matters: it stops one gene swallowing the whole
+            # range and flattening the surface into a single step.
             r = m["rules"]
             path = sum(k - 1 for k in m["shape"]) or 1
-            lo[r], hi[r] = 0.0, span / path
+            lo[r], hi[r] = 0.0, (b - a) / path
             lo[r.start], hi[r.start] = a, b           # base spans the output range
         else:
             lo[m["rules"]], hi[m["rules"]] = a, b

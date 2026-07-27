@@ -41,6 +41,55 @@ def files(pattern=PATTERN):
 
 
 # ==========================================================================
+# 0. Verify -- an .h5 that half-downloaded will take the whole run down with it
+# ==========================================================================
+
+def verify(pattern=PATTERN):
+    """Try to open every file and report what happened. Run this before anything
+    else, especially after a fresh download.
+
+    The classic failure is a TRUNCATED file: HDF5 stores the byte offset where
+    the file should end, and h5py refuses to open it if the file on disk is
+    shorter ("truncated file: eof = N, stored_eof = M"). A shortfall of a few
+    bytes means the download was cut off, or the file was never fully hydrated.
+
+    KEEP THESE FILES OUT OF ONEDRIVE / DROPBOX / GOOGLE DRIVE. With sync-on-demand
+    a file can sit on disk as a partially materialised placeholder, and h5py seeks
+    all over it -- the worst possible access pattern for a synced folder. Put them
+    in a plain local directory."""
+    import h5py
+    rows = []
+    for p in files(pattern):
+        size = os.path.getsize(p)
+        try:
+            with h5py.File(p, "r") as h:
+                keys = len(list(h.keys()))
+            rows.append(dict(file=os.path.basename(p), GB=round(size / 2 ** 30, 2),
+                             status="ok", detail=f"{keys} groups"))
+        except Exception as e:
+            msg = str(e).split("(")[-1].rstrip(")")
+            rows.append(dict(file=os.path.basename(p), GB=round(size / 2 ** 30, 2),
+                             status="BROKEN", detail=msg))
+    df = pd.DataFrame(rows)
+    bad = df[df["status"] == "BROKEN"]
+    if len(bad):
+        print(f"\n{len(bad)} unreadable file(s) -- re-download them, and make sure "
+              f"they are NOT in a cloud-synced folder:")
+        print(bad.to_string(index=False))
+    return df
+
+
+def _open(path):
+    """h5py.File, or None with a message. Never lets one bad file stop the run."""
+    import h5py
+    try:
+        return h5py.File(path, "r")
+    except Exception as e:
+        print(f"  SKIP {os.path.basename(path)}: {e}")
+        return None
+
+
+# ==========================================================================
 # 1. Probe -- read the fault modes off the files instead of trusting a table
 # ==========================================================================
 
@@ -48,11 +97,14 @@ def probe(pattern=PATTERN):
     """One row per .h5: which theta modifiers it actually contains, how many
     units, and the lifetime spread. Run this FIRST -- the tree's four leaves
     (HPT/LPT eff & flow) only exist in some of the files; others degrade the fan,
-    the LPC or the HPC instead."""
-    import h5py
+    the LPC or the HPC instead. Unreadable files are reported and skipped; see
+    verify()."""
     rows = []
     for p in files(pattern):
-        with h5py.File(p, "r") as h:
+        h = _open(p)
+        if h is None:
+            continue
+        with h:
             th = [n.decode().strip() if isinstance(n, bytes) else str(n).strip()
                   for n in np.array(h["T_var"]).ravel()]
             out = {"file": os.path.basename(p), "theta": th,
@@ -67,6 +119,8 @@ def probe(pattern=PATTERN):
                 out[f"{sp}_units"] = int(len(np.unique(u)))
                 out[f"{sp}_life"] = f"{life.min():.0f}-{life.max():.0f}"
         rows.append(out)
+    if not rows:
+        raise RuntimeError(f"no readable .h5 matched {pattern!r} -- run verify()")
     return pd.DataFrame(rows)
 
 
@@ -79,25 +133,40 @@ def build_cache(pattern=PATTERN, cache=CACHE, force=False, **kw):
 
     load_raw() pulls a whole split into memory as one array, so a 3.7 GB file is
     several GB while it is being reduced. Do them ONE AT A TIME (this loop), and
-    afterwards the whole fleet is a few thousand rows and a few MB."""
+    afterwards the whole fleet is a few thousand rows and a few MB.
+
+    A file that fails to open (truncated download, half-hydrated cloud file) is
+    reported and skipped -- the rest of the fleet still caches. Returns the list
+    of files that failed."""
     os.makedirs(cache, exist_ok=True)
+    broken = []
     for p in files(pattern):
         tag = os.path.basename(p).replace("N-CMAPSS_", "").replace(".h5", "")
         out = os.path.join(cache, f"{tag}.parquet")
         if os.path.exists(out) and not force:
             print(f"  skip {tag} (cached)")
             continue
-        parts = []
+        parts, failed = [], False
         for sp in ("dev", "test"):
             try:
-                f = cycle_features(p, split=sp, **kw)
-            except Exception as e:
+                parts.append(cycle_features(p, split=sp, **kw).assign(split=sp))
+            except OSError as e:                       # unreadable / truncated file
+                print(f"  BROKEN {tag}: {e}")
+                failed = True
+                break
+            except Exception as e:                     # split absent -- fine
                 print(f"  {tag}/{sp}: {e}")
-                continue
-            parts.append(f.assign(split=sp))
+        if failed:
+            broken.append(p)
+            continue
         if parts:
             pd.concat(parts, ignore_index=True).assign(ds=tag).to_parquet(out)
             print(f"  {tag}: {sum(len(x) for x in parts)} cycle-rows -> {out}")
+    if broken:
+        print(f"\n{len(broken)} file(s) could not be read and were LEFT OUT of the "
+              f"cache:\n  " + "\n  ".join(os.path.basename(b) for b in broken) +
+              "\nRe-download them, and keep them out of any cloud-synced folder.")
+    return broken
 
 
 # ==========================================================================
@@ -198,7 +267,10 @@ def leave_one_dataset_out(frame):
 
 
 if __name__ == "__main__":
-    pd.set_option("display.width", 200, "display.max_colwidth", 90)
+    pd.set_option("display.width", 220, "display.max_colwidth", 90)
+    print("verifying files ...")
+    print(verify().to_string(index=False))
+    print("\nprobing fault modes ...")
     print(probe().to_string(index=False))
     print("\nbuilding cache (one file at a time) ...")
     build_cache()
