@@ -40,7 +40,7 @@ def per_unit_rmse(frame, model, cap):
     pathological units ROBUSTLY -- over every split a unit lands in, not one."""
     pr = gft.predict_gft(frame, model)
     f = frame.sort_values(["unit", "cycle"]).reset_index(drop=True)
-    d = pr["RUL_hat"].to_numpy(float) - gft.cap(f["RUL"], cap).to_numpy(float)
+    d = pr["RUL_hat"].to_numpy(float) - np.asarray(gft.cap(f["RUL"], cap), float)
     return (pd.DataFrame({"unit": f["unit"].to_numpy(), "sq": d ** 2})
             .groupby("unit")["sq"].mean().pow(0.5))
 
