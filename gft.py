@@ -215,6 +215,28 @@ TREE_LP1 = [(n, ["lpt_flow"], t) if n == "lp" else (n, i, t)
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 
 
+def refine(tree, k_spool=5, k_root=5):
+    """Raise MF resolution on the CHEAP nodes only. A node's rule count is the
+    product of its inputs' term counts, so bumping a 3-input LEAF from 3 to 5
+    terms explodes it (27 -> 125 rules); the 1-2 input spool and root nodes cost
+    almost nothing (a single-input spool 3 -> 5 is +2 rules; the root 3x3 -> 5x5
+    is +16). This sets per-input term counts on the target-less nodes (spools use
+    k_spool, the root uses k_root) and leaves the leaves at the build_tree default.
+
+    Finer spool inputs grade the damage->health ramp; a finer root surface lets
+    RUL drop more steeply as the spools approach (1,1). Neither removes the RUL
+    floor -- once damage saturates before EOL, a memoryless FIS has one value for
+    the whole saturated window (see PROJECT_STATE). Validate on held-out units;
+    the extra params are only worth it if they buy held-out accuracy."""
+    out = []
+    for name, ins, tgt in tree:
+        if tgt is None:                              # spool or root: no target
+            k = k_root if name == "RUL" else k_spool
+            ins = [(_parse_input(r, 0)[0], k) for r in ins]
+        out.append((name, ins, tgt))
+    return out
+
+
 # ==========================================================================
 # 2b. Structural monotone consequents
 # ==========================================================================
@@ -230,7 +252,7 @@ CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 # search space entirely -- no penalty, no weight to tune, no possible violation,
 # and the GA wastes no budget rediscovering that folds are bad.
 
-def _mono_decode(base, steps, shape, signs, out=None):
+def _mono_decode(base, steps, shape, signs, out=None, anchor=False):
     """Monotone grid (flattened) from a base value + non-negative steps.
     Multidim cumsum of non-negative increments is non-decreasing from a corner;
     decreasing axes are flipped so their running total grows the other way.
@@ -240,7 +262,18 @@ def _mono_decode(base, steps, shape, signs, out=None):
     inside the node's output range. `out=(lo, hi)` clips it there. Clipping is a
     monotone map, so the surface stays monotone; without it a spool grid can run
     past 1 and saturate against the [0,1] clamp in predict_tree, wasting the
-    node's whole dynamic range."""
+    node's whole dynamic range.
+
+    `anchor=True` (LATENT SPOOL nodes only): min-max normalise the grid to span
+    exactly [0, 1] -- healthy corner -> 0, max-damage corner -> 1. The absolute
+    scale of a latent damage node is a GAUGE FREEDOM (the RUL node downstream can
+    rescale it away), so the GA leaves it drifting in a sub-band such as
+    [0.48, 0.96]: a healthy engine then reads ~0.48 damage, the surface is a
+    near-binary switch, and the RUL prediction is compressed into the reachable
+    sub-square. Normalising removes the freedom and forces the node to MEAN
+    genuine [0,1] damage. Min-max is affine and increasing, so monotonicity and
+    the per-axis signs are preserved; `base` is subtracted out, so it becomes a
+    dead gene (genome_bounds pins it to 0)."""
     s = np.maximum(np.asarray(steps, float), 0.0).copy()
     s[0] = 0.0                                      # corner carries the base only
     G = s.reshape(shape)
@@ -250,14 +283,19 @@ def _mono_decode(base, steps, shape, signs, out=None):
         G = np.cumsum(G, axis=ax)
     G = G[rev]
     G = float(base) + G
-    if out is not None:
+    if anchor:                                      # span exactly [0, 1]
+        lo_, hi_ = float(G.min()), float(G.max())
+        G = (G - lo_) / (hi_ - lo_) if (hi_ - lo_) > 1e-9 else np.zeros_like(G)
+    elif out is not None:
         G = np.clip(G, out[0], out[1])
     return G.ravel()
 
 
 def _mono_encode(grid, shape, signs):
-    """Inverse: recover (base, steps) from a monotone grid, to seed the GA at a
-    valid monotone start. `steps` come out non-negative iff `grid` is monotone."""
+    """Inverse of the UNANCHORED decode: recover (base, steps) from a monotone
+    grid. `steps` come out non-negative iff `grid` is monotone. (For anchored
+    spool nodes the decode min-max normalises, so it is many-to-one and has no
+    unique inverse; encoding is not needed there -- the mid-box seed is valid.)"""
     G = np.asarray(grid, float).reshape(shape)
     corner = tuple(-1 if sg < 0 else 0 for sg in signs)
     base = float(G[corner])
@@ -295,6 +333,7 @@ def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True, monotone=True):
     (section 2b): their rule slice holds [base | non-negative steps] rather than raw
     singletons, so the surface cannot fold. monotone=False = free grids (ablation)."""
     out_dom, meta, k = {}, [], 0
+    deg = frame.get("since_onset", pd.Series(0, index=frame.index)).to_numpy() > 0
     for name, inputs, target in tree:
         tgt = target if (target in frame.columns) else None
         ins = []
@@ -302,9 +341,23 @@ def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True, monotone=True):
             src, n = _parse_input(raw, n_terms)
             if src in out_dom:                                # a child node's output
                 th = out_dom[src]                             # theta data, or None
-                c0 = _centers(th, n) if th is not None else np.linspace(0, 1, n)
-                dlo, dhi = _domain(*((th.min(), th.max()) if th is not None
-                                     else (0.0, 1.0)))
+                # FIX #2 -- place a spool node's INPUT centres over the DEGRADING
+                # rows only. theta is ~0 for most of a unit's life, so global
+                # quantiles collapse the three centres into the healthy plateau;
+                # the anchored grid then crams its whole 0->1 ramp into a sliver
+                # near onset, so the node reads high (~0.7-1) even for healthy
+                # units (the observed lp floor). Conditioning on since_onset
+                # spreads the centres across the ACTUAL damage range: the healthy
+                # end sits at onset (-> 0 after anchoring, so healthy units read
+                # ~0) and the ramp is graded across the tail. Domain stays
+                # full-range so the surface plots still show healthy -> damaged.
+                if th is not None:
+                    th_c = th[deg] if int(deg.sum()) >= n else th
+                    c0 = _centers(th_c, n)
+                    dlo, dhi = _domain(float(th.min()), float(th.max()))
+                else:
+                    c0 = np.linspace(0, 1, n)
+                    dlo, dhi = _domain(0.0, 1.0)
                 i = {"kind": "node", "src": src, "mu": 0.0, "sd": 1.0}
             elif src in frame.columns:                        # a sensor / age
                 x = frame[src].to_numpy(float)
@@ -324,9 +377,13 @@ def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True, monotone=True):
         shape = tuple(i["k"] for i in ins)
         n_rules = int(np.prod(shape))
         signs = _mono_signs(name, len(ins), monotone)
+        is_root = name == "RUL"
+        # a LATENT spool node = monotone, not the root, no target of its own.
+        # Only these get their output range anchored to [0,1] (see _mono_decode).
+        anchor = (signs is not None) and (not is_root) and (tgt is None)
         meta.append({"name": name, "inputs": ins, "n_rules": n_rules, "target": tgt,
-                     "root": name == "RUL", "rules": slice(k, k + n_rules),
-                     "shape": shape, "mono": signs})
+                     "root": is_root, "rules": slice(k, k + n_rules),
+                     "shape": shape, "mono": signs, "anchor": anchor})
         k += n_rules                                          # ... then singletons
         out_dom[name] = frame[tgt].to_numpy(float) if tgt is not None else None
     return meta
@@ -355,15 +412,17 @@ def node_singletons(node, genome):
     if node.get("mono") is not None:
         out = ((node["out_lo"], node["out_hi"])
                if "out_lo" in node else None)
-        return _mono_decode(g[0], g, node["shape"], node["mono"], out)
+        return _mono_decode(g[0], g, node["shape"], node["mono"], out,
+                            anchor=node.get("anchor", False))
     return g
 
 
 def seed_genome(meta, lo, hi):
     """GA seed = the previous model: quantile centres, mid-box singletons. For a
-    monotone node, genome index rules.start doubles as the grid `base` (its bounds
-    were set to the output range, not [0, span]), and _mono_decode ignores it as a
-    step -- so the plain mid-box is already a valid, if steep, monotone seed."""
+    monotone node, genome index rules.start doubles as the grid `base`, and
+    _mono_decode ignores it as a step -- so the plain mid-box is already a valid
+    monotone seed. For an ANCHORED spool node the base is pinned to 0 and the
+    equal mid-box steps normalise to a uniform [0,1] ramp -- a graded seed."""
     x0 = 0.5 * (lo + hi)
     for m in meta:
         for i in m["inputs"]:
@@ -414,7 +473,13 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
             r = m["rules"]
             path = sum(k - 1 for k in m["shape"]) or 1
             lo[r], hi[r] = 0.0, (b - a) / path
-            lo[r.start], hi[r.start] = a, b           # base spans the output range
+            if m.get("anchor"):
+                # decode min-max normalises this node, so `base` is subtracted
+                # out (a dead gene). Pin it to 0 so the GA wastes no search on it;
+                # the normalised grid spans [0,1] from the steps alone.
+                lo[r.start], hi[r.start] = 0.0, 0.0
+            else:
+                lo[r.start], hi[r.start] = a, b       # base spans the output range
         else:
             lo[m["rules"]], hi[m["rules"]] = a, b
     return lo, hi
@@ -884,6 +949,37 @@ def _self_test():
                     bad += 1
     print(f"200 random genomes: monotone nodes never violate their sign "
           f"({'OK' if bad == 0 else str(bad) + ' VIOLATIONS'})")
+
+    # anchored spool nodes must span EXACTLY [0,1] for any non-degenerate genome
+    worst_span = 0.0
+    for _ in range(200):
+        g = rng.uniform(lo2, hi2)
+        for node in mm:
+            if not node.get("anchor"):
+                continue
+            G = node_singletons(node, g)
+            if G.max() - G.min() < 1e-9:            # degenerate (all-zero steps)
+                continue
+            worst_span = max(worst_span, abs(G.min()) + abs(G.max() - 1.0))
+    print(f"200 random genomes: anchored spool nodes span [0,1] "
+          f"(max |min|+|max-1| = {worst_span:.1e})")
+
+    # FIX #2: a spool node's input centres must come from the DEGRADING rows,
+    # not the healthy plateau, so the anchored ramp is graded (not a near-step).
+    deg = df["since_onset"].to_numpy() > 0
+    spool = next(m for m in meta if m.get("anchor"))        # e.g. hp <- hpt_eff
+    inp = spool["inputs"][0]
+    th_all = df[spool["name"]] if spool["name"] in df else None  # (node output; skip)
+    th_tgt = df["HPT_eff_mod"].to_numpy(float) if inp["src"] == "hpt_eff" else None
+    if th_tgt is not None:
+        c_deg = inp["c0"]
+        lo_deg, hi_deg = float(th_tgt[deg].min()), float(th_tgt[deg].max())
+        inside = bool(c_deg.min() >= lo_deg - 1e-9 and c_deg.max() <= hi_deg + 1e-9)
+        span_ratio = (c_deg.max() - c_deg.min()) / (
+            th_tgt.max() - th_tgt.min() + 1e-12)
+        print(f"spool-input centres placed on the degrading range "
+              f"({'OK' if inside else 'NOT confined'}; "
+              f"they span {span_ratio:.0%} of the full theta range)")
 
     print(f"\nrul_cap = {rc:.0f}   (RUL at degradation onset)\n")
     tr, te = split_units(df, holdout=6)
