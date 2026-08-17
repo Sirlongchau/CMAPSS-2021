@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-
+from pathlib import Path
 import gft
 
 _PAL = [f"C{i}" for i in range(20)]
@@ -421,9 +421,10 @@ def save_figures(feats, pred, model=None, folder="figures",
 if __name__ == "__main__":
     import matplotlib
     matplotlib.use("Agg")
+    workspace=Path.cwd()
     df = gft._synthetic_frame(units=6, cycles=60, seed=1)
     model = gft.fit_gft(df, gens=60, pop=60, verbose=False)
     pred = gft.predict_gft(df, model)
-    save_figures(df, pred, model=model, folder="/home/claude/figures",
+    save_figures(df, pred, model=model, folder=workspace/"figures/final",
                  surface_kind="contour")
     print("analysis self-test OK")
