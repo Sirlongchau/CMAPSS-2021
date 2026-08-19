@@ -286,16 +286,23 @@ def _mono_decode(base, steps, shape, signs, out=None, anchor=False):
     past 1 and saturate against the [0,1] clamp in predict_tree, wasting the
     node's whole dynamic range.
 
-    `anchor=True` (LATENT SPOOL nodes only): min-max normalise the grid to span
-    exactly [0, 1] -- healthy corner -> 0, max-damage corner -> 1. The absolute
-    scale of a latent damage node is a GAUGE FREEDOM (the RUL node downstream can
-    rescale it away), so the GA leaves it drifting in a sub-band such as
-    [0.48, 0.96]: a healthy engine then reads ~0.48 damage, the surface is a
-    near-binary switch, and the RUL prediction is compressed into the reachable
-    sub-square. Normalising removes the freedom and forces the node to MEAN
-    genuine [0,1] damage. Min-max is affine and increasing, so monotonicity and
-    the per-axis signs are preserved; `base` is subtracted out, so it becomes a
-    dead gene (genome_bounds pins it to 0)."""
+    `anchor=True`: min-max normalise the grid, then scale it into `out=(lo,hi)` so
+    it spans EXACTLY that range -- the surface is pinned at both corners by
+    construction, the GA only shapes the interior.
+      - LATENT SPOOL nodes (out=(0,1)): healthy corner -> 0, max-damage corner -> 1.
+        The absolute scale of a latent damage node is a GAUGE FREEDOM (the RUL node
+        downstream can rescale it away), so the GA leaves it drifting in a sub-band
+        such as [0.48, 0.96]: a healthy engine then reads ~0.48 damage, the surface
+        is a near-binary switch, and RUL is compressed into the reachable sub-square.
+        Normalising removes the freedom and forces the node to MEAN genuine [0,1].
+      - ROOT (out=(0, rul_cap)): the physical boundary conditions RUL(no damage) =
+        cap and RUL(full damage) = 0 are MANDATED, not learned. Left free the GA
+        parks the failure floor at ~3-5 (the damaged corner is base + a free step,
+        not `base` -- the axis flip moves the free floor to the max-damage end), so
+        the last, most safety-critical cycles are over-predicted. Anchoring forces
+        the max-damage corner (1,..,1) to read exactly 0.
+    Min-max is affine and increasing, so monotonicity and the per-axis signs are
+    preserved; `base` is subtracted out, so it becomes a dead gene (pinned to 0)."""
     s = np.maximum(np.asarray(steps, float), 0.0).copy()
     s[0] = 0.0                                      # corner carries the base only
     G = s.reshape(shape)
@@ -305,9 +312,11 @@ def _mono_decode(base, steps, shape, signs, out=None, anchor=False):
         G = np.cumsum(G, axis=ax)
     G = G[rev]
     G = float(base) + G
-    if anchor:                                      # span exactly [0, 1]
+    if anchor:                                      # span EXACTLY the output range
         lo_, hi_ = float(G.min()), float(G.max())
         G = (G - lo_) / (hi_ - lo_) if (hi_ - lo_) > 1e-9 else np.zeros_like(G)
+        if out is not None:                         # scale unit span -> [lo, hi]
+            G = float(out[0]) + G * (float(out[1]) - float(out[0]))
     elif out is not None:
         G = np.clip(G, out[0], out[1])
     return G.ravel()
@@ -400,9 +409,12 @@ def build_tree(frame, tree=TREE, n_terms=3, learn_mf=True, monotone=True):
         n_rules = int(np.prod(shape))
         signs = _mono_signs(name, len(ins), monotone)
         is_root = name == "RUL"
-        # a LATENT spool node = monotone, not the root, no target of its own.
-        # Only these get their output range anchored to [0,1] (see _mono_decode).
-        anchor = (signs is not None) and (not is_root) and (tgt is None)
+        # Anchor = span the output range EXACTLY (see _mono_decode). LATENT spool
+        # nodes (monotone, targetless, not root) anchor to [0,1] to kill the gauge
+        # freedom in their scale. The ROOT anchors too, to [0, rul_cap], so the
+        # physical corners RUL(no damage)=cap and RUL(full damage)=0 hold by
+        # construction rather than being left to the GA (which parks the floor ~4).
+        anchor = (signs is not None) and (tgt is None)
         meta.append({"name": name, "inputs": ins, "n_rules": n_rules, "target": tgt,
                      "root": is_root, "rules": slice(k, k + n_rules),
                      "shape": shape, "mono": signs, "anchor": anchor})
@@ -495,15 +507,14 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
             r = m["rules"]
             path = sum(k - 1 for k in m["shape"]) or 1
             lo[r], hi[r] = 0.0, (b - a) / path
-            if m.get("anchor") or m["root"]:
-                # anchor (latent spool): min-max normalises, base is a dead gene.
-                # root (RUL): `base` is the grid minimum, and for a decreasing node
-                # that corner is MAX DAMAGE -- where RUL is physically 0. Left free
-                # the GA parks the floor at ~5 (regression to the mean), which
-                # OVER-predicts the last, most safety-critical cycles. Pinning base=0
-                # forces the surface to reach 0 at end-of-life; the non-negative
-                # steps still let the healthy corner climb to rul_hi, so no ceiling
-                # is lost. RUL stays >= 0 (base>=0, steps>=0), no clipping needed.
+            if m.get("anchor"):
+                # ANCHORED (latent spools AND the root): _mono_decode min-max
+                # normalises the grid and scales it into [out_lo, out_hi], so `base`
+                # is subtracted out -- a dead gene. Pin it to 0 to waste no search.
+                # The anchoring is what forces the corners: a spool spans [0,1]
+                # (healthy 0, max-damage 1) and the root spans [0, rul_cap] (healthy
+                # cap, MAX-DAMAGE 0), so RUL reaches exactly 0 at end-of-life by
+                # construction rather than the GA parking a ~4-cycle floor there.
                 lo[r.start], hi[r.start] = 0.0, 0.0
             else:
                 lo[r.start], hi[r.start] = a, b       # base spans the output range
