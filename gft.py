@@ -176,13 +176,6 @@ _LEAVES = [
     # cross-spool specificity check (does it read ITS component, or global damage?).
     #
     #   leaf       rho    R2    specificity   verdict
-    #   hpt_eff   0.61   0.65     +0.07       strongest & most stable leaf -> keep
-    #   lpt_flow  0.59   0.44     +0.38*      best rho AND R2 of any candidate
-    #   lpt_eff   0.55   0.45     -0.07       predictive but NOT spool-specific
-    #   hpt_flow  0.25   0.13     -0.34       unreadable: DROPPED (see below)
-    #   (*) the flow-pair specificity is inflated -- its foil, HPT_flow, is itself
-    #       unpredictable, so foil_rho is low for any LPT_flow combo. Judge lpt_flow
-    #       on rho/R2, not on that number.
     ("hpt_eff",  ["T48", "P40", "Nc"],   "HPT_eff_mod"),   # HP: eff  -> speed
     ("lpt_flow", ["T50", "P50", "P24"],  "LPT_flow_mod"),  # LP: flow -> pressure
     ("lpt_eff",  ["T50", "P50", "Nf"],   "LPT_eff_mod"),   # LP: eff  -> speed
@@ -194,25 +187,54 @@ _LEAVES = [
     # HPT flow itself. It is not observable from cruise-mean sensors by a memoryless
     # FIS. Keeping it would have fed the tree a leaf that diagnoses nothing.
 
+    # A dedicated FAN branch (fan_flow -> fan node -> RUL(hp,lp,fan)) was built and
+    # ROLLED BACK. The fan_flow leaf IS observable in isolation (rho_active 0.90,
+    # specificity_active 0.50), but INSIDE the tree its node went dead (fan_h ~ 0):
+    # the RUL root already gets what it needs from hp/lp because fan degradation
+    # LEAKS into the LP-spool sensors (T50/P50/P24), so the GA had no incentive to
+    # use the fan input. Under LOSO, held-out DS04 scored 14.95 age-free -- identical
+    # to the blind 15.02 -- so the branch did not generalise. The fan is readable
+    # alone but not SEPARABLE from the LP spool here. We therefore keep the tree
+    # HP/LP-only and treat fan/HPC/LPC modes as BLIND (out of training), then
+    # deliberately test on their held-out units to measure how far the LP-leak alone
+    # carries RUL -- a bounded generalisation result rather than a dead branch.
+
     ("hp", ["hpt_eff"],             None),   # HP-shaft damage (single input)
     ("lp", ["lpt_flow", "lpt_eff"], None),   # LP-shaft damage
 ]
 
-# DEFAULT: the root sees ONLY the two shaft-damage nodes. `age` is ABLATED -- with
-# a few units of similar lifetime it is a shortcut, RUL ~= mean_EOL - age is
-# learnable without touching a single sensor, and the GA will take that deal.
+# DEFAULT: the root sees the two shaft-damage nodes. `age` is ABLATED -- with a few
+# units of similar lifetime it is a shortcut, RUL ~= mean_EOL - age is learnable
+# without touching a single sensor, and the GA will take that deal.
 TREE     = _LEAVES + [("RUL", ["hp", "lp"], None)]
 TREE_AGE = _LEAVES + [("RUL", ["hp", "lp", "age"], None)]   # ablation control
 
 # LPT_eff is predictive (R2 0.45) but reads global damage as much as the LP spool
 # (specificity -0.07). TREE_LP1 drops it, leaving a fully spool-SPECIFIC tree of two
-# leaves. Run both on validation: if dropping it barely costs RUL accuracy, take
+# leaves. Run both on validation; if dropping it barely costs RUL accuracy, take
 # TREE_LP1 -- it is the cleaner claim.
 TREE_LP1 = [l for l in _LEAVES if l[0] != "lpt_eff"]
 TREE_LP1 = [(n, ["lpt_flow"], t) if n == "lp" else (n, i, t)
             for n, i, t in TREE_LP1] + [("RUL", ["hp", "lp"], None)]
 
 CONDITIONS = ["alt", "Mach", "TRA", "T2"]
+
+
+def with_age(tree, node="RUL"):
+    """Return a copy of `tree` with `age` appended to `node`'s inputs (default the
+    RUL root) -- the age-augmented counterpart of any arm, for the age ablation and
+    the LOSO age-breakdown test. `age` is a strong IN-DISTRIBUTION shortcut
+    (RUL ~= mean_EOL - age); this lets us fit the SAME arm with and without it and
+    watch whether it survives a held-out mode of different innate lifetime.
+    MONOTONE[node] is a scalar sign, so the added input inherits the correct
+    (non-increasing) monotonicity automatically without touching MONOTONE."""
+    out, names = [], {n for n, _, _ in tree}
+    for name, ins, tgt in tree:
+        have = [_parse_input(r, 0)[0] for r in ins]
+        if name == node and "age" not in have:
+            ins = list(ins) + ["age"]
+        out.append((name, ins, tgt))
+    return out
 
 
 def refine(tree, k_spool=5, k_root=5):
@@ -473,10 +495,15 @@ def genome_bounds(meta, frame, rul_hi, cons_pad=0.25):
             r = m["rules"]
             path = sum(k - 1 for k in m["shape"]) or 1
             lo[r], hi[r] = 0.0, (b - a) / path
-            if m.get("anchor"):
-                # decode min-max normalises this node, so `base` is subtracted
-                # out (a dead gene). Pin it to 0 so the GA wastes no search on it;
-                # the normalised grid spans [0,1] from the steps alone.
+            if m.get("anchor") or m["root"]:
+                # anchor (latent spool): min-max normalises, base is a dead gene.
+                # root (RUL): `base` is the grid minimum, and for a decreasing node
+                # that corner is MAX DAMAGE -- where RUL is physically 0. Left free
+                # the GA parks the floor at ~5 (regression to the mean), which
+                # OVER-predicts the last, most safety-critical cycles. Pinning base=0
+                # forces the surface to reach 0 at end-of-life; the non-negative
+                # steps still let the healthy corner climb to rul_hi, so no ceiling
+                # is lost. RUL stays >= 0 (base>=0, steps>=0), no clipping needed.
                 lo[r.start], hi[r.start] = 0.0, 0.0
             else:
                 lo[r.start], hi[r.start] = a, b       # base spans the output range
@@ -739,6 +766,29 @@ def predict_gft(frame, model):
             out[m["name"] + "_h"] = vals[m["name"]]          # latent [0,1]
     out["RUL_hat"] = np.clip(vals["RUL"], 0.0, model["rul_cap"])
     return out.sort_values(["unit", "cycle"]).reset_index(drop=True)
+
+
+def flag_undiagnosable(pred, damage_thresh=0.2):
+    """Inference-time abstention. A unit whose PEAK latent damage max(hp_h, lp_h)
+    over its whole life never exceeds `damage_thresh` is one the tree read NO
+    degradation on -- its failure is in a component this tree has no leaf for
+    (fan / LPC / HPC). Its RUL_hat is then E[RUL | no visible damage], a prior,
+    not a measurement, and should be surfaced as an abstention rather than trusted.
+
+    Returns a DataFrame [unit, damage_peak, undiagnosable]. Unlike
+    datasets.tag_diagnosable (which reads the TRUE theta and needs labels), this
+    works from PREDICTIONS alone, so it is usable at deployment on an unlabelled
+    engine: if the shipped damage signal never lifts off the floor by end of life,
+    the model is telling you it cannot see this unit's fault."""
+    h = [c for c in pred.columns if c.endswith("_h")]
+    if not h:
+        return pd.DataFrame(columns=["unit", "damage_peak", "undiagnosable"])
+    peak = pred.groupby("unit")[h].max().max(axis=1)
+    return pd.DataFrame({
+        "unit": peak.index.astype(int).to_numpy(),
+        "damage_peak": peak.to_numpy(float),
+        "undiagnosable": (peak.to_numpy(float) < float(damage_thresh))}
+    ).reset_index(drop=True)
 
 
 def disp(inp, c):

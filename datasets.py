@@ -24,16 +24,92 @@ Typical use:
 """
 
 from __future__ import annotations
+import re
 import glob
 import os
 
 import numpy as np
 import pandas as pd
 
-from ncmapss_features import cycle_features, THETA
+from ncmapss_features import (cycle_features, THETA, TREE_THETA,
+                              COMPONENT_THETA, TREE_COMPONENTS)
 
 CACHE = "cache"
 PATTERN = "N-CMAPSS_DS*.h5"
+
+
+# ==========================================================================
+# Failure modes -- which components each subset actually degrades
+# ==========================================================================
+# From the N-CMAPSS design (Arias Chao et al. 2021). The tree has leaves for HPT and
+# LPT only (TREE_COMPONENTS), so a unit is DIAGNOSABLE iff its mode degrades one of
+# those. DS04 (fan), DS05 (HPC), DS06 (LPC+HPC) are BLIND: the tree has no leaf for
+# those components. We hold blind units OUT of training but keep them in the TEST
+# set (labeled), to measure how far the fan/HPC/LPC signal LEAKING into the HPT/LPT
+# sensors carries RUL with no dedicated leaf -- a bounded generalisation result.
+# (A fan branch was tried and rolled back: readable alone, not separable in-tree.)
+#
+# This table is DOCUMENTATION and a cross-check. The diagnosable flag itself is
+# derived from the data (tag_diagnosable), so files not listed here (or future
+# ones) are still handled correctly -- the two must agree, and _reconcile_diagnosable
+# checks that they do.
+FAILURE_MODES = {                          # subset tag -> components degraded
+    "DS01":  {"HPT"},
+    "DS02":  {"HPT", "LPT"},               # not in the design table given; from data
+    "DS03":  {"HPT", "LPT"},
+    "DS04":  {"fan"},                      # fan-only -> BLIND (no fan leaf)
+    "DS05":  {"HPC"},                      # HPC-only -> BLIND
+    "DS06":  {"LPC", "HPC"},               # LPC+HPC  -> BLIND
+    "DS07":  {"LPT"},
+    "DS08a": {"fan", "LPC", "HPC", "HPT", "LPT"},   # all modes -> readable via HPT/LPT
+    "DS08c": {"fan", "LPC", "HPC", "HPT", "LPT"},
+}
+
+
+def mode_key(tag):
+    """Map a pooled ds tag to its FAILURE_MODES key by stripping the file suffix:
+    'DS01-005' -> 'DS01', 'DS08a-009' -> 'DS08a', 'DS04' -> 'DS04'. Without this the
+    suffixed files never match FAILURE_MODES, so their failure_mode reads '?' and
+    _reconcile_diagnosable silently skips them."""
+    m = re.match(r"(DS\d+[a-z]?)", str(tag))
+    return m.group(1) if m else str(tag)
+
+
+def mode_is_diagnosable(components, tree_components=TREE_COMPONENTS):
+    """A failure mode is diagnosable iff it degrades a component the tree reads."""
+    return bool(set(components) & set(tree_components))
+
+
+def tag_diagnosable(frame, tree_theta=TREE_THETA, eps=1e-6):
+    """Add a per-unit boolean `diagnosable`: can THIS tree read this unit's
+    degradation at all? True iff at least one HPT/LPT modifier is non-trivially
+    non-zero somewhere in the unit's life.
+
+    DATA-DRIVEN on purpose: the actual theta is the single source of truth, so
+    this is correct for DS02/DS09 or any file absent from FAILURE_MODES. A
+    fan-/LPC-/HPC-only unit has all TREE_THETA identically 0 and comes out False --
+    the tree has no leaf for its degrading component, so hp=lp=0 for its whole life
+    and the root cannot explain its RUL. Also carries `damage_theta_peak` (the
+    largest |modifier| the tree can see on the unit) for inspection."""
+    f = frame.copy()
+    cols = [c for c in tree_theta if c in f.columns]
+    if not cols:
+        f["damage_theta_peak"] = 0.0
+        f["diagnosable"] = False
+        return f
+    peak = f.groupby("unit")[cols].apply(lambda d: float(np.abs(d.to_numpy()).max()))
+    f["damage_theta_peak"] = f["unit"].map(peak).astype(float)
+    f["diagnosable"] = f["damage_theta_peak"] > eps
+    return f
+
+
+def split_diagnosable(frame):
+    """(diagnosable, undiagnosable) sub-frames. Fit and score the HPT/LPT damage
+    model on the first; report the second separately as a known blind spot."""
+    if "diagnosable" not in frame.columns:
+        frame = tag_diagnosable(frame)
+    return (frame[frame["diagnosable"]].reset_index(drop=True),
+            frame[~frame["diagnosable"]].reset_index(drop=True))
 
 
 def files(pattern=PATTERN):
@@ -128,6 +204,21 @@ def probe(pattern=PATTERN):
 # 2. Cache -- one .h5 at a time; never hold ten of them in RAM
 # ==========================================================================
 
+
+def _file_theta(path):
+    """Cheap read of a file's theta modifier names (the T_var name list only, not
+    the multi-GB arrays), intersected with ALL_THETA -- i.e. exactly the theta
+    columns cycle_features WOULD write for this file. Used to detect a cache that
+    predates a schema change (e.g. fan theta added to extraction). None if the
+    file can't be opened."""
+    h = _open(path)
+    if h is None:
+        return None
+    with h:
+        th = [n.decode().strip() if isinstance(n, bytes) else str(n).strip()
+              for n in np.array(h["T_var"]).ravel()]
+    return [c for c in ALL_THETA if c in th]
+
 def build_cache(pattern=PATTERN, cache=CACHE, force=False, **kw):
     """Reduce each .h5 to cycle-level cruise means and park it as parquet.
 
@@ -144,8 +235,24 @@ def build_cache(pattern=PATTERN, cache=CACHE, force=False, **kw):
         tag = os.path.basename(p).replace("N-CMAPSS_", "").replace(".h5", "")
         out = os.path.join(cache, f"{tag}.parquet")
         if os.path.exists(out) and not force:
-            print(f"  skip {tag} (cached)")
-            continue
+            # Reuse the cache ONLY if it already holds every theta column this file
+            # would now yield. A schema change (e.g. fan theta added to ALL_THETA)
+            # leaves old parquets missing columns; pooled() would then silently
+            # fill them with 0 and mislabel the file. Detect that and rebuild it.
+            want = _file_theta(p)
+            if want is not None:
+                import pyarrow.parquet as pq
+                have = set(pq.read_schema(out).names)         # footer only, cheap
+                missing = [c for c in want if c not in have]
+                if missing:
+                    print(f"  REBUILD {tag}: cache predates schema, missing "
+                          f"{missing}")
+                else:
+                    print(f"  skip {tag} (cached)")
+                    continue
+            else:
+                print(f"  skip {tag} (cached, unreadable source -- cannot verify)")
+                continue
         parts, failed = [], False
         for sp in ("dev", "test"):
             try:
@@ -182,8 +289,15 @@ def pooled(cache=CACHE, include=None, theta=THETA, fill_missing_theta=True):
 
     A file whose T_var lacks e.g. HPT_flow_mod never degraded that component, so
     the modifier is physically 0 for all its units. fill_missing_theta writes that
-    0 in -- which is VALID supervision: it teaches the leaf to output zero when
-    the sensors look nominal. Set False to keep only files that carry all four."""
+    0 in. For the LEAF this is valid supervision -- it teaches the leaf to output
+    zero when its component reads nominal. But it does NOT make the unit
+    diagnosable: a unit that degrades ONLY the fan/LPC/HPC has every tree modifier
+    at 0 for its whole life, so the RUL root sees no damage and can only guess the
+    no-damage prior. `pooled` therefore tags each unit `diagnosable`
+    (tag_diagnosable) and attaches its `failure_mode`, so callers can fit and score
+    the HPT/LPT damage model on the units it can actually read and report the rest
+    separately (see split_diagnosable). Set fill_missing_theta False to keep only
+    files that carry all four tree modifiers."""
     got = sorted(glob.glob(os.path.join(cache, "*.parquet")))
     if not got:
         raise FileNotFoundError(f"no parquet in {cache}/ -- run build_cache() first")
@@ -205,9 +319,40 @@ def pooled(cache=CACHE, include=None, theta=THETA, fill_missing_theta=True):
         f["unit"] = 1000 * (i + 1) + f["unit"]
         frames.append(f)
     out = pd.concat(frames, ignore_index=True)
-    print(f"pooled: {len(out)} cycle-rows, {out['unit'].nunique()} units, "
-          f"{out['ds'].nunique()} datasets")
+
+    # label each unit's failure mode (documented) and whether the tree can read it
+    # (data-driven), then reconcile the two so a drift is caught early.
+    out["failure_mode"] = out["ds"].map(
+        lambda t: "+".join(sorted(FAILURE_MODES[mode_key(t)]))
+        if mode_key(t) in FAILURE_MODES else "?")
+    out = tag_diagnosable(out)
+    _reconcile_diagnosable(out)
+
+    n_units = out["unit"].nunique()
+    n_diag = out.loc[out["diagnosable"], "unit"].nunique()
+    print(f"pooled: {len(out)} cycle-rows, {n_units} units, "
+          f"{out['ds'].nunique()} datasets  "
+          f"({n_diag} diagnosable, {n_units - n_diag} blind to HPT/LPT leaves)")
+    blind = sorted(out.loc[~out["diagnosable"], "ds"].unique())
+    if blind:
+        print(f"  UNDIAGNOSABLE modes (no HPT/LPT degradation, tree has no leaf): "
+              f"{', '.join(blind)}")
     return out
+
+
+def _reconcile_diagnosable(frame):
+    """Warn if the data-driven `diagnosable` flag disagrees with FAILURE_MODES for
+    any known subset -- e.g. a mislabelled file or an unexpected zero theta."""
+    key = frame["ds"].map(mode_key)
+    for tag, comps in FAILURE_MODES.items():
+        m = key == tag
+        if not m.any():
+            continue
+        expect = mode_is_diagnosable(comps)
+        got = bool(frame.loc[m, "diagnosable"].any())
+        if expect != got:
+            print(f"  WARNING: {tag} FAILURE_MODES says diagnosable={expect} but the "
+                  f"data says {got} -- check T_var / fill_missing_theta.")
 
 
 # ==========================================================================

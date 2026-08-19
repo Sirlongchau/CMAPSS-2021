@@ -27,7 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-
+from pathlib import Path
 import gft
 
 _PAL = [f"C{i}" for i in range(20)]
@@ -93,45 +93,79 @@ def print_metrics(feats, pred):
 # theta: predicted vs actual, ONE FIGURE PER modifier
 # ==========================================================================
 
-def plot_theta(feats, pred, size=8, save=None, show=True):
+def plot_theta(feats, pred, size=3.4, save=None, show=True):
     """For every predicted theta (a '*_hat' column that matches a truth column
-    in `feats`) draw its own figure: real (solid) vs predicted (dashed),
-    one colour per unit."""
+    in `feats`) draw its own figure, faceted BY UNIT: one panel per unit with
+    real (solid) vs predicted (dashed). Previously every unit was overlaid on a
+    single axis, which hid per-unit behaviour on the pooled fleet.
+
+    A unit whose TRUE modifier is identically zero never degraded that component
+    in its failure mode (e.g. a fan-only unit -- the tree has no leaf for the
+    fan, so those units' theta targets are all 0). Such panels are shaded and
+    flagged, so a flat-zero 'fit' is not mistaken for a good one."""
     mods = [c[:-4] for c in pred.columns
             if c.endswith("_hat") and c != "RUL_hat" and c[:-4] in feats.columns]
     for mod in mods:
         m = feats[["unit", "cycle", mod]].merge(
             pred[["unit", "cycle", mod + "_hat"]], on=["unit", "cycle"])
-        fig, ax = plt.subplots(figsize=(size, size * 0.6))
-        for u in np.unique(m["unit"]):
+        units = np.unique(m["unit"])
+        rows, cols = _grid(len(units))
+        fig = plt.figure(figsize=(size * cols, max(size, rows * size * 0.85)))
+        gs = gridspec.GridSpec(rows, cols)
+        for n, u in enumerate(units):
+            ax = fig.add_subplot(gs[n])
             d = m[m["unit"] == u].sort_values("cycle")
-            ax.plot(d["cycle"], d[mod], "-", color=_color(u), lw=1.8,
-                    label=f"Unit {int(u)}")
-            ax.plot(d["cycle"], d[mod + "_hat"], "--", color=_color(u), lw=1.4)
-        ax.set_xlabel("cycle"); ax.set_ylabel(mod)
-        ax.set_title(f"{mod}: real (—) vs predicted (- -)   "
-                     f"RMSE={gft.rmse(m[mod], m[mod + '_hat']):.4f}")
-        ax.legend(fontsize=8, ncol=2)
-        plt.tight_layout()
+            ax.plot(d["cycle"], d[mod], "-", color=_color(u), lw=1.8, label="real")
+            ax.plot(d["cycle"], d[mod + "_hat"], "--", color=_color(u), lw=1.4,
+                    label="pred")
+            if float(np.abs(d[mod]).max()) < 1e-6:      # component not degraded here
+                ax.set_facecolor("0.94")
+                ax.text(0.5, 0.5, "θ ≡ 0\n(not degraded)", transform=ax.transAxes,
+                        ha="center", va="center", fontsize=8, color="0.45")
+            ax.set_title(f"Unit {int(u)}", fontsize=9)
+            ax.set_xlabel("cycle", fontsize=8); ax.set_ylabel(mod, fontsize=8)
+            ax.tick_params(labelsize=7)
+            if n == 0:
+                ax.legend(fontsize=7)
+        fig.suptitle(f"{mod}: real (—) vs predicted (- -)   "
+                     f"overall RMSE={gft.rmse(m[mod], m[mod + '_hat']):.4f}")
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
         _finish(fig, save, f"theta_{mod}", show)
 
 
-def plot_nodes(pred, size=10, save=None, show=True):
-    """Latent spool health (*_h) vs cycle, one subplot per node, per unit."""
+def plot_nodes(pred, size=3.4, save=None, show=True):
+    """Latent spool health (*_h) vs cycle, faceted BY UNIT: one panel per unit,
+    every latent node drawn as its own line, so a single engine's hp/lp damage
+    curves are read together. Previously all units were overlaid on one axis per
+    node, which made per-unit trajectories unreadable on the pooled fleet."""
     nodes = [c for c in pred.columns if c.endswith("_h")]
     if not nodes:
         return
-    rows, cols = _grid(len(nodes))
-    fig = plt.figure(figsize=(size, max(size * 0.4, rows * 3)))
+    units = np.unique(pred["unit"])
+    blind = _blind_units(pred)
+    rows, cols = _grid(len(units))
+    node_colors = {c: f"C{j}" for j, c in enumerate(nodes)}
+    fig = plt.figure(figsize=(size * cols, max(size, rows * size * 0.85)))
     gs = gridspec.GridSpec(rows, cols)
-    for n, col in enumerate(nodes):
+    for n, u in enumerate(units):
         ax = fig.add_subplot(gs[n])
-        for u in np.unique(pred["unit"]):
-            d = pred[pred["unit"] == u].sort_values("cycle")
-            ax.plot(d["cycle"], d[col], "-", color=_color(u), lw=1.6, alpha=0.9)
+        d = pred[pred["unit"] == u].sort_values("cycle")
+        for col in nodes:
+            ax.plot(d["cycle"], d[col], "-", color=node_colors[col], lw=1.6,
+                    alpha=0.9, label=col)
         ax.set_ylim(-0.02, 1.02)
-        ax.set_xlabel("cycle"); ax.set_ylabel(col); ax.set_title(col)
-    fig.suptitle("Latent spool health vs cycle")
+        is_blind = int(u) in blind
+        if is_blind:
+            ax.set_facecolor("0.96")
+            ax.text(0.5, 0.5, "no damage read\n(blind mode)", transform=ax.transAxes,
+                    ha="center", va="center", fontsize=8, color="firebrick", alpha=0.7)
+        ax.set_xlabel("cycle", fontsize=8); ax.set_ylabel("latent health", fontsize=8)
+        ax.set_title(f"Unit {int(u)}" + ("  ⚠" if is_blind else ""), fontsize=9,
+                     color=("firebrick" if is_blind else "black"))
+        ax.tick_params(labelsize=7)
+        if n == 0:
+            ax.legend(fontsize=7)
+    fig.suptitle("Latent spool health vs cycle (per unit)")
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     _finish(fig, save, "nodes", show)
 
@@ -140,9 +174,19 @@ def plot_nodes(pred, size=10, save=None, show=True):
 # RUL plots
 # ==========================================================================
 
+def _blind_units(pred, thresh=0.2):
+    """Units the tree read no damage on (peak latent health < thresh): its RUL is
+    a no-damage prior, not a reading. Uses gft.flag_undiagnosable when *_h exist."""
+    if not any(c.endswith("_h") for c in pred.columns):
+        return set()
+    fu = gft.flag_undiagnosable(pred, damage_thresh=thresh)
+    return set(int(u) for u in fu.loc[fu["undiagnosable"], "unit"])
+
+
 def plot_rul(feats, pred, size=12, save=None, show=True):
     m = feats[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
     units = np.unique(m["unit"])
+    blind = _blind_units(pred)
     rows, cols = _grid(len(units))
     fig = plt.figure(figsize=(size, max(size, rows * 2.6)))
     gs = gridspec.GridSpec(rows, cols)
@@ -152,27 +196,43 @@ def plot_rul(feats, pred, size=12, save=None, show=True):
         ax.plot(d["cycle"], d["RUL"], "-", color=_color(u), lw=2, label="real")
         ax.plot(d["cycle"], d["RUL_hat"], "o", color=_color(u), mfc="none",
                 ms=4, alpha=0.8, label="pred")
-        ax.set_title(f"Unit {int(u)}"); ax.set_xlabel("cycle"); ax.set_ylabel("RUL")
+        is_blind = int(u) in blind
+        ax.set_title(f"Unit {int(u)}" + ("  ⚠ blind" if is_blind else ""),
+                     color=("firebrick" if is_blind else "black"))
+        if is_blind:
+            ax.set_facecolor("0.96")
+        ax.set_xlabel("cycle"); ax.set_ylabel("RUL")
         if n == 0:
             ax.legend()
-    fig.suptitle("RUL: real vs predicted")
+    fig.suptitle("RUL: real vs predicted   (⚠ blind = fault in a component the tree "
+                 "has no leaf for)")
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     _finish(fig, save, "rul", show)
 
 
-def plot_scatter(feats, pred, size=7, save=None, show=True):
+def plot_scatter(feats, pred, size=3.4, save=None, show=True):
+    """RUL parity, faceted BY UNIT: one y=x panel per unit with that unit's own
+    held-out RMSE in the title. Previously every unit shared a single parity
+    axis, so a few tail units dominated the picture."""
     m = feats[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
-    fig, ax = plt.subplots(figsize=(size, size))
-    for u in np.unique(m["unit"]):
+    units = np.unique(m["unit"])
+    rows, cols = _grid(len(units))
+    hi = float(m["RUL"].max()) * 1.05
+    fig = plt.figure(figsize=(size * cols, max(size, rows * size * 0.9)))
+    gs = gridspec.GridSpec(rows, cols)
+    for n, u in enumerate(units):
+        ax = fig.add_subplot(gs[n])
         d = m[m["unit"] == u]
         ax.plot(d["RUL"], d["RUL_hat"], "o", color=_color(u), mfc="none",
-                ms=4, alpha=0.6, label=f"Unit {int(u)}")
-    lim = [0, float(m["RUL"].max()) * 1.05]
-    ax.plot(lim, lim, "k--", lw=1); ax.set_xlim(lim); ax.set_ylim(lim)
-    ax.set_xlabel("True RUL"); ax.set_ylabel("Predicted RUL")
-    ax.set_title(f"RUL parity (RMSE={gft.rmse(m['RUL'], m['RUL_hat']):.2f})")
-    ax.legend(ncol=2, fontsize=8)
-    plt.tight_layout()
+                ms=4, alpha=0.6)
+        ax.plot([0, hi], [0, hi], "k--", lw=1)
+        ax.set_xlim(0, hi); ax.set_ylim(0, hi)
+        ax.set_xlabel("True RUL", fontsize=8); ax.set_ylabel("Pred RUL", fontsize=8)
+        ax.set_title(f"Unit {int(u)}  (RMSE={gft.rmse(d['RUL'], d['RUL_hat']):.1f})",
+                     fontsize=8)
+        ax.tick_params(labelsize=7)
+    fig.suptitle(f"RUL parity per unit   overall RMSE={gft.rmse(m['RUL'], m['RUL_hat']):.2f}")
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
     _finish(fig, save, "scatter", show)
 
 
@@ -361,9 +421,10 @@ def save_figures(feats, pred, model=None, folder="figures",
 if __name__ == "__main__":
     import matplotlib
     matplotlib.use("Agg")
+    workspace=Path.cwd()
     df = gft._synthetic_frame(units=6, cycles=60, seed=1)
     model = gft.fit_gft(df, gens=60, pop=60, verbose=False)
     pred = gft.predict_gft(df, model)
-    save_figures(df, pred, model=model, folder="/home/claude/figures",
+    save_figures(df, pred, model=model, folder=workspace/"figures/final",
                  surface_kind="contour")
     print("analysis self-test OK")

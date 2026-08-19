@@ -30,7 +30,36 @@ CONDITIONS = ["alt", "Mach", "TRA", "T2"]
 # deliberately NOT loaded, so nothing downstream can use a virtual sensor.
 SENSORS = ["Wf", "Nf", "Nc", "T24", "T30", "T48", "T50",
            "P15", "P21", "P24", "Ps30", "P40", "P50"]
-THETA = ["HPT_eff_mod", "HPT_flow_mod", "LPT_eff_mod", "LPT_flow_mod"]
+
+# Health-parameter modifiers (theta). There are two per rotating sub-component:
+#   TREE_THETA  -- the modifiers the tree's leaves cover (HPT/LPT). Used for the
+#                  leaf_search target list and for DIAGNOSABILITY: a unit the tree
+#                  can read must degrade HPT or LPT. HPT_flow is kept in the search
+#                  list (that is how it was shown unobservable) though it has no
+#                  leaf; a unit is still diagnosable on HPT via HPT_eff.
+#   ALL_THETA   -- every component's eff/flow pair, all EXTRACTED. This matters even
+#                  though the tree reads only HPT/LPT: the fan/LPC/HPC channels are
+#                  what LABEL a unit's failure mode, so the blind fan/HPC/LPC units
+#                  (DS04/05/06) can be identified and held out of training yet still
+#                  put in the test set -- the LP-leak generalisation experiment. A
+#                  dedicated fan branch was tried and rolled back (fan readable alone
+#                  but not separable from the LP spool in-tree; see gft._LEAVES), so
+#                  fan/LPC/HPC are NOT tree components here.
+TREE_THETA = ["HPT_eff_mod", "HPT_flow_mod", "LPT_eff_mod", "LPT_flow_mod"]
+ALL_THETA = ["fan_eff_mod", "fan_flow_mod", "LPC_eff_mod", "LPC_flow_mod",
+             "HPC_eff_mod", "HPC_flow_mod", "HPT_eff_mod", "HPT_flow_mod",
+             "LPT_eff_mod", "LPT_flow_mod"]
+THETA = TREE_THETA          # backwards-compatible alias (datasets, leaf_search)
+
+# component -> its two modifiers, and the components the tree can actually read.
+COMPONENT_THETA = {
+    "fan": ["fan_eff_mod", "fan_flow_mod"],
+    "LPC": ["LPC_eff_mod", "LPC_flow_mod"],
+    "HPC": ["HPC_eff_mod", "HPC_flow_mod"],
+    "HPT": ["HPT_eff_mod", "HPT_flow_mod"],
+    "LPT": ["LPT_eff_mod", "LPT_flow_mod"],
+}
+TREE_COMPONENTS = ["HPT", "LPT"]      # the only spools with leaves in gft.TREE
 
 
 def _names(arr):
@@ -76,7 +105,7 @@ def cycle_features(path, split="dev", cruise_frac=0.95, min_cruise=30):
         df = df[df["alt"] >= cruise_frac * cyc_max]
 
     keep = ([c for c in CONDITIONS if c in df.columns]
-            + [c for c in SENSORS + THETA if c in df.columns])
+            + [c for c in SENSORS + ALL_THETA if c in df.columns])
     g = df.groupby(["unit", "cycle"], sort=True)
     out = g[keep].mean()
     out["RUL"] = g["RUL"].median()

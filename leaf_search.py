@@ -50,6 +50,9 @@ CANDIDATES = {
     "HPT_flow_mod": ["T48", "T30", "P40", "Ps30", "Nc", "Nf", "Wf", "P24"],
     "LPT_eff_mod":  ["T50", "P50", "Nf", "Nc", "P24", "T48", "Wf", "P21"],
     "LPT_flow_mod": ["T50", "P50", "P24", "Nf", "P21", "P15", "Nc", "Wf"],
+    # fan (front end + bypass): fan speed, fan-exit temp, bypass/duct pressures.
+    "fan_eff_mod":  ["T24", "Nf", "P21", "P15", "P24", "Wf", "T30", "Nc"],
+    "fan_flow_mod": ["P21", "P15", "P24", "Nf", "T24", "Wf", "P50", "Nc"],
 }
 
 # The current engineering choice, for reference in the output table.
@@ -58,6 +61,8 @@ BASELINE = {
     "HPT_flow_mod": ["T48", "P40", "Ps30"],
     "LPT_eff_mod":  ["T50", "P50", "Nf"],
     "LPT_flow_mod": ["T50", "P50", "P24"],
+    "fan_eff_mod":  ["T24", "Nf", "P21"],       # provisional -- this search decides
+    "fan_flow_mod": ["P21", "P15", "P24"],      # provisional -- may be dropped (cf HPT_flow)
 }
 
 # Which spool each target belongs to, and the OPPOSITE-spool target used as the
@@ -65,11 +70,15 @@ BASELINE = {
 # theta well and the other spool's theta poorly. An input set that is really just
 # reading global damage (e.g. T48 as a "something is degrading" proxy) predicts
 # BOTH about equally -- that is the pattern the raw rho leaderboard cannot see.
+# The fan foil is HPT_eff (the strongest, most predictable leaf on the OTHER shaft):
+# if fan sensors predict HPT_eff as well as fan, they are reading global damage.
 FOIL = {
     "HPT_eff_mod":  "LPT_eff_mod",
     "HPT_flow_mod": "LPT_flow_mod",
     "LPT_eff_mod":  "HPT_eff_mod",
     "LPT_flow_mod": "HPT_flow_mod",
+    "fan_eff_mod":  "HPT_eff_mod",
+    "fan_flow_mod": "HPT_eff_mod",
 }
 
 
@@ -153,14 +162,37 @@ def _predict_leaf(model, frame):
 # 3. Scoring a candidate on held-out theta
 # ==========================================================================
 
+def _rho_active(units, y, yh, eps=1e-6):
+    """Per-unit rho over ONLY the units whose target actually varies. A unit that
+    never degrades this component has a flat-zero target, no trajectory to
+    correlate against, so _unit_corr scores it 0 -- and averaging those zeros in
+    DILUTES the pooled rho. The dilution scales with how RARE the mode is: HPT
+    degrades in ~60% of pooled units, the fan in only ~35% (DS04/DS08a/DS08c), so a
+    fan leaf's pooled rho is pushed down by the ~65% of flat units and is NOT
+    comparable to HPT's. rho_active strips that out -- it is the tracking on the
+    units that exercise the component, comparable across modes of different
+    prevalence, and the fair basis for a keep/drop decision on a rare-mode leaf."""
+    u = np.asarray(units)
+    y = np.asarray(y, float)
+    span = pd.Series(y).groupby(u).transform(lambda v: v.max() - v.min()).to_numpy()
+    m = np.abs(span) > eps
+    if not m.any():
+        return float("nan")
+    return gft._unit_corr(u[m], y[m], np.asarray(yh, float)[m])
+
+
 def _score(train, val, inputs, target, **fit_kw):
     """Fit standalone on train, score the LEAF's theta on val. Ranking metric is
-    per-unit rho (does theta_hat move with theta), with R2 alongside."""
+    per-unit rho (does theta_hat move with theta), with R2 alongside. rho_active is
+    the same correlation but over degrading units only -- the un-diluted view a
+    rare-mode leaf must be judged on."""
     m = _fit_leaf(train, list(inputs), target, **fit_kw)
     yh = _predict_leaf(m, val)
     y = val[target].to_numpy(float)
+    u = val["unit"].to_numpy()
     return {"inputs": "+".join(inputs),
-            "rho": gft._unit_corr(val["unit"].to_numpy(), y, yh),
+            "rho": gft._unit_corr(u, y, yh),
+            "rho_active": _rho_active(u, y, yh),
             "R2": gft.r2(y, yh),
             "NRMSE": gft.rmse(y, yh) / (float(np.std(y)) or 1.0)}
 
@@ -237,6 +269,7 @@ def _score_multi(feats, inputs, target, foil, seeds, residual=True,
     spool's `foil` target. Returns per-seed own/foil rho and R2."""
     pool = list(inputs)
     own_rho, own_r2, foil_rho = [], [], []
+    own_rho_act, foil_rho_act = [], []
     for s in seeds:
         tr, va, _ = ds.split(feats, seed=s)
         trp = _prep(tr, pool, residual, ref_cycles, smooth_span)
@@ -247,6 +280,7 @@ def _score_multi(feats, inputs, target, foil, seeds, residual=True,
         yh = _predict_leaf(m, vap)
         y = vap[target].to_numpy(float)
         own_rho.append(gft._unit_corr(u, y, yh))
+        own_rho_act.append(_rho_active(u, y, yh))
         own_r2.append(gft.r2(y, yh))
 
         if foil and foil in vap.columns:                 # SAME inputs -> foil theta
@@ -254,13 +288,20 @@ def _score_multi(feats, inputs, target, foil, seeds, residual=True,
             yhf = _predict_leaf(mf, vap)
             yf = vap[foil].to_numpy(float)
             foil_rho.append(gft._unit_corr(u, yf, yhf))
+            foil_rho_act.append(_rho_active(u, yf, yhf))
     own_rho, own_r2 = np.array(own_rho), np.array(own_r2)
     fr = np.array(foil_rho) if foil_rho else np.array([np.nan])
+    ra = np.array(own_rho_act)
+    fra = np.array(foil_rho_act) if foil_rho_act else np.array([np.nan])
     return {"inputs": "+".join(inputs),
             "rho": own_rho.mean(), "rho_sd": own_rho.std(),
+            "rho_active": np.nanmean(ra),
             "R2": own_r2.mean(), "R2_sd": own_r2.std(),
             "foil_rho": fr.mean(),
-            "specificity": own_rho.mean() - fr.mean()}
+            "specificity": own_rho.mean() - fr.mean(),
+            # specificity on ACTIVE units -- the un-diluted own/foil gap that
+            # actually decides component-specificity for a rare mode.
+            "specificity_active": np.nanmean(ra) - np.nanmean(fra)}
 
 
 def confirm_target(feats, target, shortlist, seeds=(0, 1, 2, 3, 4), **fit_kw):
@@ -286,12 +327,17 @@ def confirm_target(feats, target, shortlist, seeds=(0, 1, 2, 3, 4), **fit_kw):
     df = (pd.DataFrame(rows)
           .sort_values("specificity", ascending=False)   # specificity-first sort
           .reset_index(drop=True))
-    cols = ["inputs", "rho", "rho_sd", "R2", "foil_rho", "specificity", "is_baseline"]
+    cols = ["inputs", "rho", "rho_active", "rho_sd", "R2", "foil_rho",
+            "specificity", "specificity_active", "is_baseline"]
     print(df[cols].round(3).to_string(index=False))
-    print("  rho         = mean per-unit corr on OWN target (higher better)")
+    print("  rho         = mean per-unit corr on OWN target, ALL val units")
+    print("  rho_active  = same, but ONLY over units that degrade this component.")
+    print("                For a RARE mode (fan ~35% of units) rho << rho_active,")
+    print("                because flat-target units score 0 and drag the mean down.")
+    print("                Judge a rare-mode leaf on rho_active, not rho.")
     print("  foil_rho    = SAME inputs predicting the OTHER spool (lower = more specific)")
     print("  specificity = rho - foil_rho. Near 0 => the combo reads GLOBAL damage,")
-    print("                not this component. Prefer high rho AND high specificity.")
+    print("                not this component. Prefer high rho_active AND specificity.")
     return df
 
 
