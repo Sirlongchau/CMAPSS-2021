@@ -164,3 +164,39 @@ def _self_test():
 
 if __name__ == "__main__":
     _self_test()
+
+
+def plot_pruning(prune_out, save):
+    """The pruning trajectory (RUL RMSE and min-leaf-R2 vs leaf count) plus the
+    (RMSE, min-leaf-R2) Pareto scatter -- the figure that shows redundancy: leaves
+    whose removal improves BOTH axes are redundant passengers."""
+    traj = prune_out["trajectory"]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(11, 4))
+    x = traj["size"].to_numpy()
+    a.errorbar(x, traj["RMSE"], yerr=traj["RMSE_sd"].fillna(0), marker="o",
+               color="steelblue", label="RUL RMSE")
+    a.set_xlabel("leaves kept"); a.set_ylabel("RUL RMSE", color="steelblue")
+    a.invert_xaxis()
+    a2 = a.twinx()
+    a2.errorbar(x, traj["min_leaf_R2"], yerr=traj["min_leaf_R2_sd"].fillna(0),
+                marker="s", color="firebrick", label="min leaf R2")
+    a2.axhline(0, color="firebrick", ls=":", lw=0.8)
+    a2.set_ylabel("min leaf theta-R2", color="firebrick")
+    rec = prune_out["recommended"]
+    a.axvline(rec["size"], color="green", ls="--", lw=1)
+    a.set_title(f"elimination trajectory (recommend {rec['size']} leaves)")
+    for _, r in traj.iloc[1:].iterrows():
+        a.annotate(r["dropped"].split(".")[-1], (r["size"], r["RMSE"]),
+                   fontsize=6, rotation=30, ha="right")
+    ap = prune_out["all_points"]
+    b.scatter(ap["RMSE"], ap["min_leaf_R2"], s=14, c="0.7", label="evaluated")
+    pf = prune_out["pareto"].sort_values("RMSE")
+    b.plot(pf["RMSE"], pf["min_leaf_R2"], "-o", color="darkgreen", label="Pareto")
+    b.axhline(0, color="k", ls=":", lw=0.8)
+    b.set_xlabel("RUL RMSE (lower better)")
+    b.set_ylabel("min leaf theta-R2 (higher better)")
+    b.set_title("(RUL, leaf-fidelity) Pareto front"); b.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(save, dpi=110)
+    plt.close(fig)
+    return save
