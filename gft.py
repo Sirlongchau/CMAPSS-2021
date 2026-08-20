@@ -39,7 +39,7 @@ from features import (SENSORS, CONDITIONS, COMPONENTS, SHAFT, THETA,
 N_TERMS = 3            # fuzzy sets per input (low/mid/high)
 EWMA_SPAN = 7          # causal smoothing window on residualized sensors
 HEALTHY_FRAC = 0.2     # first fraction of a unit's life used to fit its baseline
-W_THETA = 3.0          # leaf supervision weight -- raised from 1.0: with 10 leaves
+W_THETA = 1.5          # leaf supervision weight -- raised from 1.0: with 10 leaves
                        # the averaged theta term was out-competed by the single RUL
                        # term, so the GA sacrificed leaf fidelity (negative theta R2)
                        # to fit RUL. 3x restores leaf leverage without ignoring RUL.

@@ -6,7 +6,7 @@ train  = [d for d in pooled.ds.unique() if d.startswith("DS08")]
 
 full = ablation.train_full(
     pooled, leaves, train_ds=train,
-    gens=400, pop=120, seed=0,          # see notes below
+    gens=300, pop=120, seed=0,          # see notes below
     branch_models=None,                  # warm-start optional; see note 3
 )
 
