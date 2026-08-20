@@ -39,8 +39,16 @@ from features import (SENSORS, CONDITIONS, COMPONENTS, SHAFT, THETA,
 N_TERMS = 3            # fuzzy sets per input (low/mid/high)
 EWMA_SPAN = 7          # causal smoothing window on residualized sensors
 HEALTHY_FRAC = 0.2     # first fraction of a unit's life used to fit its baseline
-W_THETA = 1.0          # leaf supervision weight in the loss
+W_THETA = 3.0          # leaf supervision weight -- raised from 1.0: with 10 leaves
+                       # the averaged theta term was out-competed by the single RUL
+                       # term, so the GA sacrificed leaf fidelity (negative theta R2)
+                       # to fit RUL. 3x restores leaf leverage without ignoring RUL.
 W_RUL = 1.0            # RUL weight in the loss
+W_THETA_FLOOR = 4.0    # HARD penalty per unit of NEGATIVE leaf theta R2. R2<0 means
+                       # a leaf predicts its modifier worse than a constant -- it has
+                       # stopped reading its component and become free RUL parameters.
+                       # This makes that regime expensive by construction, so a leaf
+                       # can only be kept if it stays an honest diagnostic.
 
 # spool grouping is the shaft physics; the single source is features.SHAFT
 SPOOLS = {"hp": components_on("HP"), "lp": components_on("LP")}   # hp:[HPC,HPT] lp:[fan,LPC,LPT]
@@ -341,25 +349,33 @@ def _loss_fn(frame, model):
     leaves = [n for n in meta if n["kind"] == "leaf"]
     theta = {n["name"]: frame[n["target"]].to_numpy(float) for n in leaves}
     tstd = {k: (np.std(v) or 1.0) for k, v in theta.items()}
+    tss = {k: (float(np.sum((v - v.mean()) ** 2)) or 1.0)   # total SS, for R2
+           for k, v in theta.items()}
     cols_cache = {s: P[s].to_numpy() for s in model["sensors"]}
 
     def loss(genome):
-        vals, tterm = {}, []
+        vals, tterm, floor = {}, [], 0.0
         for n in meta:
             cols = [cols_cache[s] if n["kind"] == "leaf" else vals[s]
                     for s in n["inputs"]]
             yv = _fis(cols, n["centres"], _consequents(n, genome))
             vals[n["name"]] = yv
             if n["kind"] == "leaf":
-                tterm.append(rmse(theta[n["name"]], yv) / tstd[n["name"]])
+                t = theta[n["name"]]
+                tterm.append(rmse(t, yv) / tstd[n["name"]])
+                r2 = 1.0 - float(np.sum((t - yv) ** 2)) / tss[n["name"]]
+                if r2 < 0.0:                          # leaf worse than a constant
+                    floor += -r2                      # how far below zero
         rul_term = rmse(y_rul, vals["RUL"]) / (np.std(y_rul) or 1.0)
-        return W_THETA * (np.mean(tterm) if tterm else 0.0) + W_RUL * rul_term
+        return (W_THETA * (np.mean(tterm) if tterm else 0.0)
+                + W_RUL * rul_term
+                + W_THETA_FLOOR * floor)
 
     return loss
 
 
 def _fit(spec, frame, rul_cap=None, seeds=None, gens=60, pop=60, seed=0,
-         verbose=False):
+         verbose=True):
     rul_cap = rul_cap if rul_cap is not None else suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)
     loss = _loss_fn(frame, model)
