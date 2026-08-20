@@ -1,0 +1,39 @@
+{
+  "leaves": {
+    "HPT": [
+      [
+        "hpt_eff",
+        "HPT_eff_mod",
+        [
+          "T48",
+          "T30",
+          "Nc"
+        ]
+      ]
+    ],
+    "LPT": [
+      [
+        "lpt_eff",
+        "LPT_eff_mod",
+        [
+          "T50",
+          "Nf",
+          "Nc"
+        ]
+      ],
+      [
+        "lpt_flow",
+        "LPT_flow_mod",
+        [
+          "T50",
+          "P50",
+          "P24"
+        ]
+      ]
+    ]
+  },
+  "size": 3,
+  "RMSE": 8.71957028956932,
+  "min_leaf_R2": 0.3666366761289581,
+  "why": "lowest RUL RMSE (8.72) among sets with all leaves honest (min_leaf_R2 >= 0.3)"
+}

@@ -3,4 +3,6 @@ h5py
 matplotlib
 pandas
 seaborn
-parquet
+fastparquet
+pyarrow
+torch
