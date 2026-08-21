@@ -32,14 +32,14 @@ import numpy as np
 import pandas as pd
 
 import ga
-from features import (SENSORS, CONDITIONS, COMPONENTS, SHAFT, THETA,
+from features import (SENSORS, CONDITIONS, COMPONENTS, SHAFT, THETA, GROUPINGS,
                       components_on, theta_of)
 
 # ---- config --------------------------------------------------------------
 N_TERMS = 3            # fuzzy sets per input (low/mid/high)
 EWMA_SPAN = 7          # causal smoothing window on residualized sensors
 HEALTHY_FRAC = 0.2     # first fraction of a unit's life used to fit its baseline
-W_THETA = 1.5          # leaf supervision weight -- raised from 1.0: with 10 leaves
+W_THETA = 3.0          # leaf supervision weight -- raised from 1.0: with 10 leaves
                        # the averaged theta term was out-competed by the single RUL
                        # term, so the GA sacrificed leaf fidelity (negative theta R2)
                        # to fit RUL. 3x restores leaf leverage without ignoring RUL.
@@ -163,34 +163,53 @@ def _leaves_for(components, leaves=None):
     return {c: leaves[c] for c in components if c in leaves}
 
 
-def branch_spec(active, leaves=None):
+def branch_spec(active, leaves=None, grouping="shaft", age=False):
     """Spec for a tree with ONLY the active components: their leaves -> the
-    spool(s) they sit on -> RUL. Dead spools/branches are never created.
-    `active` may be one component (single-branch) or several (e.g. DS06 = HPC+LPC,
-    which spans hp AND lp)."""
+    intermediate node(s) they group into (under `grouping`) -> RUL. Dead nodes are
+    never created. `active` may be one component (single-branch) or several.
+    grouping='shaft' -> hp/lp; grouping='station' -> cold/hot (see features).
+    age=True appends `age` as an extra ROOT input -- a lifetime prior that enters
+    ONLY the aggregator, so in a decoupled fit it can never degenerate the frozen
+    leaves (the reason age was safe to reintroduce)."""
     lv = _leaves_for(active, leaves)
     spec = []
-    used_spool = {}
+    used = {}
     for comp, entries in lv.items():
         for name, target, sensors in entries:
             spec.append({"name": name, "kind": "leaf", "inputs": list(sensors),
                          "target": target})
-            used_spool.setdefault(_spool_of(comp), []).append(name)
-    for spool, leaf_names in used_spool.items():
-        spec.append({"name": spool, "kind": "spool", "inputs": leaf_names,
+            used.setdefault(group_of(comp, grouping), []).append(name)
+    for node, leaf_names in used.items():
+        spec.append({"name": node, "kind": "spool", "inputs": leaf_names,
                      "target": None})
+    root_inputs = list(used.keys()) + (["age"] if age else [])
     spec.append({"name": "RUL", "kind": "root",
-                 "inputs": list(used_spool.keys()), "target": None})
+                 "inputs": root_inputs, "target": None})
     return spec
 
 
-def full_spec(leaves=None):
-    """The assembled target tree: every component's leaves -> hp/lp -> RUL."""
-    return branch_spec(list(COMPONENTS), leaves)
+def full_spec(leaves=None, grouping="shaft", age=False):
+    """The assembled target tree under a grouping: every component's leaves ->
+    intermediate nodes -> RUL (optionally with age at the root)."""
+    return branch_spec(list(COMPONENTS), leaves, grouping, age)
 
 
-def _spool_of(component):
-    return "hp" if SHAFT[component] == "HP" else "lp"
+def group_of(component, grouping="shaft"):
+    """Intermediate node a component's leaf feeds, under the named grouping."""
+    return GROUPINGS[grouping][component]
+
+
+def owner_spool(model, component):
+    """Which intermediate (spool) node in this BUILT model does `component`'s leaf
+    feed? Reads the tree structure, so it is grouping-agnostic -- leak/dead-branch/
+    viz code uses this instead of hardcoding hp/lp."""
+    e, fl = theta_of(component)
+    leaf_names = [n["name"] for n in model["meta"]
+                  if n["kind"] == "leaf" and n["target"] in (e, fl)]
+    for n in model["meta"]:
+        if n["kind"] == "spool" and any(l in n["inputs"] for l in leaf_names):
+            return n["name"]
+    return None
 
 
 # ==========================================================================
@@ -226,8 +245,11 @@ def build_tree(spec, frame, rul_cap):
                 t = frame[tcols[src]].to_numpy(float)
                 sub = t[deg.to_numpy()] if deg.any() else t
                 centres.append(_quantile_centres(sub if len(sub) else t))
-            else:                                       # root: spool damage in [0,1]
-                centres.append(np.linspace(0.0, 1.0, N_TERMS))
+            else:                                       # root inputs
+                if src == "age":                          # lifetime prior: age quantiles
+                    centres.append(_quantile_centres(frame["age"].to_numpy(float)))
+                else:                                     # spool damage in [0,1]
+                    centres.append(np.linspace(0.0, 1.0, N_TERMS))
         shape = tuple(len(c) for c in centres)
         n_rules = int(np.prod(shape))
         mono = kind in ("spool", "root")
@@ -276,8 +298,10 @@ def predict_tree(frame, model, genome):
     vals = {}
     out = pd.DataFrame({"unit": frame["unit"].to_numpy(),
                         "cycle": frame["cycle"].to_numpy()})
+    age_col = frame["age"].to_numpy(float)
     for n in meta:
-        cols = [P[s].to_numpy() if n["kind"] == "leaf" else vals[s]
+        cols = [age_col if s == "age" else
+                (P[s].to_numpy() if n["kind"] == "leaf" else vals[s])
                 for s in n["inputs"]]
         y = _fis(cols, n["centres"], _consequents(n, genome))
         vals[n["name"]] = y
@@ -352,11 +376,12 @@ def _loss_fn(frame, model):
     tss = {k: (float(np.sum((v - v.mean()) ** 2)) or 1.0)   # total SS, for R2
            for k, v in theta.items()}
     cols_cache = {s: P[s].to_numpy() for s in model["sensors"]}
+    cols_cache["age"] = frame["age"].to_numpy(float)
 
     def loss(genome):
         vals, tterm, floor = {}, [], 0.0
         for n in meta:
-            cols = [cols_cache[s] if n["kind"] == "leaf" else vals[s]
+            cols = [cols_cache[s] if (n["kind"] == "leaf" or s == "age") else vals[s]
                     for s in n["inputs"]]
             yv = _fis(cols, n["centres"], _consequents(n, genome))
             vals[n["name"]] = yv
@@ -375,7 +400,7 @@ def _loss_fn(frame, model):
 
 
 def _fit(spec, frame, rul_cap=None, seeds=None, gens=60, pop=60, seed=0,
-         verbose=True):
+         grouping="shaft", verbose=False):
     rul_cap = rul_cap if rul_cap is not None else suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)
     loss = _loss_fn(frame, model)
@@ -384,31 +409,110 @@ def _fit(spec, frame, rul_cap=None, seeds=None, gens=60, pop=60, seed=0,
     model["genome"] = g
     model["loss"] = f
     model["spec"] = spec
+    model["grouping"] = grouping
     return model
 
 
-def fit_branch(active, frame, leaves=None, **kw):
+def fit_branch(active, frame, leaves=None, grouping="shaft", **kw):
     """Fit a single-branch (or multi-active) tree on the rows where that branch is
     relevant. Returns the model plus per-leaf theta quality and the branch's
     standalone RUL score -- the two questions each single-fault fit must answer."""
     active = [active] if isinstance(active, str) else list(active)
-    spec = branch_spec(active, leaves)
-    model = _fit(spec, frame, **kw)
+    spec = branch_spec(active, leaves, grouping)
+    model = _fit(spec, frame, grouping=grouping, **kw)
     model["report"] = evaluate(frame, model)
     return model
 
 
-def fit_full(frame, branch_models=None, leaves=None, **kw):
-    """Fit the assembled hp/lp/RUL tree. If branch_models are given, splice their
-    identified genes into a full-tree seed and warm-start the GA from it (free)."""
-    spec = full_spec(leaves)
+def fit_full(frame, branch_models=None, leaves=None, grouping="shaft", age=False, **kw):
+    """Fit the assembled tree (grouping-dependent intermediate nodes -> RUL). If
+    branch_models are given, splice their identified genes into a full-tree seed and
+    warm-start the GA from it (free). age=True adds age at the root."""
+    spec = full_spec(leaves, grouping, age)
     rul_cap = kw.pop("rul_cap", None)
     rul_cap = rul_cap if rul_cap is not None else suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)                 # to know the layout
     seeds = None
     if branch_models:
         seeds = [splice_seed(model, branch_models)]
-    return _fit(spec, frame, rul_cap=rul_cap, seeds=seeds, **kw)
+    return _fit(spec, frame, rul_cap=rul_cap, seeds=seeds, grouping=grouping, **kw)
+
+
+# ==========================================================================
+# 7b. DECOUPLED fit (Route 2) -- freeze honest leaves, train only aggregators
+# ==========================================================================
+# The crosspoint (honest leaves vs good RUL) lives in the aggregation: leaves lose
+# fidelity only when a single RUL loss is allowed to distort them. fit_decoupled
+# removes that coupling. Phase 1: fit each leaf to its OWN theta on the assembly
+# frame (theta-only) and FREEZE it -- honest by construction, RUL can never touch
+# it. Phase 2: with leaf genes pinned, the GA trains only the spool + root
+# consequents on RUL. The leaves stay transparent; the aggregators absorb the RUL
+# burden. RUL is then capped by how much life signal survives in the honest leaves.
+
+def _freeze_leaves(frame, model, gens=30, pop=30, seed=0):
+    """Fit each leaf's consequents to its theta on `frame` (theta-only, per leaf --
+    independent, so cheap). Returns a full-length genome with leaf slices filled."""
+    P = prep(frame, model["sensors"])
+    genome = 0.5 * (model["lo"] + model["hi"])
+    for n in model["meta"]:
+        if n["kind"] != "leaf":
+            continue
+        cols = [P[s].to_numpy() for s in n["inputs"]]
+        y = frame[n["target"]].to_numpy(float)
+        lo, hi = model["lo"][n["rules"]], model["hi"][n["rules"]]
+
+        def loss(g, cols=cols, y=y, c=n["centres"]):
+            return rmse(y, _fis(cols, c, g))
+        g, _, _ = ga.optimize(loss, lo, hi, gens=gens, pop=pop, seed=seed)
+        genome[n["rules"]] = g
+    return genome
+
+
+def _rul_loss_fn(frame, model):
+    """RUL-only loss (used once leaves are frozen -- no theta term, no floor)."""
+    P = prep(frame, model["sensors"])
+    y_rul = cap(frame["RUL"].to_numpy(), model["rul_cap"])
+    ystd = np.std(y_rul) or 1.0
+    cols_cache = {s: P[s].to_numpy() for s in model["sensors"]}
+    cols_cache["age"] = frame["age"].to_numpy(float)
+
+    def loss(genome):
+        vals = {}
+        for n in model["meta"]:
+            cols = [cols_cache[s] if (n["kind"] == "leaf" or s == "age") else vals[s]
+                    for s in n["inputs"]]
+            vals[n["name"]] = _fis(cols, n["centres"], _consequents(n, genome))
+        return rmse(y_rul, vals["RUL"]) / ystd
+    return loss
+
+
+def fit_decoupled(frame, leaves=None, grouping="shaft", age=False, gens=60, pop=60,
+                  seed=0, leaf_gens=30, leaf_pop=30):
+    """Route 2: honest frozen leaves + a separately-trained aggregator. Breaks the
+    diagnosis/prognosis crosspoint by construction -- the leaves are theta-fit and
+    never moved by RUL, so they stay transparent; the spool+root are RUL-fit over
+    those frozen signals. age=True adds age at the ROOT only: a lifetime prior for
+    the aggregator that CANNOT degenerate the frozen leaves (why age is safe here)."""
+    spec = full_spec(leaves, grouping, age)
+    rul_cap = suggest_rul_cap(frame)
+    model = build_tree(spec, frame, rul_cap)
+    frozen = _freeze_leaves(frame, model, gens=leaf_gens, pop=leaf_pop, seed=seed)
+
+    lo, hi = model["lo"].copy(), model["hi"].copy()
+    for n in model["meta"]:                                  # pin leaf genes
+        if n["kind"] == "leaf":
+            lo[n["rules"]] = frozen[n["rules"]]
+            hi[n["rules"]] = frozen[n["rules"]]
+
+    loss = _rul_loss_fn(frame, model)
+    g, f, _ = ga.optimize(loss, lo, hi, gens=gens, pop=pop, seed=seed, seeds=[frozen])
+    model["genome"] = g
+    model["loss"] = f
+    model["spec"] = spec
+    model["grouping"] = grouping
+    model["age"] = age
+    model["decoupled"] = True
+    return model
 
 
 def splice_seed(full_model, branch_models):

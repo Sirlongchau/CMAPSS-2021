@@ -75,19 +75,18 @@ def load_leaves(path="ablation_out/best_leaves.json"):
 # leaf -> (target modifier, [candidate sensor sets]). Small on purpose; widen for
 # a real run. The winners replace gft.DEFAULT_LEAVES for the assembled tree.
 LEAVES = {
-    "HPC": [("hpc_eff",  "HPC_eff_mod",  [["Ps30","T30","Nc"], ["P24","T30","Nc"]]),
-        ("hpc_flow", "HPC_flow_mod", [["Ps30","P24","Nc"], ["Ps30","P40","Nc"], ["P24","T30","Nc"]])],
-    "LPC": [("lpc_eff",  "LPC_eff_mod",  [["P24","T24","Nf"], ["P24","T24","Nc"]]),
-        ("lpc_flow", "LPC_flow_mod", [["P24","P21","Nf"], ["P24","T24","Nf"], ["P15","P24","Nf"]])],
-    "fan": [("fan_flow", "fan_flow_mod", [["P21","P15","P24"], ["P15","P24","Wf"]]),
-        ("fan_eff",  "fan_eff_mod",  [["T24","Nf","P21"], ["T24","Nf","Wf"], ["T24","P24","Nf"]])],
-    "HPT": [("hpt_eff",  "HPT_eff_mod",  [["T48","P40","Nc"], ["T48","T30","Nc"]]),
-        ("hpt_flow", "HPT_flow_mod", [["T48","P40","Ps30"], ["T48","Ps30","Nc"], ["T48","P40","Nc"]])],  # expected to fail — include as the control
+    "HPT": [("hpt_eff", "HPT_eff_mod",
+             [["T48", "P40", "Nc"], ["T48", "P40", "Ps30"], ["T48", "T30", "Nc"]])],
     "LPT": [("lpt_flow", "LPT_flow_mod",
              [["T50", "P50", "P24"], ["T50", "P24", "Nf"], ["T50", "P50", "Nf"]]),
             ("lpt_eff", "LPT_eff_mod",
              [["T50", "P50", "Nf"], ["T50", "Nf", "Nc"]])],
-    
+    "HPC": [("hpc_eff", "HPC_eff_mod",
+             [["Ps30", "T30", "Nc"], ["P24", "T30", "Nc"], ["Ps30", "P40", "Nc"]])],
+    "fan": [("fan_flow", "fan_flow_mod",
+             [["P21", "P15", "P24"], ["P21", "P24", "Nf"], ["P15", "P24", "Wf"]])],
+    "LPC": [("lpc_eff", "LPC_eff_mod",
+             [["P24", "T24", "Nf"], ["P24", "T24", "Nc"], ["T24", "Nf", "Wf"]])],
 }
 # foil = a component on the OTHER shaft; a specific leaf should NOT fire on it.
 FOIL = {"HPT": "LPT", "HPC": "LPT", "fan": "HPT", "LPC": "HPT", "LPT": "HPT"}
@@ -229,7 +228,7 @@ def leak_table(full_model, pooled, mode_components):
             continue
         fr = pooled[pooled["ds"] == ds]
         pred = gft.predict_tree(fr, full_model, full_model["genome"])
-        own_spool = "hp" if SHAFT[comps[0]] == "HP" else "lp"
+        own_spool = gft.owner_spool(full_model, comps[0])
         row = {"ds": ds, "mode": comps[0], "own_spool": own_spool}
         for sp in spools:
             row[f"{sp}_peak"] = float(pred.groupby(fr["unit"].values)[sp + "_h"].max().mean())
@@ -276,7 +275,7 @@ def dead_branches(full_model, pooled, mode_components, thresh=0.15):
             continue
         fr = pooled[pooled["ds"] == ds]
         pred = gft.predict_tree(fr, full_model, full_model["genome"])
-        own = "hp" if SHAFT[comps[0]] == "HP" else "lp"
+        own = gft.owner_spool(full_model, comps[0])
         peak_own = float(pred.groupby(fr["unit"].values)[own + "_h"].max().mean())
         other = [n["name"] for n in full_model["meta"]
                  if n["kind"] == "spool" and n["name"] != own]

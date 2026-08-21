@@ -109,7 +109,7 @@ def plot_assembled(full_model, pooled, mode_components, save, max_units=2):
         fr = pooled[pooled["ds"] == ds]
         pred = gft.predict_tree(fr, full_model, full_model["genome"])
         m = fr[["unit", "cycle", "RUL"]].merge(pred, on=["unit", "cycle"])
-        own = "hp" if SHAFT[mode] == "HP" else "lp"
+        own = gft.owner_spool(full_model, mode)
         a0 = ax[i][0]
         for u in list(np.unique(m["unit"]))[:max_units]:
             d = m[m["unit"] == u].sort_values("cycle")
@@ -197,6 +197,38 @@ def plot_pruning(prune_out, save):
     b.set_ylabel("min leaf theta-R2 (higher better)")
     b.set_title("(RUL, leaf-fidelity) Pareto front"); b.legend(fontsize=8)
     fig.tight_layout()
+    fig.savefig(save, dpi=110)
+    plt.close(fig)
+    return save
+
+
+def plot_theta_fit(model, frame, save, max_units=25):
+    """Per leaf: predicted theta vs real theta (parity), the DIAGNOSTIC-fidelity
+    figure. A tight diagonal = the leaf reads its component; scatter/negative slope
+    = it does not. R2 and per-unit rho annotated. Complements plot_assembled, which
+    shows the aggregation (spool damage + RUL); this shows the leaves themselves."""
+    pred = gft.predict_tree(frame, model, model["genome"])
+    leaves = [n for n in model["meta"] if n["kind"] == "leaf"]
+    rows, cols = _grid(len(leaves))
+    fig, ax = plt.subplots(rows, cols, figsize=(3.6 * cols, 3.2 * rows), squeeze=False)
+    units = frame["unit"].to_numpy()
+    keep = set(list(dict.fromkeys(units))[:max_units])   # thin for legibility
+    m = np.array([u in keep for u in units])
+    for i, n in enumerate(leaves):
+        a = ax[i // cols][i % cols]
+        t = frame[n["target"]].to_numpy(float)
+        th = pred[n["target"] + "_hat"].to_numpy()
+        a.scatter(t[m], th[m], s=7, alpha=0.35, c="steelblue", edgecolors="none")
+        lo = float(min(t.min(), th.min())); hi = float(max(t.max(), th.max()))
+        a.plot([lo, hi], [lo, hi], "k--", lw=1)
+        a.set_xlim(lo, hi); a.set_ylim(lo, hi)
+        r2 = gft.r2(t, th); rho = gft.unit_corr(units, t, th)
+        a.set_title(f"{n['target']}\nR2={r2:.2f}  rho={rho:.2f}", fontsize=9)
+        a.set_xlabel("real theta"); a.set_ylabel("pred theta")
+    for j in range(len(leaves), rows * cols):
+        ax[j // cols][j % cols].axis("off")
+    fig.suptitle("Leaf diagnostic fidelity -- predicted vs real theta (dashed = y=x)")
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(save, dpi=110)
     plt.close(fig)
     return save

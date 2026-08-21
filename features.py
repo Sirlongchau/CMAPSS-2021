@@ -66,6 +66,24 @@ COMPONENTS = {
 }
 SHAFT = {"fan": "LP", "LPC": "LP", "LPT": "LP", "HPC": "HP", "HPT": "HP"}
 
+# Alternative grouping by THERMODYNAMIC STATION rather than mechanical shaft:
+#   cold / inlet section  = fan, LPC, HPC   (compression)
+#   hot  / outlet section = HPT, LPT        (expansion)
+# Motivation: the fan and LPC share the LP SHAFT with the LPT, so a shaft grouping
+# forces a cold-section and a hot-section component into the same node and their
+# sensor signatures leak through the coupling. Grouping cold-vs-hot puts components
+# that share a sensor neighbourhood together, and is also the decomposition a
+# maintenance engineer uses (borescope the hot section vs wash the compressor).
+STATION = {"fan": "cold", "LPC": "cold", "HPC": "cold", "HPT": "hot", "LPT": "hot"}
+
+# grouping name -> (component -> intermediate spool-node name). tree.py picks one
+# at build time; everything else reads the node structure off the built model, so
+# swapping the grouping is a one-argument change.
+GROUPINGS = {
+    "shaft":   {c: ("hp" if s == "HP" else "lp") for c, s in SHAFT.items()},
+    "station": dict(STATION),
+}
+
 # Flat list of all ten modifiers, in component order.
 THETA = [m for pair in COMPONENTS.values() for m in pair]
 

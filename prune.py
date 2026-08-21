@@ -66,7 +66,8 @@ def _remove(leaves, comp, name):
 # fit + score a leaf set across seeds
 # ==========================================================================
 
-def _fit_eval(pooled, leaves, train_ds, eval_ds, seeds, gens, pop):
+def _fit_eval(pooled, leaves, train_ds, eval_ds, seeds, gens, pop,
+              decoupled=False, grouping="shaft"):
     """Fit the full tree from `leaves` at each seed, score on eval_ds. Returns mean
     (+ spread) of RUL metrics and the MIN surviving-leaf theta-R2 -- the fidelity
     axis. The floor is active inside gft.fit_full, so a leaf that can't stay honest
@@ -75,7 +76,12 @@ def _fit_eval(pooled, leaves, train_ds, eval_ds, seeds, gens, pop):
     fr_ev = pooled[pooled["ds"].isin(eval_ds)].reset_index(drop=True)
     rows = []
     for s in seeds:
-        m = gft.fit_full(fr_tr, leaves=leaves, gens=gens, pop=pop, seed=s)
+        if decoupled:
+            m = gft.fit_decoupled(fr_tr, leaves=leaves, grouping=grouping,
+                                  gens=gens, pop=pop, seed=s)
+        else:
+            m = gft.fit_full(fr_tr, leaves=leaves, grouping=grouping,
+                             gens=gens, pop=pop, seed=s)
         rep = gft.evaluate(fr_ev, m)
         lr2 = [v for k, v in rep.items() if k.endswith(":R2")]
         rows.append({"RMSE": rep["RMSE"], "NASA": rep["NASA"], "R2": rep["R2"],
@@ -95,9 +101,19 @@ def _fit_eval(pooled, leaves, train_ds, eval_ds, seeds, gens, pop):
 # ==========================================================================
 
 def greedy_prune(pooled, leaves, train_ds, eval_ds=None, seeds=(0, 1, 2),
-                 gens=60, pop=100, min_leaves=1, verbose=True):
+                 gens=60, pop=100, min_leaves=1, keep_all_components=False,
+                 decoupled=False, grouping="shaft", verbose=True):
     """From the full leaf set, repeatedly drop the leaf whose removal gives the
     LOWEST resulting RUL RMSE (helps or least hurts), down to `min_leaves`.
+
+    keep_all_components : if True, NEVER drop a component's last leaf -- pruning
+        then chooses which modifier (eff vs flow) reads each component best while
+        guaranteeing every component keeps a diagnostic reading (explainability is
+        preserved: no component ever goes dark). The floor is then n_components.
+    decoupled, grouping : fit each candidate with gft.fit_decoupled (frozen honest
+        leaves + separate aggregator) under the given grouping, so the prune runs on
+        the chosen architecture -- "redundant even when the leaf is honest" is a
+        cleaner statement than redundancy under the degenerate coupled fit.
 
     Returns dict with:
       trajectory : the kept set at each size (size, dropped, RUL + fidelity metrics)
@@ -107,30 +123,36 @@ def greedy_prune(pooled, leaves, train_ds, eval_ds=None, seeds=(0, 1, 2),
     Scoring is on eval_ds (defaults to train_ds -- IN-SAMPLE, matching the rest of
     the pipeline; pass a held-out ds list for an out-of-sample prune)."""
     eval_ds = eval_ds or train_ds
+    fe = lambda lv: _fit_eval(pooled, lv, train_ds, eval_ds, seeds, gens, pop,
+                              decoupled=decoupled, grouping=grouping)
     current = copy.deepcopy(leaves)
     traj, points = [], []
 
-    base = _fit_eval(pooled, current, train_ds, eval_ds, seeds, gens, pop)
+    base = fe(current)
     traj.append({"size": _n_leaves(current), "dropped": "(full set)",
                  "_leaves": copy.deepcopy(current), **base})
     if verbose:
-        print(f"[{_n_leaves(current):2d} leaves] full set: "
+        tag = "  [keep-all-components]" if keep_all_components else ""
+        tag += "  [decoupled]" if decoupled else ""
+        print(f"[{_n_leaves(current):2d} leaves] full set{tag}: "
               f"RMSE={base['RMSE']:.2f}+/-{base['RMSE_sd']:.2f}  "
               f"min_leaf_R2={base['min_leaf_R2']:.2f}")
 
     while _n_leaves(current) > min_leaves:
         trials = []
         for comp, name, _, _ in _leaf_list(current):
+            if keep_all_components and len(current.get(comp, [])) <= 1:
+                continue                          # never drop a component's last leaf
             trial = _remove(current, comp, name)
             if _n_leaves(trial) == 0:
                 continue
-            met = _fit_eval(pooled, trial, train_ds, eval_ds, seeds, gens, pop)
+            met = fe(trial)
             trials.append((comp, name, trial, met))
             points.append({"size": _n_leaves(trial), "dropped": f"{comp}.{name}",
                            "_leaves": trial, **met})
         if not trials:
             break
-        comp, name, current, met = min(trials, key=lambda t: t[3]["RMSE"])  # least hurt
+        comp, name, current, met = min(trials, key=lambda t: t[3]["NASA"])  # least hurt (NASA: RMSE ties are often exact)
         traj.append({"size": _n_leaves(current), "dropped": f"{comp}.{name}",
                      "_leaves": copy.deepcopy(current), **met})
         if verbose:
@@ -171,8 +193,8 @@ def _recommend(traj, r2_floor=0.3):
     highest min_leaf_R2 (best achievable honesty) and flag it."""
     honest = [t for t in traj if t["min_leaf_R2"] >= r2_floor]
     if honest:
-        pick = min(honest, key=lambda t: t["RMSE"])
-        why = (f"lowest RUL RMSE ({pick['RMSE']:.2f}) among sets with all leaves "
+        pick = min(honest, key=lambda t: t["NASA"])
+        why = (f"lowest RUL NASA ({pick['NASA']:.2f}) among sets with all leaves "
                f"honest (min_leaf_R2 >= {r2_floor})")
     else:
         pick = max(traj, key=lambda t: t["min_leaf_R2"])
