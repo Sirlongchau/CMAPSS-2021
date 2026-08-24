@@ -1,17 +1,14 @@
 import data, ablation, freeze_fit
 pooled = data.pooled()
-train  = pooled[pooled.ds.astype(str).str.startswith("DS08")].reset_index(drop=True)
-
+train  = [d for d in pooled.ds.unique() if d.startswith("DS08")]
 leaves = freeze_fit.select_leaves(
     ablation.load_leaves("ablation_out/best_leaves.json"),
-    {"HPT": ["eff"], "HPC": ["eff", "flow"], "fan": ["eff"],
-     "LPC": ["eff"], "LPT": ["eff", "flow"]})          # the 7-leaf set you specified
+    {"HPT":["eff"], "HPC":["eff","flow"], "fan":["eff"], "LPC":["eff"], "LPT":["eff","flow"]})
 
-model, frozen, res = freeze_fit.run(
-    train, leaves, grouping="shaft", age=False,
-    leaf_gens=300, leaf_pop=80,     # LARGE leaf training (phase 1)
-    gens=120, pop=120,              # aggregator on RUL (phase 2)
-    json_path="frozen_leaves.json", outdir="figures")
+noage = freeze_fit.finalize_multi(pooled, leaves, train, seeds=(0,1,2,3,4), age=False,
+                                  also_eval_ds=["DS01","DS04"], outdir="figures")
+age   = freeze_fit.finalize_multi(pooled, leaves, train, seeds=(0,1,2,3,4), age=True,
+                                  also_eval_ds=["DS01","DS04"], outdir="figures")
 
 
 # for multiple runs, you can do something like this:
