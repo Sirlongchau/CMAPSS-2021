@@ -1,5 +1,16 @@
 {
   "leaves": {
+    "HPC": [
+      [
+        "hpc_flow",
+        "HPC_flow_mod",
+        [
+          "P24",
+          "T30",
+          "Nc"
+        ]
+      ]
+    ],
     "HPT": [
       [
         "hpt_eff",
@@ -8,6 +19,26 @@
           "T48",
           "T30",
           "Nc"
+        ]
+      ],
+      [
+        "hpt_flow",
+        "HPT_flow_mod",
+        [
+          "T48",
+          "P40",
+          "Ps30"
+        ]
+      ]
+    ],
+    "LPC": [
+      [
+        "lpc_flow",
+        "LPC_flow_mod",
+        [
+          "P24",
+          "T24",
+          "Nf"
         ]
       ]
     ],
@@ -30,10 +61,21 @@
           "P24"
         ]
       ]
+    ],
+    "fan": [
+      [
+        "fan_flow",
+        "fan_flow_mod",
+        [
+          "P15",
+          "P24",
+          "Wf"
+        ]
+      ]
     ]
   },
-  "size": 3,
-  "RMSE": 8.71957028956932,
-  "min_leaf_R2": 0.3666366761289581,
-  "why": "lowest RUL RMSE (8.72) among sets with all leaves honest (min_leaf_R2 >= 0.3)"
+  "size": 7,
+  "RMSE": 8.619497306106823,
+  "min_leaf_R2": 0.2846611721758645,
+  "why": "NO set kept all leaves honest at min_leaf_R2 >= 0.3; reporting the most-honest achievable (min_leaf_R2 0.28) -- the honest/RUL conflict is unresolved"
 }
