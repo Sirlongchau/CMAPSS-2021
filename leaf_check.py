@@ -93,7 +93,7 @@ def check(pooled, leaves, train_ds, grouping="shaft", seed=0, frac=0.5, age=Fals
     return pd.DataFrame(rows)
 
 
-def specificity(model, pooled, eps=1e-6):
+def specificity(model, pooled, eps=1e-6, cross_shaft=False):
     """Confound-free component-specificity of the FROZEN leaves, from fault-mode
     structure. For each leaf, compare theta_hat's within-unit amplitude on units where
     its OWN component degrades vs units where it is HEALTHY:
@@ -101,16 +101,44 @@ def specificity(model, pooled, eps=1e-6):
         specificity = 1 - amp_healthy / amp_degrading      (1 = specific, 0 = global damage)
 
     A specific leaf is flat when its component is healthy. Pass the FULL pooled fleet
-    (needs fault-mode diversity: units where the component does NOT degrade). Leaves with
-    no healthy units get specificity NaN (n_heal reported)."""
+    (needs fault-mode diversity). Leaves with no healthy units get NaN.
+
+    cross_shaft=True restricts the HEALTHY reference to units where an OPPOSITE-shaft
+    component degrades (own still healthy). This separates true cross-shaft GLOBAL leak
+    (theta_hat active when only the other shaft is degrading -> low) from harmless
+    same-shaft SIBLING coupling (co-degrading LP/HP neighbours), which the default
+    version cannot tell apart. Use it to adjudicate borderline LP-shaft leaves (LPT/LPC).
+    """
+    from features import COMPONENTS, SHAFT
     pred = gft.predict_tree(pooled, model, model["genome"])
     units = pooled["unit"].to_numpy()
     uniq = np.unique(units)
+
+    # per-unit: which shafts have a degrading component (either modifier's theta varies)
+    shaft_active = {}
+    for u in uniq:
+        mu = units == u
+        active = set()
+        for comp, (e, fl) in COMPONENTS.items():
+            for col in (e, fl):
+                if col in pooled.columns:
+                    v = pooled[col].to_numpy(float)[mu]
+                    if v.max() - v.min() > eps:
+                        active.add(SHAFT[comp]); break
+        shaft_active[u] = active
+
+    def _comp_of(target):
+        for comp, (e, fl) in COMPONENTS.items():
+            if target in (e, fl):
+                return comp
+        return None
+
     rows = []
     for n in model["meta"]:
         if n["kind"] != "leaf":
             continue
         tgt = n["target"]
+        own_shaft = SHAFT.get(_comp_of(tgt))
         th = pred[tgt + "_hat"].to_numpy()
         y = pooled[tgt].to_numpy(float)
         amp_deg, amp_heal = [], []
@@ -118,7 +146,15 @@ def specificity(model, pooled, eps=1e-6):
             mu = units == u
             own_varies = (y[mu].max() - y[mu].min()) > eps
             amp = float(np.std(th[mu]))
-            (amp_deg if own_varies else amp_heal).append(amp)
+            if own_varies:
+                amp_deg.append(amp)
+            else:
+                if cross_shaft:
+                    opp = {s for s in shaft_active[u] if s != own_shaft}
+                    if opp:                        # own healthy AND other shaft degrading
+                        amp_heal.append(amp)
+                else:
+                    amp_heal.append(amp)
         ad = float(np.mean(amp_deg)) if amp_deg else np.nan
         ah = float(np.mean(amp_heal)) if amp_heal else np.nan
         spec = (1.0 - ah / ad) if (amp_deg and amp_heal and ad > eps) else np.nan

@@ -1,0 +1,19 @@
+{
+  "date": "2026-08-26",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "rul_cap": 58.0,
+  "n_params": 324,
+  "age_frozen": true,
+  "grouping": "shaft",
+  "n_leaves": 7,
+  "train_ds": [
+    "DS08a-009",
+    "DS08c-008"
+  ]
+}

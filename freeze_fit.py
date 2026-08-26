@@ -171,6 +171,57 @@ def run(frame, leaves, grouping="shaft", age=False,
     return model, frozen, {"leaf_fidelity": leaftab, "rul": rep}
 
 
+def _term_labels(k):
+    if k == 3:
+        return ["low", "mid", "high"]
+    if k == 2:
+        return ["low", "high"]
+    return [f"L{j}" for j in range(k)]
+
+
+def dump_rules(model, path=None):
+    """Export the tree's fuzzy rule base as JSON, one block per NODE (leaf / spool / root),
+    to authenticate the inspectable-rule-base claim. Per node: its inputs, the membership
+    functions (term label + centre in the model's processed input space), and every rule as
+    IF <antecedent terms> THEN <consequent> -- the consequent is the REAL post-anchor output
+    (gft._consequents), so spool rules read in [0,1] damage and root rules in [0, rul_cap].
+    Rules are enumerated in the model's own C-order (matches _fis), and the total rule count
+    equals n_params. Also emits a flat `readable` list of plain-language rules per node."""
+    import itertools
+    g = model["genome"]
+    nodes = []
+    for n in model["meta"]:
+        cons = gft._consequents(n, g)                  # actual per-rule output values
+        shape, inputs, centres = n["shape"], list(n["inputs"]), n["centres"]
+        out_label = (n["target"] if n["kind"] == "leaf"
+                     else "RUL" if n["kind"] == "root"
+                     else f"{n['name']}_damage")
+        mfs = {name: [{"term": _term_labels(len(c))[j], "centre": round(float(c[j]), 5)}
+                      for j in range(len(c))]
+               for name, c in zip(inputs, centres)}
+        rules, readable = [], []
+        for flat, terms in enumerate(itertools.product(*[range(s) for s in shape])):
+            ant = [{"input": name, "term": _term_labels(len(c))[j]}
+                   for name, c, j in zip(inputs, centres, terms)]
+            val = round(float(cons[flat]), 5)
+            rules.append({"if": ant, "then": val})
+            cond = " AND ".join(f"{a['input']} is {a['term']}" for a in ant)
+            readable.append(f"IF {cond} THEN {out_label} = {val}")
+        nodes.append({"name": n["name"], "kind": n["kind"], "output": out_label,
+                      "inputs": inputs, "n_rules": len(rules),
+                      "membership_functions": mfs, "rules": rules, "readable": readable})
+    blob = {"n_nodes": len(nodes),
+            "n_rules_total": sum(x["n_rules"] for x in nodes),
+            "n_params": int(len(g)), "rul_cap": float(model["rul_cap"]),
+            "grouping": model.get("grouping", "shaft"), "age": bool(model.get("age", False)),
+            "nodes": nodes}
+    if path:
+        with open(path, "w") as f:
+            json.dump(blob, f, indent=2)
+        print(f"dumped {blob['n_rules_total']} rules across {blob['n_nodes']} nodes -> {path}")
+    return blob
+
+
 # --------------------------------------------------------------------------
 # evaluate + plot RUL on any frame; finalize on held-out dev/test
 # --------------------------------------------------------------------------
