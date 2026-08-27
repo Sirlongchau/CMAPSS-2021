@@ -164,27 +164,30 @@ def _leaves_for(components, leaves=None):
 
 
 def branch_spec(active, leaves=None, grouping="shaft", age=False):
-    """Spec for a tree with ONLY the active components: their leaves -> the
-    intermediate node(s) they group into (under `grouping`) -> RUL. Dead nodes are
-    never created. `active` may be one component (single-branch) or several.
-    grouping='shaft' -> hp/lp; grouping='station' -> cold/hot (see features).
-    age=True appends `age` as an extra ROOT input -- a lifetime prior that enters
-    ONLY the aggregator, so in a decoupled fit it can never degenerate the frozen
-    leaves (the reason age was safe to reintroduce)."""
+    """Spec for a tree with ONLY the active components. FOUR levels:
+    leaves (sensors->theta) -> COMPONENT nodes (a component's theta modifiers -> a single
+    component damage in [0,1]) -> spool nodes (component damages grouped -> spool damage
+    [0,1]) -> RUL. The component tier makes each component a [0,1] scalar, so a change of
+    `grouping` (shaft hp/lp vs station cold/hot) is a pure re-wiring of component->spool
+    edges, not a re-partition of raw leaves. age=True appends `age` at the ROOT only."""
     lv = _leaves_for(active, leaves)
     spec = []
-    used = {}
+    comp_leaves = {}                                   # component -> [leaf names]
     for comp, entries in lv.items():
         for name, target, sensors in entries:
             spec.append({"name": name, "kind": "leaf", "inputs": list(sensors),
                          "target": target})
-            used.setdefault(group_of(comp, grouping), []).append(name)
-    for node, leaf_names in used.items():
-        spec.append({"name": node, "kind": "spool", "inputs": leaf_names,
+            comp_leaves.setdefault(comp, []).append(name)
+    for comp, leaf_names in comp_leaves.items():        # component tier
+        spec.append({"name": comp, "kind": "component", "inputs": leaf_names,
                      "target": None})
+    used = {}                                          # spool tier: components grouped
+    for comp in comp_leaves:
+        used.setdefault(group_of(comp, grouping), []).append(comp)
+    for node, comp_names in used.items():
+        spec.append({"name": node, "kind": "spool", "inputs": comp_names, "target": None})
     root_inputs = list(used.keys()) + (["age"] if age else [])
-    spec.append({"name": "RUL", "kind": "root",
-                 "inputs": root_inputs, "target": None})
+    spec.append({"name": "RUL", "kind": "root", "inputs": root_inputs, "target": None})
     return spec
 
 
@@ -200,13 +203,17 @@ def group_of(component, grouping="shaft"):
 
 
 def owner_spool(model, component):
-    """Which intermediate (spool) node in this BUILT model does `component`'s leaf
-    feed? Reads the tree structure, so it is grouping-agnostic -- leak/dead-branch/
-    viz code uses this instead of hardcoding hp/lp."""
+    """Which spool node does `component` feed, in this BUILT model? Traverses
+    leaf -> component -> spool (grouping-agnostic; leak/dead-branch/viz code uses this)."""
     e, fl = theta_of(component)
     leaf_names = [n["name"] for n in model["meta"]
                   if n["kind"] == "leaf" and n["target"] in (e, fl)]
+    comp_nodes = [n["name"] for n in model["meta"]
+                  if n["kind"] == "component" and any(l in n["inputs"] for l in leaf_names)]
     for n in model["meta"]:
+        if n["kind"] == "spool" and any(c in n["inputs"] for c in comp_nodes):
+            return n["name"]
+    for n in model["meta"]:                              # fallback: legacy leaf->spool
         if n["kind"] == "spool" and any(l in n["inputs"] for l in leaf_names):
             return n["name"]
     return None
@@ -241,10 +248,12 @@ def build_tree(spec, frame, rul_cap):
         for src in inputs:
             if kind == "leaf":                          # antecedent = a sensor
                 centres.append(_quantile_centres(P[src]))
-            elif kind == "spool":                       # antecedent = a leaf theta
+            elif kind == "component":                   # antecedent = a leaf theta
                 t = frame[tcols[src]].to_numpy(float)
                 sub = t[deg.to_numpy()] if deg.any() else t
                 centres.append(_quantile_centres(sub if len(sub) else t))
+            elif kind == "spool":                       # antecedent = a component damage [0,1]
+                centres.append(np.linspace(0.0, 1.0, N_TERMS))
             else:                                       # root inputs
                 if src == "age":                          # lifetime prior: age quantiles
                     centres.append(_quantile_centres(frame["age"].to_numpy(float)))
@@ -252,10 +261,19 @@ def build_tree(spec, frame, rul_cap):
                     centres.append(np.linspace(0.0, 1.0, N_TERMS))
         shape = tuple(len(c) for c in centres)
         n_rules = int(np.prod(shape))
-        mono = kind in ("spool", "root")
-        signs = tuple(-1 for _ in inputs) if mono else None
+        mono = kind in ("component", "spool", "root")
+        # sign = direction of the node output in each input.
+        #   component: inputs are theta (negative = worse) -> damage DECREASES in theta -> -1
+        #   spool:     inputs are component DAMAGE (high = worse) -> spool damage INCREASES -> +1
+        #   root:      inputs are spool damage / age -> RUL DECREASES -> -1  (RUL=0 at full damage)
+        if kind == "spool":
+            signs = tuple(+1 for _ in inputs)
+        elif mono:
+            signs = tuple(-1 for _ in inputs)
+        else:
+            signs = None
         anchor = mono
-        out = ((0.0, 1.0) if kind == "spool" else
+        out = ((0.0, 1.0) if kind in ("component", "spool") else
                (0.0, float(rul_cap)) if kind == "root" else None)
 
         # genome bounds for this node's consequents
@@ -307,6 +325,8 @@ def predict_tree(frame, model, genome):
         vals[n["name"]] = y
         if n["kind"] == "leaf":
             out[n["target"] + "_hat"] = y
+        elif n["kind"] == "component":
+            out[n["name"] + "_dmg"] = y
         elif n["kind"] == "spool":
             out[n["name"] + "_h"] = y
         else:
