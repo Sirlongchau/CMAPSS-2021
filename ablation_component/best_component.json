@@ -1,0 +1,130 @@
+{
+  "rho_floor": 0.5,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "best": {
+    "HPC": {
+      "HPC_eff_mod": {
+        "target": "HPC_eff_mod",
+        "component": "HPC",
+        "shaft": "HP",
+        "sensors": "T30+P21+P24",
+        "rho": 0.7358405685530215,
+        "rho_sd": 0.04560382264334925,
+        "spec": 0.8023211358666439,
+        "spec_xshaft": 0.7779465800733915,
+        "spec_xshaft_sd": 0.03985002773775225
+      },
+      "HPC_flow_mod": {
+        "target": "HPC_flow_mod",
+        "component": "HPC",
+        "shaft": "HP",
+        "sensors": "T30+P21+P24",
+        "rho": 0.7045761092020633,
+        "rho_sd": 0.011579588231147613,
+        "spec": 0.7413361881875898,
+        "spec_xshaft": 0.721476124788592,
+        "spec_xshaft_sd": 0.06145770436085512
+      }
+    },
+    "HPT": {
+      "HPT_eff_mod": {
+        "target": "HPT_eff_mod",
+        "component": "HPT",
+        "shaft": "HP",
+        "sensors": "Nc+P40+P50",
+        "rho": 0.7516775211610153,
+        "rho_sd": 0.023274667107742963,
+        "spec": 0.6394863400244238,
+        "spec_xshaft": 0.5983332041043655,
+        "spec_xshaft_sd": 0.019652562585644427
+      },
+      "HPT_flow_mod": {
+        "target": "HPT_flow_mod",
+        "component": "HPT",
+        "shaft": "HP",
+        "sensors": "Wf+Nc+T30",
+        "rho": 0.8486920566106657,
+        "rho_sd": 0.021178069849733833,
+        "spec": 0.6158597317717913,
+        "spec_xshaft": 0.6274594608453057,
+        "spec_xshaft_sd": 0.0342071023040997
+      }
+    },
+    "LPC": {
+      "LPC_eff_mod": {
+        "target": "LPC_eff_mod",
+        "component": "LPC",
+        "shaft": "LP",
+        "sensors": "T24+Ps30+P50",
+        "rho": 0.2754305026890887,
+        "rho_sd": 0.11835737526589742,
+        "spec": 0.08970491298605603,
+        "spec_xshaft": 0.0017795225532722208,
+        "spec_xshaft_sd": 0.11289885275797777
+      },
+      "LPC_flow_mod": {
+        "target": "LPC_flow_mod",
+        "component": "LPC",
+        "shaft": "LP",
+        "sensors": "T24+T48+P40",
+        "rho": 0.49849117299448475,
+        "rho_sd": 0.06256266886686501,
+        "spec": 0.3912793919842224,
+        "spec_xshaft": 0.44901510222545865,
+        "spec_xshaft_sd": 0.15342123598730073
+      }
+    },
+    "LPT": {
+      "LPT_eff_mod": {
+        "target": "LPT_eff_mod",
+        "component": "LPT",
+        "shaft": "LP",
+        "sensors": "T24+T30+T50",
+        "rho": 0.7093351004145143,
+        "rho_sd": 0.07951417907975766,
+        "spec": 0.6713559278402386,
+        "spec_xshaft": 0.6730537079701963,
+        "spec_xshaft_sd": 0.045942117660133446
+      },
+      "LPT_flow_mod": {
+        "target": "LPT_flow_mod",
+        "component": "LPT",
+        "shaft": "LP",
+        "sensors": "T24+T30+T48",
+        "rho": 0.9263475689379286,
+        "rho_sd": 0.00943373130626298,
+        "spec": 0.5422671133204736,
+        "spec_xshaft": 0.5236567376129192,
+        "spec_xshaft_sd": 0.02068715744268963
+      }
+    },
+    "fan": {
+      "fan_eff_mod": {
+        "target": "fan_eff_mod",
+        "component": "fan",
+        "shaft": "LP",
+        "sensors": "T30+P15+P50",
+        "rho": 0.5572232202202713,
+        "rho_sd": 0.05583050374722998,
+        "spec": 0.35021104783668006,
+        "spec_xshaft": 0.31052714438285683,
+        "spec_xshaft_sd": 0.059380190568826714
+      },
+      "fan_flow_mod": {
+        "target": "fan_flow_mod",
+        "component": "fan",
+        "shaft": "LP",
+        "sensors": "P21+P40+P50",
+        "rho": 0.59924291554074,
+        "rho_sd": 0.026037608207263266,
+        "spec": 0.41602722415554405,
+        "spec_xshaft": 0.3937676338209292,
+        "spec_xshaft_sd": 0.07475498998228333
+      }
+    }
+  }
+}

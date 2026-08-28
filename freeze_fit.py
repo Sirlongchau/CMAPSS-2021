@@ -125,15 +125,16 @@ def load_frozen(model, path="frozen_leaves.json"):
 # phase 2: train aggregator on RUL, leaves pinned
 # --------------------------------------------------------------------------
 
-def fit_rul(frame, model, frozen, gens=120, pop=120, seed=0):
+def fit_rul(frame, model, frozen, gens=120, pop=120, seed=0, lambda_spec=0.0):
     """Pin leaf genes to `frozen`, train spool+root on RUL (gft._rul_loss_fn). Mirrors
-    fit_decoupled's phase 2 exactly. Sets model['genome']."""
+    fit_decoupled's phase 2 exactly. lambda_spec>0 adds the component-specificity penalty.
+    Sets model['genome']."""
     lo, hi = model["lo"].copy(), model["hi"].copy()
     for n in model["meta"]:
         if n["kind"] == "leaf":
             lo[n["rules"]] = frozen[n["rules"]]
             hi[n["rules"]] = frozen[n["rules"]]
-    loss = gft._rul_loss_fn(frame, model)
+    loss = gft._rul_loss_fn(frame, model, lambda_spec=lambda_spec)
     g, f, _ = ga.optimize(loss, lo, hi, gens=gens, pop=pop, seed=seed, seeds=[frozen])
     model["genome"] = g
     model["loss"] = f

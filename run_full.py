@@ -199,6 +199,52 @@ def native_test(pooled, leaves, train_ds, ages=(False, True), grouping="shaft",
 # spool-degeneration A/B: does age slacken the damage representation?
 # ==========================================================================
 
+def spec_sweep(pooled, leaves, lambdas=(0.0, 0.5, 1.0, 2.0, 4.0, 8.0), age=False,
+               grouping="shaft", leaf_gens=300, leaf_pop=80, gens=120, pop=120, seed=0,
+               outdir="results"):
+    """Dev-only sweep of the component-specificity penalty lambda_spec. Splits `pooled`
+    BY UNIT (train has fault-mode diversity so the penalty has healthy examples), freezes
+    leaves ONCE, then for each lambda re-fits ONLY the aggregator and records dev RUL RMSE
+    vs mean component misdiag_ratio (measured on the full pool). Emits the RUL-vs-misdiag
+    Pareto front so lambda is chosen on dev, never on test.
+
+    Read per component too: HPC/HPT should clean up cheaply; LPT (cross-shaft spec < 0)
+    likely won't move without a RUL cost -- that asymmetry maps the observability limit."""
+    import os, copy as _copy
+    os.makedirs(outdir, exist_ok=True)
+    tr, dev, _ = data.split(pooled, seed=seed)                 # full pool -> healthy examples present
+    model, frozen = freeze_fit.freeze(tr, leaves, grouping=grouping, age=age,
+                                      leaf_gens=leaf_gens, leaf_pop=leaf_pop, seed=seed)
+    rows = []
+    for lam in lambdas:
+        m = freeze_fit.fit_rul(tr, model, frozen, gens=gens, pop=pop, seed=seed,
+                               lambda_spec=lam)                 # re-pins leaves; overwrites genome
+        rmse_dev = float(gft.evaluate(dev, m)["RMSE"])
+        cd = freeze_fit.component_diag(m, pooled)
+        row = {"lambda": lam, "dev_RMSE": rmse_dev,
+               "mean_misdiag": float(cd["misdiag_ratio"].mean(skipna=True))}
+        for c, v in zip(cd["component"], cd["misdiag_ratio"]):
+            row[f"misdiag_{c}"] = float(v)
+        rows.append(row)
+        print(f"  lambda={lam:<4} dev_RMSE={rmse_dev:.3f}  mean_misdiag={row['mean_misdiag']:.3f}")
+    tab = pd.DataFrame(rows)
+    _w(tab, outdir, "spec_sweep.csv")
+
+    import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(6.5, 5))
+    ax.plot(tab["mean_misdiag"], tab["dev_RMSE"], "-o", color="steelblue")
+    for _, r in tab.iterrows():
+        ax.annotate(f"λ={r['lambda']:g}", (r["mean_misdiag"], r["dev_RMSE"]),
+                    fontsize=8, xytext=(4, 4), textcoords="offset points")
+    ax.set_xlabel("mean component misdiag_ratio (lower = more specific)")
+    ax.set_ylabel("dev RUL RMSE (lower better)")
+    ax.set_title("Specificity penalty trade-off (dev) -- pick λ on this curve")
+    ax.grid(alpha=0.3); fig.tight_layout()
+    fig.savefig(os.path.join(outdir, "spec_sweep_pareto.png"), dpi=110); plt.close(fig)
+    print(f"wrote {outdir}/spec_sweep.csv and spec_sweep_pareto.png")
+    return tab
+
+
 def spool_ab(per_unit_off, per_unit_on):
     """Mean peak spool damage over ALL held-out units, age OFF vs ON, per spool. A drop
     under age = the intermediate damage nodes carry less signal (age explains RUL at the
@@ -313,6 +359,13 @@ def _self_test():
     assert "spec_cross_shaft" in out["leaf"].columns
     assert set(out["loso"]["age"].unique()) == {False, True}
     assert set(out["p3"]["age"].unique()) == {False, True}
+    # specificity-penalty dev sweep (Pareto)
+    print("\n-- spec_sweep (lambda) --")
+    ss = spec_sweep(pooled, CHOSEN if False else leaves, lambdas=(0.0, 2.0),
+                    leaf_gens=8, leaf_pop=8, gens=8, pop=8, outdir="/tmp/results")
+    assert {"lambda", "dev_RMSE", "mean_misdiag"} <= set(ss.columns)
+    assert os.path.exists("/tmp/results/spec_sweep_pareto.png")
+
     print("\nrun_full self-test OK (all blocks + rule base; age off/on for LOSO+P3)")
 
 
