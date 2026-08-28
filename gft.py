@@ -60,7 +60,7 @@ SPOOLS = {"hp": components_on("HP"), "lp": components_on("LP")}   # hp:[HPC,HPT]
 DEFAULT_LEAVES = {
     "HPT": [("hpt_eff",  "HPT_eff_mod",  ["T48", "P40", "Nc"])],
     "HPC": [("hpc_eff",  "HPC_eff_mod",  ["Ps30", "T30", "Nc"])],
-    "fan": [("fan_flow", "fan_flow_mod", ["P21", "P15", "P24"])],
+    "fan": [("fan_eff", "fan_eff_mod",   ["T24", "Nf", "Wf"])],
     "LPC": [("lpc_eff",  "LPC_eff_mod",  ["P24", "T24", "Nf"])],
     "LPT": [("lpt_flow", "LPT_flow_mod", ["T50", "P50", "P24"]),
             ("lpt_eff",  "LPT_eff_mod",  ["T50", "P50", "Nf"])],
@@ -163,38 +163,31 @@ def _leaves_for(components, leaves=None):
     return {c: leaves[c] for c in components if c in leaves}
 
 
-def branch_spec(active, leaves=None, grouping="shaft", age=False):
-    """Spec for a tree with ONLY the active components. FOUR levels:
-    leaves (sensors->theta) -> COMPONENT nodes (a component's theta modifiers -> a single
-    component damage in [0,1]) -> spool nodes (component damages grouped -> spool damage
-    [0,1]) -> RUL. The component tier makes each component a [0,1] scalar, so a change of
-    `grouping` (shaft hp/lp vs station cold/hot) is a pure re-wiring of component->spool
-    edges, not a re-partition of raw leaves. age=True appends `age` at the ROOT only."""
+def branch_spec(active, leaves=None, grouping="shaft"):
+    """Spec for a tree with ONLY the active components: their leaves -> the
+    intermediate node(s) they group into (under `grouping`) -> RUL. Dead nodes are
+    never created. `active` may be one component (single-branch) or several.
+    grouping='shaft' -> hp/lp; grouping='station' -> cold/hot (see features)."""
     lv = _leaves_for(active, leaves)
     spec = []
-    comp_leaves = {}                                   # component -> [leaf names]
+    used = {}
     for comp, entries in lv.items():
         for name, target, sensors in entries:
             spec.append({"name": name, "kind": "leaf", "inputs": list(sensors),
                          "target": target})
-            comp_leaves.setdefault(comp, []).append(name)
-    for comp, leaf_names in comp_leaves.items():        # component tier
-        spec.append({"name": comp, "kind": "component", "inputs": leaf_names,
+            used.setdefault(group_of(comp, grouping), []).append(name)
+    for node, leaf_names in used.items():
+        spec.append({"name": node, "kind": "spool", "inputs": leaf_names,
                      "target": None})
-    used = {}                                          # spool tier: components grouped
-    for comp in comp_leaves:
-        used.setdefault(group_of(comp, grouping), []).append(comp)
-    for node, comp_names in used.items():
-        spec.append({"name": node, "kind": "spool", "inputs": comp_names, "target": None})
-    root_inputs = list(used.keys()) + (["age"] if age else [])
-    spec.append({"name": "RUL", "kind": "root", "inputs": root_inputs, "target": None})
+    spec.append({"name": "RUL", "kind": "root",
+                 "inputs": list(used.keys()), "target": None})
     return spec
 
 
-def full_spec(leaves=None, grouping="shaft", age=False):
+def full_spec(leaves=None, grouping="shaft"):
     """The assembled target tree under a grouping: every component's leaves ->
-    intermediate nodes -> RUL (optionally with age at the root)."""
-    return branch_spec(list(COMPONENTS), leaves, grouping, age)
+    intermediate nodes -> RUL."""
+    return branch_spec(list(COMPONENTS), leaves, grouping)
 
 
 def group_of(component, grouping="shaft"):
@@ -203,17 +196,13 @@ def group_of(component, grouping="shaft"):
 
 
 def owner_spool(model, component):
-    """Which spool node does `component` feed, in this BUILT model? Traverses
-    leaf -> component -> spool (grouping-agnostic; leak/dead-branch/viz code uses this)."""
+    """Which intermediate (spool) node in this BUILT model does `component`'s leaf
+    feed? Reads the tree structure, so it is grouping-agnostic -- leak/dead-branch/
+    viz code uses this instead of hardcoding hp/lp."""
     e, fl = theta_of(component)
     leaf_names = [n["name"] for n in model["meta"]
                   if n["kind"] == "leaf" and n["target"] in (e, fl)]
-    comp_nodes = [n["name"] for n in model["meta"]
-                  if n["kind"] == "component" and any(l in n["inputs"] for l in leaf_names)]
     for n in model["meta"]:
-        if n["kind"] == "spool" and any(c in n["inputs"] for c in comp_nodes):
-            return n["name"]
-    for n in model["meta"]:                              # fallback: legacy leaf->spool
         if n["kind"] == "spool" and any(l in n["inputs"] for l in leaf_names):
             return n["name"]
     return None
@@ -248,32 +237,18 @@ def build_tree(spec, frame, rul_cap):
         for src in inputs:
             if kind == "leaf":                          # antecedent = a sensor
                 centres.append(_quantile_centres(P[src]))
-            elif kind == "component":                   # antecedent = a leaf theta
+            elif kind == "spool":                       # antecedent = a leaf theta
                 t = frame[tcols[src]].to_numpy(float)
                 sub = t[deg.to_numpy()] if deg.any() else t
                 centres.append(_quantile_centres(sub if len(sub) else t))
-            elif kind == "spool":                       # antecedent = a component damage [0,1]
+            else:                                       # root: spool damage in [0,1]
                 centres.append(np.linspace(0.0, 1.0, N_TERMS))
-            else:                                       # root inputs
-                if src == "age":                          # lifetime prior: age quantiles
-                    centres.append(_quantile_centres(frame["age"].to_numpy(float)))
-                else:                                     # spool damage in [0,1]
-                    centres.append(np.linspace(0.0, 1.0, N_TERMS))
         shape = tuple(len(c) for c in centres)
         n_rules = int(np.prod(shape))
-        mono = kind in ("component", "spool", "root")
-        # sign = direction of the node output in each input.
-        #   component: inputs are theta (negative = worse) -> damage DECREASES in theta -> -1
-        #   spool:     inputs are component DAMAGE (high = worse) -> spool damage INCREASES -> +1
-        #   root:      inputs are spool damage / age -> RUL DECREASES -> -1  (RUL=0 at full damage)
-        if kind == "spool":
-            signs = tuple(+1 for _ in inputs)
-        elif mono:
-            signs = tuple(-1 for _ in inputs)
-        else:
-            signs = None
+        mono = kind in ("spool", "root")
+        signs = tuple(-1 for _ in inputs) if mono else None
         anchor = mono
-        out = ((0.0, 1.0) if kind in ("component", "spool") else
+        out = ((0.0, 1.0) if kind == "spool" else
                (0.0, float(rul_cap)) if kind == "root" else None)
 
         # genome bounds for this node's consequents
@@ -316,17 +291,13 @@ def predict_tree(frame, model, genome):
     vals = {}
     out = pd.DataFrame({"unit": frame["unit"].to_numpy(),
                         "cycle": frame["cycle"].to_numpy()})
-    age_col = frame["age"].to_numpy(float)
     for n in meta:
-        cols = [age_col if s == "age" else
-                (P[s].to_numpy() if n["kind"] == "leaf" else vals[s])
+        cols = [P[s].to_numpy() if n["kind"] == "leaf" else vals[s]
                 for s in n["inputs"]]
         y = _fis(cols, n["centres"], _consequents(n, genome))
         vals[n["name"]] = y
         if n["kind"] == "leaf":
             out[n["target"] + "_hat"] = y
-        elif n["kind"] == "component":
-            out[n["name"] + "_dmg"] = y
         elif n["kind"] == "spool":
             out[n["name"] + "_h"] = y
         else:
@@ -396,12 +367,11 @@ def _loss_fn(frame, model):
     tss = {k: (float(np.sum((v - v.mean()) ** 2)) or 1.0)   # total SS, for R2
            for k, v in theta.items()}
     cols_cache = {s: P[s].to_numpy() for s in model["sensors"]}
-    cols_cache["age"] = frame["age"].to_numpy(float)
 
     def loss(genome):
         vals, tterm, floor = {}, [], 0.0
         for n in meta:
-            cols = [cols_cache[s] if (n["kind"] == "leaf" or s == "age") else vals[s]
+            cols = [cols_cache[s] if n["kind"] == "leaf" else vals[s]
                     for s in n["inputs"]]
             yv = _fis(cols, n["centres"], _consequents(n, genome))
             vals[n["name"]] = yv
@@ -420,7 +390,7 @@ def _loss_fn(frame, model):
 
 
 def _fit(spec, frame, rul_cap=None, seeds=None, gens=60, pop=60, seed=0,
-         grouping="shaft", verbose=False):
+         grouping="shaft", verbose=True):
     rul_cap = rul_cap if rul_cap is not None else suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)
     loss = _loss_fn(frame, model)
@@ -444,11 +414,11 @@ def fit_branch(active, frame, leaves=None, grouping="shaft", **kw):
     return model
 
 
-def fit_full(frame, branch_models=None, leaves=None, grouping="shaft", age=False, **kw):
+def fit_full(frame, branch_models=None, leaves=None, grouping="shaft", **kw):
     """Fit the assembled tree (grouping-dependent intermediate nodes -> RUL). If
     branch_models are given, splice their identified genes into a full-tree seed and
-    warm-start the GA from it (free). age=True adds age at the root."""
-    spec = full_spec(leaves, grouping, age)
+    warm-start the GA from it (free)."""
+    spec = full_spec(leaves, grouping)
     rul_cap = kw.pop("rul_cap", None)
     rul_cap = rul_cap if rul_cap is not None else suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)                 # to know the layout
@@ -494,26 +464,24 @@ def _rul_loss_fn(frame, model):
     y_rul = cap(frame["RUL"].to_numpy(), model["rul_cap"])
     ystd = np.std(y_rul) or 1.0
     cols_cache = {s: P[s].to_numpy() for s in model["sensors"]}
-    cols_cache["age"] = frame["age"].to_numpy(float)
 
     def loss(genome):
         vals = {}
         for n in model["meta"]:
-            cols = [cols_cache[s] if (n["kind"] == "leaf" or s == "age") else vals[s]
+            cols = [cols_cache[s] if n["kind"] == "leaf" else vals[s]
                     for s in n["inputs"]]
             vals[n["name"]] = _fis(cols, n["centres"], _consequents(n, genome))
         return rmse(y_rul, vals["RUL"]) / ystd
     return loss
 
 
-def fit_decoupled(frame, leaves=None, grouping="shaft", age=False, gens=60, pop=60,
-                  seed=0, leaf_gens=30, leaf_pop=30):
+def fit_decoupled(frame, leaves=None, grouping="shaft", gens=60, pop=60, seed=0,
+                  leaf_gens=30, leaf_pop=30):
     """Route 2: honest frozen leaves + a separately-trained aggregator. Breaks the
     diagnosis/prognosis crosspoint by construction -- the leaves are theta-fit and
     never moved by RUL, so they stay transparent; the spool+root are RUL-fit over
-    those frozen signals. age=True adds age at the ROOT only: a lifetime prior for
-    the aggregator that CANNOT degenerate the frozen leaves (why age is safe here)."""
-    spec = full_spec(leaves, grouping, age)
+    those frozen signals."""
+    spec = full_spec(leaves, grouping)
     rul_cap = suggest_rul_cap(frame)
     model = build_tree(spec, frame, rul_cap)
     frozen = _freeze_leaves(frame, model, gens=leaf_gens, pop=leaf_pop, seed=seed)
@@ -530,7 +498,6 @@ def fit_decoupled(frame, leaves=None, grouping="shaft", age=False, gens=60, pop=
     model["loss"] = f
     model["spec"] = spec
     model["grouping"] = grouping
-    model["age"] = age
     model["decoupled"] = True
     return model
 

@@ -1,0 +1,4 @@
+spool_metric,age_off,age_on,delta
+peak_damage,0.8429,0.8514,0.0085
+peak_lp,0.6515,0.6176,-0.0339
+peak_hp,0.8163,0.8207,0.0044

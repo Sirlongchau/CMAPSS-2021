@@ -24,6 +24,10 @@ import pandas as pd
 import gft, ga, data
 
 
+def _grid(k):
+    cols = int(np.ceil(np.sqrt(k))); rows = int(np.ceil(k / cols)); return rows, cols
+
+
 # --------------------------------------------------------------------------
 # choose the leaf set
 # --------------------------------------------------------------------------
@@ -220,6 +224,83 @@ def dump_rules(model, path=None):
             json.dump(blob, f, indent=2)
         print(f"dumped {blob['n_rules_total']} rules across {blob['n_nodes']} nodes -> {path}")
     return blob
+
+
+def component_diag(model, pooled, eps=1e-6):
+    """Diagnosis check for the per-component damage nodes (<c>_dmg). Components are RUL-fit
+    (phase 2), not theta-frozen, so verify each reads ITS OWN degradation, not global damage:
+      rho_dmg_theta  per-unit corr(dmg, that component's true theta) over degrading units,
+                     sign-flipped so a good node -> +1 (dmg rises as theta falls)
+      peak_deg       mean peak dmg on units where the component degrades   (want -> ~1)
+      peak_healthy   mean peak dmg on units where it is HEALTHY             (want -> ~0)
+      misdiag_ratio  peak_healthy / peak_deg -- HIGH = false-positive misdiagnosis (the
+                     node lights up when its own component is fine = the specificity issue
+                     at the damage level, e.g. LPT reading LP-global damage)."""
+    from features import COMPONENTS
+    pred = gft.predict_tree(pooled, model, model["genome"])
+    units = pooled["unit"].to_numpy()
+    rows = []
+    for n in model["meta"]:
+        if n["kind"] != "component":
+            continue
+        c = n["name"]
+        dmg = pred[c + "_dmg"].to_numpy()
+        mods = [t for t in COMPONENTS.get(c, ()) if t in pooled.columns]
+        th = (np.minimum.reduce([pooled[t].to_numpy(float) for t in mods])
+              if mods else np.zeros(len(pooled)))
+        peak_deg, peak_heal, rhos = [], [], []
+        for u in np.unique(units):
+            mu = units == u
+            pk = float(np.max(dmg[mu]))
+            if (th[mu].max() - th[mu].min()) > eps:
+                peak_deg.append(pk)
+                if np.std(dmg[mu]) > eps and np.std(th[mu]) > eps:
+                    rhos.append(np.corrcoef(th[mu], dmg[mu])[0, 1])
+            else:
+                peak_heal.append(pk)
+        pd_ = float(np.mean(peak_deg)) if peak_deg else np.nan
+        ph_ = float(np.mean(peak_heal)) if peak_heal else np.nan
+        rows.append({"component": c,
+                     "rho_dmg_theta": float(-np.mean(rhos)) if rhos else np.nan,
+                     "peak_deg": pd_, "peak_healthy": ph_,
+                     "misdiag_ratio": (ph_ / pd_) if (peak_heal and peak_deg and pd_ > eps) else np.nan})
+    return pd.DataFrame(rows)
+
+
+def plot_component_diag(model, pooled, save, max_units=8, seed=0):
+    """Per component: predicted damage over cycle, DEGRADING units (blue, should rise to ~1)
+    vs HEALTHY units (red, should stay ~0). Red curves that climb = misdiagnosis."""
+    import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+    from features import COMPONENTS
+    pred = gft.predict_tree(pooled, model, model["genome"])
+    m = pooled[["unit", "cycle"]].copy()
+    comps = [n["name"] for n in model["meta"] if n["kind"] == "component"]
+    units = pooled["unit"].to_numpy()
+    rng = np.random.default_rng(seed)
+    rows_g, cols_g = _grid(len(comps))
+    fig, ax = plt.subplots(rows_g, cols_g, figsize=(3.8 * cols_g, 3.0 * rows_g), squeeze=False)
+    for i, c in enumerate(comps):
+        a = ax[i // cols_g][i % cols_g]
+        dmg = pred[c + "_dmg"].to_numpy()
+        mods = [t for t in COMPONENTS.get(c, ()) if t in pooled.columns]
+        th = (np.minimum.reduce([pooled[t].to_numpy(float) for t in mods])
+              if mods else np.zeros(len(pooled)))
+        deg_u, heal_u = [], []
+        for u in np.unique(units):
+            mu = units == u
+            (deg_u if (th[mu].max() - th[mu].min()) > 1e-6 else heal_u).append(u)
+        for grp, col in ((rng.permutation(deg_u)[:max_units], "steelblue"),
+                         (rng.permutation(heal_u)[:max_units], "crimson")):
+            for u in grp:
+                mu = units == u; o = np.argsort(pooled["cycle"].to_numpy()[mu])
+                a.plot(pooled["cycle"].to_numpy()[mu][o], dmg[mu][o], color=col, lw=1.0, alpha=0.6)
+        a.set_title(f"{c}_dmg  (blue=degrading, red=healthy)", fontsize=9)
+        a.set_xlabel("cycle"); a.set_ylabel("damage"); a.set_ylim(-0.02, 1.02)
+    for j in range(len(comps), rows_g * cols_g):
+        ax[j // cols_g][j % cols_g].axis("off")
+    fig.suptitle("Per-component damage -- red (healthy) rising = misdiagnosis")
+    fig.tight_layout(rect=[0, 0, 1, 0.96]); fig.savefig(save, dpi=110); plt.close(fig)
+    return save
 
 
 # --------------------------------------------------------------------------

@@ -236,6 +236,10 @@ def run_all(pooled, leaves, train_ds, seeds=(0, 1, 2, 3, 4), age=True,
     m_frozen = freeze_fit.fit_rul(tr0, m_frozen, frz, gens=gens, pop=pop, seed=seeds[0])
     freeze_fit.save_leaves(m_frozen, frz, os.path.join(outdir, "frozen_leaves.json"))
     rules = freeze_fit.dump_rules(m_frozen, os.path.join(outdir, "rules.json"))
+    cdiag = freeze_fit.component_diag(m_frozen, pooled)
+    freeze_fit.plot_component_diag(m_frozen, pooled, os.path.join(outdir, "component_diag.png"))
+    print("component-damage diagnosis (misdiag_ratio high = false positive):")
+    print(cdiag.round(3).to_string(index=False)); _w(cdiag, outdir, "component_diag.csv")
     manifest = {"date": datetime.date.today().isoformat(), "seeds": list(seeds),
                 "rul_cap": rc, "n_params": _n_params(m_frozen),
                 "n_rules_total": rules["n_rules_total"], "age_frozen": age,
@@ -302,7 +306,7 @@ def _self_test():
                   outdir="/tmp/results", also_eval_ds=["DS01"])
     for f in ("p1_cv_age_on.csv", "age_switch.csv", "spool_ab.csv", "leaf_fidelity.csv",
               "arm_comparison.csv", "loso.csv", "p3_native.csv", "manifest.json",
-              "rules.json", "frozen_leaves.json"):
+              "rules.json", "frozen_leaves.json", "component_diag.csv", "component_diag.png"):
         assert os.path.exists(os.path.join("/tmp/results", f)), f
     assert out["manifest"]["n_params"] > 0
     assert out["manifest"]["n_rules_total"] == out["manifest"]["n_params"]   # rules == params
@@ -318,10 +322,10 @@ if __name__ == "__main__":
         _self_test()
     else:
         pooled = data.pooled()
-        leaves = freeze_fit.select_leaves(
-            ablation.load_leaves("ablation_out/best_leaves.json"),
-            {"HPT": ["eff"], "HPC": ["eff", "flow"], "fan": ["eff"],
-             "LPC": ["eff"], "LPT": ["eff", "flow"]})
+        # FULL 10-leaf set (all 5 components x eff+flow) to test whether the component
+        # tier helps generalization with every branch present. For the pruned 7-leaf
+        # candidate instead, wrap this in freeze_fit.select_leaves({...}).
+        leaves = ablation.load_leaves("ablation_out/best_leaves.json")
         train = [d for d in pooled["ds"].unique() if d.startswith("DS08")]
-        run_all(pooled, leaves, train, seeds=(0, 1, 2, 3, 4), age=True,
-                also_eval_ds=["DS01", "DS04", "DS05", "DS06", "DS07"], outdir="results")
+        run_all(pooled, leaves, train, seeds=(0, 1, 2, 3, 4), age=False,
+                also_eval_ds=["DS01", "DS04", "DS05", "DS06", "DS07"], outdir="results_full10")
