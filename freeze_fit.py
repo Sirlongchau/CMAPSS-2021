@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 import gft, ga, data
+from features import COMPONENTS
 
 
 def _grid(k):
@@ -125,13 +126,78 @@ def load_frozen(model, path="frozen_leaves.json"):
 # phase 2: train aggregator on RUL, leaves pinned
 # --------------------------------------------------------------------------
 
-def fit_rul(frame, model, frozen, gens=120, pop=120, seed=0, lambda_spec=0.0):
-    """Pin leaf genes to `frozen`, train spool+root on RUL (gft._rul_loss_fn). Mirrors
-    fit_decoupled's phase 2 exactly. lambda_spec>0 adds the component-specificity penalty.
-    Sets model['genome']."""
-    lo, hi = model["lo"].copy(), model["hi"].copy()
+def freeze_components(frame, model, frozen, beta=1.0, gens=150, pop=40, seed=0, eps=1e-6):
+    """Freeze the COMPONENT tier the way leaves are frozen, but to a two-sided SPECIFICITY
+    loss instead of theta-regression -- no RUL in it, so components become honest by
+    construction. For each component c (reading its FROZEN leaves' theta_hat):
+
+        L_c = mean_{units where c degrades}(1 - dmg_c)  +  beta * mean_{units where c healthy}(dmg_c)
+
+    First term forces it to REACH damage on its own fault; second forces it FLAT on other
+    faults. Writes the fitted component genes into `frozen` and returns (frozen, report).
+    L_c is the achievable specificity FLOOR: it drives low for observable components
+    (HPC/HPT) and STALLS for unobservable ones (fan/LPC/LPT) -- that stall is the honest
+    signal that the component can't be diagnosed from these sensors, not a training fault.
+    Needs fault-mode diversity in `frame` (healthy examples per component)."""
+    P = gft.prep(frame, model["sensors"])
+    units = frame["unit"].to_numpy()
+    # frozen leaf outputs = the component tier's inputs
+    leaf_out = {}
     for n in model["meta"]:
         if n["kind"] == "leaf":
+            cols = [P[s].to_numpy() for s in n["inputs"]]
+            leaf_out[n["name"]] = gft._fis(cols, n["centres"], gft._consequents(n, frozen))
+
+    rows = []
+    for n in model["meta"]:
+        if n["kind"] != "component":
+            continue
+        cols_c = [leaf_out[s] for s in n["inputs"]]
+        mods = [t for t in COMPONENTS.get(n["name"], ()) if t in frame.columns]
+        th = (np.minimum.reduce([frame[t].to_numpy(float) for t in mods])
+              if mods else np.zeros(len(frame)))
+        # CYCLE-level masks: a row is 'degraded' only where this component's theta is
+        # actually nonzero. Unit-level masks would lump the pre-onset plateau (theta~0)
+        # into 'degrading' and demand damage=1 there -- a self-contradictory target that
+        # collapses the fit to all-zero.
+        deg = th < -eps
+        heal = np.abs(th) <= eps
+        lo_c, hi_c = model["lo"][n["rules"]], model["hi"][n["rules"]]
+
+        def loss(g, cols_c=cols_c, node=n, deg=deg, heal=heal):
+            gg = frozen.copy(); gg[node["rules"]] = g
+            dmg = gft._fis(cols_c, node["centres"], gft._consequents(node, gg))
+            l = 0.0
+            if deg.any():
+                l += float(np.mean(1.0 - dmg[deg]))
+            if heal.any():
+                l += beta * float(np.mean(dmg[heal]))
+            return l
+
+        # seed a NON-degenerate spanning surface (ramp) so the GA starts from a mapping
+        # that already spans [0,1]; without this it collapses to the trivial all-zero grid
+        # (output 0 everywhere -> L_c = mean_deg(1) = 1), a flat basin it can't escape.
+        span_seed = lo_c + 0.4 * (hi_c - lo_c)
+        g, fval, _ = ga.optimize(loss, lo_c, hi_c, gens=gens, pop=pop, seed=seed,
+                                 seeds=[span_seed])
+        frozen[n["rules"]] = g
+        gg = frozen
+        dmg = gft._fis(cols_c, n["centres"], gft._consequents(n, gg))
+        rows.append({"component": n["name"], "L_c": float(fval),
+                     "dmg_deg": float(dmg[deg].mean()) if deg.any() else np.nan,
+                     "dmg_healthy": float(dmg[heal].mean()) if heal.any() else np.nan,
+                     "n_deg": int(deg.sum()), "n_heal": int(heal.sum())})
+    return frozen, pd.DataFrame(rows)
+
+
+def fit_rul(frame, model, frozen, gens=120, pop=120, seed=0, lambda_spec=0.0, pin=("leaf",)):
+    """Pin the genes of node kinds in `pin` to `frozen`, train the REST on RUL. Default
+    pins leaves only (aggregator = component+spool+root RUL-fit). Pass pin=("leaf",
+    "component") after freeze_components to keep the diagnostic component tier honest and
+    RUL-fit only spool+root on top."""
+    lo, hi = model["lo"].copy(), model["hi"].copy()
+    for n in model["meta"]:
+        if n["kind"] in pin:
             lo[n["rules"]] = frozen[n["rules"]]
             hi[n["rules"]] = frozen[n["rules"]]
     loss = gft._rul_loss_fn(frame, model, lambda_spec=lambda_spec)
@@ -474,19 +540,30 @@ def plot_unit_debug(model, frame_unit, unit, save):
 
 def finalize_multi(pooled, leaves, train_ds, seeds=(0, 1, 2, 3, 4), age=False,
                    grouping="shaft", leaf_gens=300, leaf_pop=80, gens=120, pop=120,
-                   outdir="figures", also_eval_ds=None, debug_worst=True):
+                   outdir="figures", also_eval_ds=None, debug_worst=True,
+                   components="rulfit"):
     """Multi-seed dev/test finalization. Per seed: split by unit, freeze on train, fit RUL
     on train, score all splits. Reports per-split RMSE/NASA/R2/rho as mean +/- sd across
     seeds, the held-out PER-UNIT RMSE distribution, the non-monotone fraction, and the
     late-life bias (optimism). Auto-plots the worst held-out unit. Run once with age=False
-    and once with age=True for a clean A/B. Returns dict(summary, per_unit, worst)."""
+    and once with age=True for a clean A/B. Returns dict(summary, per_unit, worst).
+
+    components: 'rulfit' (default) -- component nodes are RUL-fit with spool+root (max RUL
+    accuracy). 'trapezoid' -- component nodes are frozen to the deterministic damage map
+    (honest diagnosis), knees from THIS SPLIT'S TRAIN ONLY (no dev/test leakage), then only
+    spool+root are RUL-fit. Run both for the unbiased accuracy A/B."""
     import os; os.makedirs(outdir, exist_ok=True)
     fr = pooled[pooled["ds"].isin(train_ds)].reset_index(drop=True)
     split_rows, unit_rows, models = [], [], {}
     for s in seeds:
         tr, dev, test = data.split(fr, seed=s)
         model, frozen = freeze(tr, leaves, grouping, age, leaf_gens, leaf_pop, s)
-        model = fit_rul(tr, model, frozen, gens=gens, pop=pop, seed=s)
+        if components == "trapezoid":
+            freeze_components_trapezoid(model, tr)             # knees from TRAIN split only
+            model = fit_rul(tr, model, frozen, gens=gens, pop=pop, seed=s,
+                            pin=("leaf", "component"))
+        else:
+            model = fit_rul(tr, model, frozen, gens=gens, pop=pop, seed=s)
         models[s] = model
         for name, frm in [("train", tr), ("dev", dev), ("test", test)]:
             r = evaluate_on(model, frm, name); r["seed"] = s; split_rows.append(r)
@@ -549,6 +626,44 @@ def finalize_multi(pooled, leaves, train_ds, seeds=(0, 1, 2, 3, 4), age=False,
 # self-test (synthetic; not run by the assistant unless invoked)
 # --------------------------------------------------------------------------
 
+def save_model_config(model, path):
+    """Full frozen config to JSON: per-node inputs/centres/(frozen)singletons + genome +
+    grouping/age/rul_cap. Documents and can reconstruct the trained tree."""
+    cfg = {"grouping": model.get("grouping", "shaft"), "age": bool(model.get("age", False)),
+           "rul_cap": float(model["rul_cap"]),
+           "genome": np.asarray(model["genome"]).tolist(), "nodes": []}
+    for n in model["meta"]:
+        e = {"name": n["name"], "kind": n["kind"], "target": n.get("target"),
+             "inputs": list(n["inputs"]), "centres": [np.asarray(c).tolist() for c in n["centres"]]}
+        if n.get("frozen_singletons") is not None:
+            e["frozen_singletons"] = np.asarray(n["frozen_singletons"]).tolist()
+        cfg["nodes"].append(e)
+    with open(path, "w") as f:
+        json.dump(cfg, f, indent=2)
+    print(f"saved model config -> {path}")
+    return path
+
+
+def export_all(model, test_frame, outdir="export", ref_frame=None, frozen=None, max_units=6):
+    """Every deliverable for a trained model, in one call:
+      rules.json (dump_rules) · model_config.json (+ frozen_leaves.json if `frozen` given) ·
+      control surfaces of all FISes (viz) · test-set RUL parity (plot_rul) ·
+      per-unit test figures: theta pred/true, D_c, spool damage, RUL (viz).
+    `ref_frame` (the training pool) supplies input ranges for the leaf control surfaces."""
+    import os, viz
+    os.makedirs(outdir, exist_ok=True)
+    dump_rules(model, os.path.join(outdir, "rules.json"))
+    save_model_config(model, os.path.join(outdir, "model_config.json"))
+    if frozen is not None:
+        save_leaves(model, frozen, os.path.join(outdir, "frozen_leaves.json"))
+    surf = viz.plot_control_surfaces(model, ref_frame if ref_frame is not None else test_frame, outdir)
+    plot_rul(model, test_frame, os.path.join(outdir, "rul_test.png"), "test")
+    units = viz.plot_test_units(model, test_frame, outdir, max_units=max_units)
+    print(f"exported -> {outdir}/  (rules.json, model_config.json, "
+          f"{len(surf)} control-surface figs, rul_test.png, {len(units)} per-unit figs)")
+    return outdir
+
+
 CHOSEN = {
     "HPT": [("hpt_eff",  "HPT_eff_mod",  ["T48", "T30", "Nc"])],
     "HPC": [("hpc_eff",  "HPC_eff_mod",  ["Ps30", "T30", "Nc"]),
@@ -558,6 +673,104 @@ CHOSEN = {
     "LPT": [("lpt_eff",  "LPT_eff_mod",  ["T50", "Nf", "Nc"]),
             ("lpt_flow", "LPT_flow_mod", ["T50", "P50", "P24"])],
 }
+
+
+def freeze_components_trapezoid(model, ref_frame, levels=(1.0, 0.5, 0.0), eps=1e-6):
+    """Freeze each component node as a DETERMINISTIC 3-way fuzzy map (trapezoid-triangle-
+    trapezoid) of its frozen leaves' theta_hat, knees fixed to FLEET quantiles of the
+    component's true theta -- NOT the data min/max (which would re-linearize per split).
+
+    Handles both 1-input (single-modifier: fan/HPT/LPC) and 2-input (HPC/LPT: eff+flow)
+    components uniformly. Per input (modifier): centres = [p10, p50, p90] of that modifier's
+    degrading theta on `ref_frame`, frozen. gft._memberships makes the outer centres
+    saturating trapezoid shoulders (damage=1 past p10=failed; =0 above p90=healthy) with a
+    triangle between. Consequents are 0th-order singletons {failed:1, degrading:0.5,
+    healthy:0}, combined across a component's modifiers by MAX (damaged if EITHER mode is):
+    1-input -> 3 rules, 2-input -> 9 rules, all set analytically. No fitting -> split-invariant.
+    Mutates the component nodes; returns a knee report."""
+    import itertools
+    leaf_target = {n["name"]: n["target"] for n in model["meta"] if n["kind"] == "leaf"}
+    rows = []
+    for n in model["meta"]:
+        if n["kind"] != "component":
+            continue
+        centres = []
+        for name in n["inputs"]:                        # 1 or 2 modifiers, handled the same
+            tgt = leaf_target[name]
+            th = ref_frame[tgt].to_numpy(float)
+            deg = th[th < -eps]
+            p10, p50, p90 = (np.percentile(deg, [10, 50, 90]) if len(deg) >= 3
+                             else (-3e-2, -1e-2, -1e-3))
+            centres.append(np.array([p10, p50, p90], float))
+            rows.append({"component": n["name"], "modifier": tgt, "p10_failed": float(p10),
+                         "p50": float(p50), "p90_healthy": float(p90)})
+        n["centres"] = centres
+        d = len(n["inputs"])
+        n["frozen_singletons"] = np.array(
+            [max(levels[i] for i in combo) for combo in itertools.product(range(3), repeat=d)],
+            float)                                       # 3 rules (d=1) or 9 (d=2)
+    return pd.DataFrame(rows)
+
+
+def fit_trapezoid(frame, leaves, grouping="shaft", age=False, leaf_gens=300, leaf_pop=80,
+                  gens=120, pop=120, seed=0, ref_frame=None):
+    """Freeze leaves (theta) -> freeze component nodes as the deterministic trapezoid map
+    (knees from `ref_frame` or `frame`) -> RUL-fit spool+root only (leaves+components pinned).
+    Returns (model, knee_report)."""
+    model, frozen = freeze(frame, leaves, grouping=grouping, age=age,
+                           leaf_gens=leaf_gens, leaf_pop=leaf_pop, seed=seed)
+    report = freeze_components_trapezoid(model, ref_frame if ref_frame is not None else frame)
+    model = fit_rul(frame, model, frozen, gens=gens, pop=pop, seed=seed,
+                    pin=("leaf", "component"))
+    return model, report
+
+
+def validate_trapezoid(pooled, leaves, split_seeds=(0, 1, 2, 3, 4), grouping="shaft",
+                       leaf_gens=300, leaf_pop=80, seed=0, eps=1e-6):
+    """MULTISPLIT validation of the frozen trapezoid components. Per split: freeze leaves +
+    trapezoid knees on TRAIN, measure each component-damage node on HELD-OUT units
+    (cycle-level): mean damage on own-healthy vs own-degraded rows, and cross-shaft. Frozen
+    knees => a stable separation across splits means the FIXED map generalises (not a
+    per-split linearisation). Returns per-component mean +/- sd."""
+    from features import COMPONENTS, SHAFT
+
+    def _shaft_deg(fr):
+        hp = np.zeros(len(fr), bool); lp = np.zeros(len(fr), bool)
+        for comp, (e, fl) in COMPONENTS.items():
+            cols = [c for c in (e, fl) if c in fr.columns]
+            if cols:
+                dd = np.minimum.reduce([fr[c].to_numpy(float) for c in cols]) < -eps
+                (hp if SHAFT[comp] == "HP" else lp)[dd] = True
+        return hp, lp
+
+    acc = {}
+    for ss in split_seeds:
+        tr, ho, _ = data.split(pooled, seed=ss)
+        model, _f = freeze(tr, leaves, grouping=grouping, leaf_gens=leaf_gens,
+                           leaf_pop=leaf_pop, seed=seed)
+        freeze_components_trapezoid(model, tr)          # knees from TRAIN only
+        pred = gft.predict_tree(ho, model, model["genome"])
+        hp_ho, lp_ho = _shaft_deg(ho)
+        for n in model["meta"]:
+            if n["kind"] != "component":
+                continue
+            c = n["name"]; shaft = SHAFT[c]
+            dmg = pred[c + "_dmg"].to_numpy()
+            mods = [t for t in COMPONENTS[c] if t in ho.columns]
+            th = np.minimum.reduce([ho[t].to_numpy(float) for t in mods])
+            deg = th < -eps; heal = np.abs(th) <= eps
+            xheal = heal & (lp_ho if shaft == "HP" else hp_ho)
+            base = dmg[deg].mean() if deg.any() else np.nan
+            spec = (1 - dmg[heal].mean() / base) if (deg.any() and heal.any() and base > eps) else np.nan
+            specx = (1 - dmg[xheal].mean() / base) if (deg.any() and xheal.any() and base > eps) else np.nan
+            a = acc.setdefault(c, {"spec": [], "specx": [], "dd": [], "dh": []})
+            a["spec"].append(spec); a["specx"].append(specx); a["dd"].append(base)
+            a["dh"].append(dmg[heal].mean() if heal.any() else np.nan)
+    return pd.DataFrame([{
+        "component": c, "spec": float(np.nanmean(v["spec"])), "spec_sd": float(np.nanstd(v["spec"])),
+        "spec_xshaft": float(np.nanmean(v["specx"])), "spec_xshaft_sd": float(np.nanstd(v["specx"])),
+        "dmg_deg": float(np.nanmean(v["dd"])), "dmg_healthy": float(np.nanmean(v["dh"])),
+        "n_splits": len(split_seeds)} for c, v in acc.items()])
 
 
 def _self_test():

@@ -203,3 +203,110 @@ def _self_test():
 
 if __name__ == "__main__":
     _self_test()
+
+
+# ==========================================================================
+# adoption: robustness check (repeated splits) + write updated best_leaves
+# ==========================================================================
+
+def robustness_check(pooled, target_sensors, split_seeds=(0, 1, 2, 3, 4), fit_seed=0,
+                     k=3, leaf_gens=45, leaf_pop=24):
+    """Confirm each (target, sensors) winner is not an artifact of ONE held-out split.
+    Re-fits and re-scores across several unit partitions and reports spec_xshaft and rho as
+    mean +/- sd ACROSS SPLITS. (Not LOSO: a single held-out fault mode has no opposite-shaft-
+    degrading rows, so cross-shaft specificity is undefined there -- repeated splits is the
+    correct robustness test for a sensor CHOICE.) `target_sensors` = list of (target, sensors_str)."""
+    rows = []
+    for target, sensors_str in target_sensors:
+        comp = _comp_of(target); shaft = SHAFT[comp]
+        sensors = sensors_str.split("+")
+        X, R, S = [], [], []
+        for ss in split_seeds:
+            tr, ho, _ = data.split(pooled, seed=ss)
+            hp_ho, lp_ho = _row_shaft_deg(ho); units_ho = ho["unit"].to_numpy()
+            own_ho = ho[target].to_numpy(float)
+            m = leaf_train._fit_leaf(tr, sensors, target, k, leaf_gens, leaf_pop, fit_seed)
+            th = leaf_train._predict(m, ho)
+            rho, spec, specx, *_ = _metrics(th, own_ho, units_ho, hp_ho, lp_ho, shaft)
+            R.append(rho); S.append(spec); X.append(specx)
+        rows.append({"target": target, "component": comp, "sensors": sensors_str,
+                     "rho": float(np.nanmean(R)), "rho_sd": float(np.nanstd(R)),
+                     "spec_xshaft": float(np.nanmean(X)), "spec_xshaft_sd": float(np.nanstd(X)),
+                     "n_splits": len(split_seeds)})
+    return pd.DataFrame(rows)
+
+
+def _leaf_name(target):
+    return target.replace("_mod", "").lower()          # HPC_eff_mod -> hpc_eff
+
+
+def build_best_leaves(ablation_csv, out_json="best_leaves_updated.json",
+                      rho_floor=0.5, spec_floor=0.4):
+    """Build an updated leaves config from the FULL exhaustive ablation CSV. Per
+    component/modifier: if some set clears BOTH floors, take the max-spec_xshaft set and tag
+    it 'diagnostic'; else take the max-rho set (best observability for prognosis) and tag it
+    'prognostic_only'. Writes a gft leaves dict + a per-modifier tag report. Diagnostic picks
+    should still be robustness_check-ed before freezing."""
+    df = pd.read_csv(ablation_csv)
+    leaves, tags = {}, []
+    for target, g in df.groupby("target"):
+        comp = _comp_of(target)
+        honest = g[(g["rho"] >= rho_floor) & (g["spec_xshaft"] >= spec_floor)]
+        if len(honest):
+            r = honest.sort_values("spec_xshaft", ascending=False).iloc[0]; tag = "diagnostic"
+        else:
+            r = g.sort_values("rho", ascending=False).iloc[0]; tag = "prognostic_only"
+        sensors = str(r["sensors"]).split("+")
+        leaves.setdefault(comp, []).append((_leaf_name(target), target, sensors))
+        tags.append({"component": comp, "target": target, "tag": tag,
+                     "sensors": r["sensors"], "rho": round(float(r["rho"]), 3),
+                     "spec_xshaft": round(float(r["spec_xshaft"]), 3)})
+    cfg = {c: [[n, t, list(s)] for (n, t, s) in e] for c, e in leaves.items()}
+    # write the BARE leaves dict so ablation.load_leaves reads it directly
+    # ({component: [[name, target, [sensors]], ...]}); metadata goes to a sidecar.
+    with open(out_json, "w") as f:
+        json.dump(cfg, f, indent=2)
+    meta_json = out_json[:-5] + "_meta.json" if out_json.endswith(".json") else out_json + ".meta"
+    with open(meta_json, "w") as f:
+        json.dump({"rho_floor": rho_floor, "spec_floor": spec_floor, "tags": tags}, f, indent=2)
+    tagdf = pd.DataFrame(tags)
+    print(tagdf.to_string(index=False))
+    print(f"\ndiagnostic components: "
+          f"{sorted(set(t['component'] for t in tags if t['tag']=='diagnostic'))}")
+    print(f"prognostic-only     : "
+          f"{sorted(set(t['component'] for t in tags if t['tag']=='prognostic_only'))}")
+    print(f"wrote {out_json} (load_leaves-compatible) + {meta_json}")
+    return leaves, tagdf
+
+
+def _self_test_adopt():
+    import ablation
+    pooled, _ = ablation._synth_fleet()
+    csv = "/tmp/abl/component_ablation.csv"
+    if not os.path.exists(csv):
+        run_ablation(pooled, outdir="/tmp/abl", sensor_pool=["T48", "T30", "Nc", "P24", "Nf"],
+                     leaf_gens=8, leaf_pop=8, confirm_seeds=(0,), topk=3)
+    leaves, tagdf = build_best_leaves(csv, out_json="/tmp/abl/best_leaves_updated.json",
+                                      rho_floor=0.3, spec_floor=0.2)
+    assert os.path.exists("/tmp/abl/best_leaves_updated.json")
+    assert os.path.exists("/tmp/abl/best_leaves_updated_meta.json")
+    # CRITICAL: the written JSON must load back through the real ablation.load_leaves
+    import ablation as _abl
+    loaded = _abl.load_leaves("/tmp/abl/best_leaves_updated.json")
+    assert isinstance(loaded, dict) and loaded, "load_leaves returned empty"
+    for comp, entries in loaded.items():
+        for (name, target, sensors) in entries:
+            assert isinstance(sensors, list) and all(isinstance(s, str) for s in sensors), \
+                f"bad sensors for {comp}/{target}: {sensors}"
+    print("load_leaves round-trip OK:", {c: len(e) for c, e in loaded.items()})
+    # robustness on the picked diagnostic sets
+    sets = [(t, s) for c in leaves for (n, t, s) in
+            [(n, t, "+".join(se)) for (n, t, se) in leaves[c]]]
+    rob = robustness_check(pooled, sets[:2], split_seeds=(0, 1), leaf_gens=8, leaf_pop=8)
+    print("\nrobustness (2 splits):\n", rob.round(3).to_string(index=False))
+    assert {"spec_xshaft", "spec_xshaft_sd"} <= set(rob.columns)
+    print("\nadoption self-test OK")
+
+
+if __name__ == "__main__" and os.environ.get("ADOPT_TEST"):
+    _self_test_adopt()

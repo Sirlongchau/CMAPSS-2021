@@ -300,6 +300,8 @@ def build_tree(spec, frame, rul_cap):
 
 def _consequents(node, genome):
     g = genome[node["rules"]]
+    if node.get("frozen_singletons") is not None:      # deterministic frozen map (trapezoid component)
+        return node["frozen_singletons"]
     if node["kind"] == "leaf":
         return g
     return _mono_decode(g[0], g, node["shape"], node["signs"],
