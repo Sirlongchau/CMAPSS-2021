@@ -1,0 +1,7 @@
+leaf,modes,winner,won_in,sensor_agreement,rho_spread
+hpc_eff,2,Ps30+T30+Nc,DS05,True,0.006
+hpc_flow,2,P24+T30+Nc,DS05,True,0.015
+hpt_eff,3,T48+T30+Nc,DS01-005,True,0.012
+hpt_flow,3,T48+P40+Ps30,DS01-005,True,0.0
+lpt_eff,3,T50+Nf+Nc,DS07,False,0.016
+lpt_flow,3,T50+P50+P24,DS07,True,0.052

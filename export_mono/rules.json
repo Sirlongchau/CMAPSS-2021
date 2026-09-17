@@ -1,0 +1,8085 @@
+{
+  "n_nodes": 18,
+  "n_rules_total": 411,
+  "n_params": 432,
+  "rul_cap": 57.0,
+  "grouping": "shaft",
+  "age": false,
+  "nodes": [
+    {
+      "name": "fan_eff",
+      "kind": "leaf",
+      "output": "fan_eff_mod",
+      "inputs": [
+        "T24",
+        "T48",
+        "T50"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "T24": [
+          {
+            "term": "low",
+            "centre": -0.12995
+          },
+          {
+            "term": "mid",
+            "centre": 0.03203
+          },
+          {
+            "term": "high",
+            "centre": 0.36098
+          }
+        ],
+        "T48": [
+          {
+            "term": "low",
+            "centre": -0.35011
+          },
+          {
+            "term": "mid",
+            "centre": 2.23379
+          },
+          {
+            "term": "high",
+            "centre": 21.97636
+          }
+        ],
+        "T50": [
+          {
+            "term": "low",
+            "centre": -0.17455
+          },
+          {
+            "term": "mid",
+            "centre": 1.88893
+          },
+          {
+            "term": "high",
+            "centre": 18.97269
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00148
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": 6e-05
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00749
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00082
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00197
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.01427
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00335
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00541
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.01841
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00041
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00083
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.03226
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00088
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00152
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00398
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.01606
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00578
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.0074
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.01305
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00233
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.01539
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": 0.00148
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -1e-05
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00116
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            }
+          ],
+          "then": -0.02365
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01025
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00761
+        }
+      ],
+      "readable": [
+        "IF T24 is low AND T48 is low AND T50 is low THEN fan_eff_mod = -0.00148",
+        "IF T24 is low AND T48 is low AND T50 is mid THEN fan_eff_mod = 6e-05",
+        "IF T24 is low AND T48 is low AND T50 is high THEN fan_eff_mod = -0.00749",
+        "IF T24 is low AND T48 is mid AND T50 is low THEN fan_eff_mod = -0.00082",
+        "IF T24 is low AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00197",
+        "IF T24 is low AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.01427",
+        "IF T24 is low AND T48 is high AND T50 is low THEN fan_eff_mod = -0.00335",
+        "IF T24 is low AND T48 is high AND T50 is mid THEN fan_eff_mod = 0.00541",
+        "IF T24 is low AND T48 is high AND T50 is high THEN fan_eff_mod = -0.01841",
+        "IF T24 is mid AND T48 is low AND T50 is low THEN fan_eff_mod = -0.00041",
+        "IF T24 is mid AND T48 is low AND T50 is mid THEN fan_eff_mod = -0.00083",
+        "IF T24 is mid AND T48 is low AND T50 is high THEN fan_eff_mod = -0.03226",
+        "IF T24 is mid AND T48 is mid AND T50 is low THEN fan_eff_mod = -0.00088",
+        "IF T24 is mid AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00152",
+        "IF T24 is mid AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.00398",
+        "IF T24 is mid AND T48 is high AND T50 is low THEN fan_eff_mod = -0.01606",
+        "IF T24 is mid AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.00578",
+        "IF T24 is mid AND T48 is high AND T50 is high THEN fan_eff_mod = -0.0074",
+        "IF T24 is high AND T48 is low AND T50 is low THEN fan_eff_mod = -0.01305",
+        "IF T24 is high AND T48 is low AND T50 is mid THEN fan_eff_mod = 0.00233",
+        "IF T24 is high AND T48 is low AND T50 is high THEN fan_eff_mod = -0.01539",
+        "IF T24 is high AND T48 is mid AND T50 is low THEN fan_eff_mod = 0.00148",
+        "IF T24 is high AND T48 is mid AND T50 is mid THEN fan_eff_mod = -1e-05",
+        "IF T24 is high AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.00116",
+        "IF T24 is high AND T48 is high AND T50 is low THEN fan_eff_mod = -0.02365",
+        "IF T24 is high AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.01025",
+        "IF T24 is high AND T48 is high AND T50 is high THEN fan_eff_mod = -0.00761"
+      ]
+    },
+    {
+      "name": "fan_flow",
+      "kind": "leaf",
+      "output": "fan_flow_mod",
+      "inputs": [
+        "Nc",
+        "T24",
+        "T30"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Nc": [
+          {
+            "term": "low",
+            "centre": -8.7914
+          },
+          {
+            "term": "mid",
+            "centre": -1.01906
+          },
+          {
+            "term": "high",
+            "centre": 1.53932
+          }
+        ],
+        "T24": [
+          {
+            "term": "low",
+            "centre": -0.12995
+          },
+          {
+            "term": "mid",
+            "centre": 0.03203
+          },
+          {
+            "term": "high",
+            "centre": 0.36098
+          }
+        ],
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00532
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01477
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.03551
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.0233
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00338
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.04059
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.0116
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00506
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.005
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.0007
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00248
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.02211
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.00053
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00265
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": 0.00168
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.01243
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00188
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.00442
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00705
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00011
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.02688
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00361
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": 2e-05
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": 0.00288
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.02485
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00501
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.00443
+        }
+      ],
+      "readable": [
+        "IF Nc is low AND T24 is low AND T30 is low THEN fan_flow_mod = -0.00532",
+        "IF Nc is low AND T24 is low AND T30 is mid THEN fan_flow_mod = -0.01477",
+        "IF Nc is low AND T24 is low AND T30 is high THEN fan_flow_mod = -0.03551",
+        "IF Nc is low AND T24 is mid AND T30 is low THEN fan_flow_mod = -0.0233",
+        "IF Nc is low AND T24 is mid AND T30 is mid THEN fan_flow_mod = -0.00338",
+        "IF Nc is low AND T24 is mid AND T30 is high THEN fan_flow_mod = -0.04059",
+        "IF Nc is low AND T24 is high AND T30 is low THEN fan_flow_mod = -0.0116",
+        "IF Nc is low AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00506",
+        "IF Nc is low AND T24 is high AND T30 is high THEN fan_flow_mod = -0.005",
+        "IF Nc is mid AND T24 is low AND T30 is low THEN fan_flow_mod = 0.0007",
+        "IF Nc is mid AND T24 is low AND T30 is mid THEN fan_flow_mod = 0.00248",
+        "IF Nc is mid AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02211",
+        "IF Nc is mid AND T24 is mid AND T30 is low THEN fan_flow_mod = 0.00053",
+        "IF Nc is mid AND T24 is mid AND T30 is mid THEN fan_flow_mod = -0.00265",
+        "IF Nc is mid AND T24 is mid AND T30 is high THEN fan_flow_mod = 0.00168",
+        "IF Nc is mid AND T24 is high AND T30 is low THEN fan_flow_mod = 0.01243",
+        "IF Nc is mid AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00188",
+        "IF Nc is mid AND T24 is high AND T30 is high THEN fan_flow_mod = -0.00442",
+        "IF Nc is high AND T24 is low AND T30 is low THEN fan_flow_mod = -0.00705",
+        "IF Nc is high AND T24 is low AND T30 is mid THEN fan_flow_mod = 0.00011",
+        "IF Nc is high AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02688",
+        "IF Nc is high AND T24 is mid AND T30 is low THEN fan_flow_mod = -0.00361",
+        "IF Nc is high AND T24 is mid AND T30 is mid THEN fan_flow_mod = 2e-05",
+        "IF Nc is high AND T24 is mid AND T30 is high THEN fan_flow_mod = 0.00288",
+        "IF Nc is high AND T24 is high AND T30 is low THEN fan_flow_mod = -0.02485",
+        "IF Nc is high AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00501",
+        "IF Nc is high AND T24 is high AND T30 is high THEN fan_flow_mod = -0.00443"
+      ]
+    },
+    {
+      "name": "lpc_eff",
+      "kind": "leaf",
+      "output": "LPC_eff_mod",
+      "inputs": [
+        "Wf",
+        "T50",
+        "P21"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Wf": [
+          {
+            "term": "low",
+            "centre": -0.00532
+          },
+          {
+            "term": "mid",
+            "centre": 0.00348
+          },
+          {
+            "term": "high",
+            "centre": 0.02594
+          }
+        ],
+        "T50": [
+          {
+            "term": "low",
+            "centre": -0.17455
+          },
+          {
+            "term": "mid",
+            "centre": 1.88893
+          },
+          {
+            "term": "high",
+            "centre": 18.97269
+          }
+        ],
+        "P21": [
+          {
+            "term": "low",
+            "centre": -0.04554
+          },
+          {
+            "term": "mid",
+            "centre": 0.00228
+          },
+          {
+            "term": "high",
+            "centre": 0.08739
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": 0.00136
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00307
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00743
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00124
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -6e-05
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00586
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.02771
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01358
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.03436
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00014
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00035
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00014
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": 0.00191
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00131
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": 0.00178
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.01804
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01745
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.0294
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.03113
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00433
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00444
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": 0.01022
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00258
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00318
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.03427
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00162
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "T50",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.01165
+        }
+      ],
+      "readable": [
+        "IF Wf is low AND T50 is low AND P21 is low THEN LPC_eff_mod = 0.00136",
+        "IF Wf is low AND T50 is low AND P21 is mid THEN LPC_eff_mod = -0.00307",
+        "IF Wf is low AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00743",
+        "IF Wf is low AND T50 is mid AND P21 is low THEN LPC_eff_mod = -0.00124",
+        "IF Wf is low AND T50 is mid AND P21 is mid THEN LPC_eff_mod = -6e-05",
+        "IF Wf is low AND T50 is mid AND P21 is high THEN LPC_eff_mod = -0.00586",
+        "IF Wf is low AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.02771",
+        "IF Wf is low AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.01358",
+        "IF Wf is low AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.03436",
+        "IF Wf is mid AND T50 is low AND P21 is low THEN LPC_eff_mod = -0.00014",
+        "IF Wf is mid AND T50 is low AND P21 is mid THEN LPC_eff_mod = 0.00035",
+        "IF Wf is mid AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00014",
+        "IF Wf is mid AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.00191",
+        "IF Wf is mid AND T50 is mid AND P21 is mid THEN LPC_eff_mod = -0.00131",
+        "IF Wf is mid AND T50 is mid AND P21 is high THEN LPC_eff_mod = 0.00178",
+        "IF Wf is mid AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.01804",
+        "IF Wf is mid AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.01745",
+        "IF Wf is mid AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.0294",
+        "IF Wf is high AND T50 is low AND P21 is low THEN LPC_eff_mod = -0.03113",
+        "IF Wf is high AND T50 is low AND P21 is mid THEN LPC_eff_mod = -0.00433",
+        "IF Wf is high AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00444",
+        "IF Wf is high AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.01022",
+        "IF Wf is high AND T50 is mid AND P21 is mid THEN LPC_eff_mod = 0.00258",
+        "IF Wf is high AND T50 is mid AND P21 is high THEN LPC_eff_mod = -0.00318",
+        "IF Wf is high AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.03427",
+        "IF Wf is high AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.00162",
+        "IF Wf is high AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.01165"
+      ]
+    },
+    {
+      "name": "lpc_flow",
+      "kind": "leaf",
+      "output": "LPC_flow_mod",
+      "inputs": [
+        "T24",
+        "T48",
+        "P40"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "T24": [
+          {
+            "term": "low",
+            "centre": -0.12995
+          },
+          {
+            "term": "mid",
+            "centre": 0.03203
+          },
+          {
+            "term": "high",
+            "centre": 0.36098
+          }
+        ],
+        "T48": [
+          {
+            "term": "low",
+            "centre": -0.35011
+          },
+          {
+            "term": "mid",
+            "centre": 2.23379
+          },
+          {
+            "term": "high",
+            "centre": 21.97636
+          }
+        ],
+        "P40": [
+          {
+            "term": "low",
+            "centre": -1.02896
+          },
+          {
+            "term": "mid",
+            "centre": 0.04152
+          },
+          {
+            "term": "high",
+            "centre": 1.14464
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00353
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00014
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00054
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00408
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00016
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00245
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.03726
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.02857
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00659
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": 0.00231
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": 0.00024
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00239
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00189
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00209
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.01886
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00893
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00462
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.02009
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00341
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.01679
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": 0.00258
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00146
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00175
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.01436
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00718
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00907
+        }
+      ],
+      "readable": [
+        "IF T24 is low AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.00353",
+        "IF T24 is low AND T48 is low AND P40 is mid THEN LPC_flow_mod = -0.00014",
+        "IF T24 is low AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.00054",
+        "IF T24 is low AND T48 is mid AND P40 is low THEN LPC_flow_mod = -0.00408",
+        "IF T24 is low AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.00016",
+        "IF T24 is low AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00245",
+        "IF T24 is low AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.03726",
+        "IF T24 is low AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.02857",
+        "IF T24 is low AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00659",
+        "IF T24 is mid AND T48 is low AND P40 is low THEN LPC_flow_mod = 0.00231",
+        "IF T24 is mid AND T48 is low AND P40 is mid THEN LPC_flow_mod = 0.0",
+        "IF T24 is mid AND T48 is low AND P40 is high THEN LPC_flow_mod = 0.00024",
+        "IF T24 is mid AND T48 is mid AND P40 is low THEN LPC_flow_mod = -0.00239",
+        "IF T24 is mid AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.00189",
+        "IF T24 is mid AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00209",
+        "IF T24 is mid AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.01886",
+        "IF T24 is mid AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00893",
+        "IF T24 is mid AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00462",
+        "IF T24 is high AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.02009",
+        "IF T24 is high AND T48 is low AND P40 is mid THEN LPC_flow_mod = 0.00341",
+        "IF T24 is high AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.01679",
+        "IF T24 is high AND T48 is mid AND P40 is low THEN LPC_flow_mod = 0.00258",
+        "IF T24 is high AND T48 is mid AND P40 is mid THEN LPC_flow_mod = 0.00146",
+        "IF T24 is high AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00175",
+        "IF T24 is high AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.01436",
+        "IF T24 is high AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00718",
+        "IF T24 is high AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00907"
+      ]
+    },
+    {
+      "name": "hpc_eff",
+      "kind": "leaf",
+      "output": "HPC_eff_mod",
+      "inputs": [
+        "T30",
+        "P15",
+        "P40"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ],
+        "P15": [
+          {
+            "term": "low",
+            "centre": -0.04485
+          },
+          {
+            "term": "mid",
+            "centre": 0.00224
+          },
+          {
+            "term": "high",
+            "centre": 0.08608
+          }
+        ],
+        "P40": [
+          {
+            "term": "low",
+            "centre": -1.02896
+          },
+          {
+            "term": "mid",
+            "centre": 0.04152
+          },
+          {
+            "term": "high",
+            "centre": 1.14464
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00268
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00087
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.02905
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00311
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00023
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00397
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00461
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00067
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00158
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00173
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00084
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00262
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00122
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00108
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": 0.00237
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": 0.00659
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00323
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00103
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.00977
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00583
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00689
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.01902
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00635
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00851
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.01499
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01736
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00819
+        }
+      ],
+      "readable": [
+        "IF T30 is low AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00268",
+        "IF T30 is low AND P15 is low AND P40 is mid THEN HPC_eff_mod = 0.00087",
+        "IF T30 is low AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.02905",
+        "IF T30 is low AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.00311",
+        "IF T30 is low AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00023",
+        "IF T30 is low AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.00397",
+        "IF T30 is low AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.00461",
+        "IF T30 is low AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.00067",
+        "IF T30 is low AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00158",
+        "IF T30 is mid AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00173",
+        "IF T30 is mid AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00084",
+        "IF T30 is mid AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.00262",
+        "IF T30 is mid AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.00122",
+        "IF T30 is mid AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00108",
+        "IF T30 is mid AND P15 is mid AND P40 is high THEN HPC_eff_mod = 0.00237",
+        "IF T30 is mid AND P15 is high AND P40 is low THEN HPC_eff_mod = 0.00659",
+        "IF T30 is mid AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.00323",
+        "IF T30 is mid AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00103",
+        "IF T30 is high AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00977",
+        "IF T30 is high AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00583",
+        "IF T30 is high AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.00689",
+        "IF T30 is high AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.01902",
+        "IF T30 is high AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00635",
+        "IF T30 is high AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.00851",
+        "IF T30 is high AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.01499",
+        "IF T30 is high AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.01736",
+        "IF T30 is high AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00819"
+      ]
+    },
+    {
+      "name": "hpc_flow",
+      "kind": "leaf",
+      "output": "HPC_flow_mod",
+      "inputs": [
+        "T30",
+        "P15",
+        "P21"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ],
+        "P15": [
+          {
+            "term": "low",
+            "centre": -0.04485
+          },
+          {
+            "term": "mid",
+            "centre": 0.00224
+          },
+          {
+            "term": "high",
+            "centre": 0.08608
+          }
+        ],
+        "P21": [
+          {
+            "term": "low",
+            "centre": -0.04554
+          },
+          {
+            "term": "mid",
+            "centre": 0.00228
+          },
+          {
+            "term": "high",
+            "centre": 0.08739
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.01233
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00042
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.01382
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00491
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00096
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": 0.00229
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00377
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00424
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00153
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": 0.00076
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00184
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00909
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00341
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00083
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": 0.00127
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.01329
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00447
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00242
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.01572
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.01688
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "low"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.01736
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.00215
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.0088
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "mid"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.0053
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "low"
+            }
+          ],
+          "then": -0.01622
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00929
+        },
+        {
+          "if": [
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "P15",
+              "term": "high"
+            },
+            {
+              "input": "P21",
+              "term": "high"
+            }
+          ],
+          "then": -0.00606
+        }
+      ],
+      "readable": [
+        "IF T30 is low AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.01233",
+        "IF T30 is low AND P15 is low AND P21 is mid THEN HPC_flow_mod = 0.00042",
+        "IF T30 is low AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.01382",
+        "IF T30 is low AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00491",
+        "IF T30 is low AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.00096",
+        "IF T30 is low AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.00229",
+        "IF T30 is low AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.00377",
+        "IF T30 is low AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00424",
+        "IF T30 is low AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00153",
+        "IF T30 is mid AND P15 is low AND P21 is low THEN HPC_flow_mod = 0.00076",
+        "IF T30 is mid AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.00184",
+        "IF T30 is mid AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.00909",
+        "IF T30 is mid AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00341",
+        "IF T30 is mid AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.00083",
+        "IF T30 is mid AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.00127",
+        "IF T30 is mid AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.01329",
+        "IF T30 is mid AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00447",
+        "IF T30 is mid AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00242",
+        "IF T30 is high AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.01572",
+        "IF T30 is high AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.01688",
+        "IF T30 is high AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.01736",
+        "IF T30 is high AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00215",
+        "IF T30 is high AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.0088",
+        "IF T30 is high AND P15 is mid AND P21 is high THEN HPC_flow_mod = -0.0053",
+        "IF T30 is high AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.01622",
+        "IF T30 is high AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00929",
+        "IF T30 is high AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00606"
+      ]
+    },
+    {
+      "name": "hpt_eff",
+      "kind": "leaf",
+      "output": "HPT_eff_mod",
+      "inputs": [
+        "Nc",
+        "Ps30",
+        "P50"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Nc": [
+          {
+            "term": "low",
+            "centre": -8.7914
+          },
+          {
+            "term": "mid",
+            "centre": -1.01906
+          },
+          {
+            "term": "high",
+            "centre": 1.53932
+          }
+        ],
+        "Ps30": [
+          {
+            "term": "low",
+            "centre": -0.80074
+          },
+          {
+            "term": "mid",
+            "centre": 0.07981
+          },
+          {
+            "term": "high",
+            "centre": 1.2563
+          }
+        ],
+        "P50": [
+          {
+            "term": "low",
+            "centre": -0.03752
+          },
+          {
+            "term": "mid",
+            "centre": 0.00296
+          },
+          {
+            "term": "high",
+            "centre": 0.09349
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00399
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00588
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": 0.00261
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.01365
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00961
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00033
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00488
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00993
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00799
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00296
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00097
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.01333
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00027
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00066
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00034
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.01107
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00529
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": 0.00092
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00088
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00066
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00439
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.0023
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00052
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00049
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": 0.00384
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00319
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00245
+        }
+      ],
+      "readable": [
+        "IF Nc is low AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00399",
+        "IF Nc is low AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00588",
+        "IF Nc is low AND Ps30 is low AND P50 is high THEN HPT_eff_mod = 0.00261",
+        "IF Nc is low AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.01365",
+        "IF Nc is low AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00961",
+        "IF Nc is low AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00033",
+        "IF Nc is low AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.00488",
+        "IF Nc is low AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00993",
+        "IF Nc is low AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00799",
+        "IF Nc is mid AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00296",
+        "IF Nc is mid AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00097",
+        "IF Nc is mid AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.01333",
+        "IF Nc is mid AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.00027",
+        "IF Nc is mid AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00066",
+        "IF Nc is mid AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00034",
+        "IF Nc is mid AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.01107",
+        "IF Nc is mid AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00529",
+        "IF Nc is mid AND Ps30 is high AND P50 is high THEN HPT_eff_mod = 0.00092",
+        "IF Nc is high AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00088",
+        "IF Nc is high AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00066",
+        "IF Nc is high AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.00439",
+        "IF Nc is high AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.0023",
+        "IF Nc is high AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00052",
+        "IF Nc is high AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00049",
+        "IF Nc is high AND Ps30 is high AND P50 is low THEN HPT_eff_mod = 0.00384",
+        "IF Nc is high AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00319",
+        "IF Nc is high AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00245"
+      ]
+    },
+    {
+      "name": "hpt_flow",
+      "kind": "leaf",
+      "output": "HPT_flow_mod",
+      "inputs": [
+        "Wf",
+        "Nc",
+        "T30"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Wf": [
+          {
+            "term": "low",
+            "centre": -0.00532
+          },
+          {
+            "term": "mid",
+            "centre": 0.00348
+          },
+          {
+            "term": "high",
+            "centre": 0.02594
+          }
+        ],
+        "Nc": [
+          {
+            "term": "low",
+            "centre": -8.7914
+          },
+          {
+            "term": "mid",
+            "centre": -1.01906
+          },
+          {
+            "term": "high",
+            "centre": 1.53932
+          }
+        ],
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00781
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": 0.0047
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.02599
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00033
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00296
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.01973
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.00134
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00037
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "low"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": 0.00039
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00391
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00609
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": 0.00202
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00026
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00022
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.0118
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.00124
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00102
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "mid"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.00338
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.00674
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00796
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.01321
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": 0.00114
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00261
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.00373
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            }
+          ],
+          "then": -0.03174
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00277
+        },
+        {
+          "if": [
+            {
+              "input": "Wf",
+              "term": "high"
+            },
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            }
+          ],
+          "then": -0.0118
+        }
+      ],
+      "readable": [
+        "IF Wf is low AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00781",
+        "IF Wf is low AND Nc is low AND T30 is mid THEN HPT_flow_mod = 0.0047",
+        "IF Wf is low AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.02599",
+        "IF Wf is low AND Nc is mid AND T30 is low THEN HPT_flow_mod = -0.00033",
+        "IF Wf is low AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00296",
+        "IF Wf is low AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.01973",
+        "IF Wf is low AND Nc is high AND T30 is low THEN HPT_flow_mod = 0.00134",
+        "IF Wf is low AND Nc is high AND T30 is mid THEN HPT_flow_mod = -0.00037",
+        "IF Wf is low AND Nc is high AND T30 is high THEN HPT_flow_mod = 0.00039",
+        "IF Wf is mid AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00391",
+        "IF Wf is mid AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00609",
+        "IF Wf is mid AND Nc is low AND T30 is high THEN HPT_flow_mod = 0.00202",
+        "IF Wf is mid AND Nc is mid AND T30 is low THEN HPT_flow_mod = -0.00026",
+        "IF Wf is mid AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00022",
+        "IF Wf is mid AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.0118",
+        "IF Wf is mid AND Nc is high AND T30 is low THEN HPT_flow_mod = 0.00124",
+        "IF Wf is mid AND Nc is high AND T30 is mid THEN HPT_flow_mod = -0.00102",
+        "IF Wf is mid AND Nc is high AND T30 is high THEN HPT_flow_mod = -0.00338",
+        "IF Wf is high AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00674",
+        "IF Wf is high AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00796",
+        "IF Wf is high AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.01321",
+        "IF Wf is high AND Nc is mid AND T30 is low THEN HPT_flow_mod = 0.00114",
+        "IF Wf is high AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00261",
+        "IF Wf is high AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.00373",
+        "IF Wf is high AND Nc is high AND T30 is low THEN HPT_flow_mod = -0.03174",
+        "IF Wf is high AND Nc is high AND T30 is mid THEN HPT_flow_mod = 0.00277",
+        "IF Wf is high AND Nc is high AND T30 is high THEN HPT_flow_mod = -0.0118"
+      ]
+    },
+    {
+      "name": "lpt_eff",
+      "kind": "leaf",
+      "output": "LPT_eff_mod",
+      "inputs": [
+        "Nc",
+        "T30",
+        "T48"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Nc": [
+          {
+            "term": "low",
+            "centre": -8.7914
+          },
+          {
+            "term": "mid",
+            "centre": -1.01906
+          },
+          {
+            "term": "high",
+            "centre": 1.53932
+          }
+        ],
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ],
+        "T48": [
+          {
+            "term": "low",
+            "centre": -0.35011
+          },
+          {
+            "term": "mid",
+            "centre": 2.23379
+          },
+          {
+            "term": "high",
+            "centre": 21.97636
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00308
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00356
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00192
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": 1e-05
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00045
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00885
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00385
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00667
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01397
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00055
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00158
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00121
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00148
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00079
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.0105
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.02034
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00507
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00663
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00143
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00337
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.02232
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": 0.00095
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00226
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": 0.00587
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.01052
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00283
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01762
+        }
+      ],
+      "readable": [
+        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00308",
+        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.00356",
+        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00192",
+        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_eff_mod = 1e-05",
+        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00045",
+        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.00885",
+        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.00385",
+        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00667",
+        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.01397",
+        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00055",
+        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.00158",
+        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00121",
+        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_eff_mod = -0.00148",
+        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00079",
+        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.0105",
+        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.02034",
+        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_eff_mod = -0.00507",
+        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.00663",
+        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00143",
+        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_eff_mod = 0.00337",
+        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.02232",
+        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_eff_mod = 0.00095",
+        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00226",
+        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_eff_mod = 0.00587",
+        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.01052",
+        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00283",
+        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.01762"
+      ]
+    },
+    {
+      "name": "lpt_flow",
+      "kind": "leaf",
+      "output": "LPT_flow_mod",
+      "inputs": [
+        "Nc",
+        "T30",
+        "T48"
+      ],
+      "n_rules": 27,
+      "membership_functions": {
+        "Nc": [
+          {
+            "term": "low",
+            "centre": -8.7914
+          },
+          {
+            "term": "mid",
+            "centre": -1.01906
+          },
+          {
+            "term": "high",
+            "centre": 1.53932
+          }
+        ],
+        "T30": [
+          {
+            "term": "low",
+            "centre": -0.40584
+          },
+          {
+            "term": "mid",
+            "centre": 0.26964
+          },
+          {
+            "term": "high",
+            "centre": 4.234
+          }
+        ],
+        "T48": [
+          {
+            "term": "low",
+            "centre": -0.35011
+          },
+          {
+            "term": "mid",
+            "centre": 2.23379
+          },
+          {
+            "term": "high",
+            "centre": 21.97636
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00183
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00289
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.0161
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00803
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00115
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00501
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.0094
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00148
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01178
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -6e-05
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00088
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.02367
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.0014
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00122
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01197
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00808
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00104
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00671
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.0025
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00723
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.02782
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": 0.0014
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00172
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00652
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.01745
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00241
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01019
+        }
+      ],
+      "readable": [
+        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_flow_mod = -0.00183",
+        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00289",
+        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.0161",
+        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.00803",
+        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00115",
+        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.00501",
+        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.0094",
+        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_flow_mod = -0.00148",
+        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.01178",
+        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_flow_mod = -6e-05",
+        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00088",
+        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.02367",
+        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.0014",
+        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00122",
+        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.01197",
+        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.00808",
+        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_flow_mod = -0.00104",
+        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.00671",
+        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_flow_mod = -0.0025",
+        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00723",
+        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.02782",
+        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_flow_mod = 0.0014",
+        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00172",
+        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.00652",
+        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.01745",
+        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_flow_mod = 0.00241",
+        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.01019"
+      ]
+    },
+    {
+      "name": "fan",
+      "kind": "component",
+      "output": "fan_damage",
+      "inputs": [
+        "fan_eff",
+        "fan_flow"
+      ],
+      "n_rules": 9,
+      "membership_functions": {
+        "fan_eff": [
+          {
+            "term": "low",
+            "centre": -0.0056
+          },
+          {
+            "term": "mid",
+            "centre": -0.00132
+          },
+          {
+            "term": "high",
+            "centre": -0.00058
+          }
+        ],
+        "fan_flow": [
+          {
+            "term": "low",
+            "centre": -0.00902
+          },
+          {
+            "term": "mid",
+            "centre": -0.0015
+          },
+          {
+            "term": "high",
+            "centre": -0.00061
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "low"
+            },
+            {
+              "input": "fan_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "low"
+            },
+            {
+              "input": "fan_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "low"
+            },
+            {
+              "input": "fan_flow",
+              "term": "high"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "mid"
+            },
+            {
+              "input": "fan_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "mid"
+            },
+            {
+              "input": "fan_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "mid"
+            },
+            {
+              "input": "fan_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "high"
+            },
+            {
+              "input": "fan_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "high"
+            },
+            {
+              "input": "fan_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "fan_eff",
+              "term": "high"
+            },
+            {
+              "input": "fan_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF fan_eff is low AND fan_flow is low THEN fan_damage = 1.0",
+        "IF fan_eff is low AND fan_flow is mid THEN fan_damage = 1.0",
+        "IF fan_eff is low AND fan_flow is high THEN fan_damage = 1.0",
+        "IF fan_eff is mid AND fan_flow is low THEN fan_damage = 1.0",
+        "IF fan_eff is mid AND fan_flow is mid THEN fan_damage = 0.5",
+        "IF fan_eff is mid AND fan_flow is high THEN fan_damage = 0.5",
+        "IF fan_eff is high AND fan_flow is low THEN fan_damage = 1.0",
+        "IF fan_eff is high AND fan_flow is mid THEN fan_damage = 0.5",
+        "IF fan_eff is high AND fan_flow is high THEN fan_damage = 0.0"
+      ]
+    },
+    {
+      "name": "LPC",
+      "kind": "component",
+      "output": "LPC_damage",
+      "inputs": [
+        "lpc_eff",
+        "lpc_flow"
+      ],
+      "n_rules": 9,
+      "membership_functions": {
+        "lpc_eff": [
+          {
+            "term": "low",
+            "centre": -0.00781
+          },
+          {
+            "term": "mid",
+            "centre": -0.00146
+          },
+          {
+            "term": "high",
+            "centre": -0.00045
+          }
+        ],
+        "lpc_flow": [
+          {
+            "term": "low",
+            "centre": -0.00826
+          },
+          {
+            "term": "mid",
+            "centre": -0.0014
+          },
+          {
+            "term": "high",
+            "centre": -0.00043
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF lpc_eff is low AND lpc_flow is low THEN LPC_damage = 1.0",
+        "IF lpc_eff is low AND lpc_flow is mid THEN LPC_damage = 1.0",
+        "IF lpc_eff is low AND lpc_flow is high THEN LPC_damage = 1.0",
+        "IF lpc_eff is mid AND lpc_flow is low THEN LPC_damage = 1.0",
+        "IF lpc_eff is mid AND lpc_flow is mid THEN LPC_damage = 0.5",
+        "IF lpc_eff is mid AND lpc_flow is high THEN LPC_damage = 0.5",
+        "IF lpc_eff is high AND lpc_flow is low THEN LPC_damage = 1.0",
+        "IF lpc_eff is high AND lpc_flow is mid THEN LPC_damage = 0.5",
+        "IF lpc_eff is high AND lpc_flow is high THEN LPC_damage = 0.0"
+      ]
+    },
+    {
+      "name": "HPC",
+      "kind": "component",
+      "output": "HPC_damage",
+      "inputs": [
+        "hpc_eff",
+        "hpc_flow"
+      ],
+      "n_rules": 9,
+      "membership_functions": {
+        "hpc_eff": [
+          {
+            "term": "low",
+            "centre": -0.0049
+          },
+          {
+            "term": "mid",
+            "centre": -0.00129
+          },
+          {
+            "term": "high",
+            "centre": -0.00052
+          }
+        ],
+        "hpc_flow": [
+          {
+            "term": "low",
+            "centre": -0.00661
+          },
+          {
+            "term": "mid",
+            "centre": -0.00141
+          },
+          {
+            "term": "high",
+            "centre": -0.00053
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpc_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpc_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF hpc_eff is low AND hpc_flow is low THEN HPC_damage = 1.0",
+        "IF hpc_eff is low AND hpc_flow is mid THEN HPC_damage = 1.0",
+        "IF hpc_eff is low AND hpc_flow is high THEN HPC_damage = 1.0",
+        "IF hpc_eff is mid AND hpc_flow is low THEN HPC_damage = 1.0",
+        "IF hpc_eff is mid AND hpc_flow is mid THEN HPC_damage = 0.5",
+        "IF hpc_eff is mid AND hpc_flow is high THEN HPC_damage = 0.5",
+        "IF hpc_eff is high AND hpc_flow is low THEN HPC_damage = 1.0",
+        "IF hpc_eff is high AND hpc_flow is mid THEN HPC_damage = 0.5",
+        "IF hpc_eff is high AND hpc_flow is high THEN HPC_damage = 0.0"
+      ]
+    },
+    {
+      "name": "HPT",
+      "kind": "component",
+      "output": "HPT_damage",
+      "inputs": [
+        "hpt_eff",
+        "hpt_flow"
+      ],
+      "n_rules": 9,
+      "membership_functions": {
+        "hpt_eff": [
+          {
+            "term": "low",
+            "centre": -0.00505
+          },
+          {
+            "term": "mid",
+            "centre": -0.00128
+          },
+          {
+            "term": "high",
+            "centre": -0.00053
+          }
+        ],
+        "hpt_flow": [
+          {
+            "term": "low",
+            "centre": -0.00614
+          },
+          {
+            "term": "mid",
+            "centre": -0.00131
+          },
+          {
+            "term": "high",
+            "centre": -0.00036
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "hpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "hpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF hpt_eff is low AND hpt_flow is low THEN HPT_damage = 1.0",
+        "IF hpt_eff is low AND hpt_flow is mid THEN HPT_damage = 1.0",
+        "IF hpt_eff is low AND hpt_flow is high THEN HPT_damage = 1.0",
+        "IF hpt_eff is mid AND hpt_flow is low THEN HPT_damage = 1.0",
+        "IF hpt_eff is mid AND hpt_flow is mid THEN HPT_damage = 0.5",
+        "IF hpt_eff is mid AND hpt_flow is high THEN HPT_damage = 0.5",
+        "IF hpt_eff is high AND hpt_flow is low THEN HPT_damage = 1.0",
+        "IF hpt_eff is high AND hpt_flow is mid THEN HPT_damage = 0.5",
+        "IF hpt_eff is high AND hpt_flow is high THEN HPT_damage = 0.0"
+      ]
+    },
+    {
+      "name": "LPT",
+      "kind": "component",
+      "output": "LPT_damage",
+      "inputs": [
+        "lpt_eff",
+        "lpt_flow"
+      ],
+      "n_rules": 9,
+      "membership_functions": {
+        "lpt_eff": [
+          {
+            "term": "low",
+            "centre": -0.0054
+          },
+          {
+            "term": "mid",
+            "centre": -0.00135
+          },
+          {
+            "term": "high",
+            "centre": -0.00057
+          }
+        ],
+        "lpt_flow": [
+          {
+            "term": "low",
+            "centre": -0.00641
+          },
+          {
+            "term": "mid",
+            "centre": -0.00154
+          },
+          {
+            "term": "high",
+            "centre": -0.00058
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "low"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "mid"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "low"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "mid"
+            }
+          ],
+          "then": 0.5
+        },
+        {
+          "if": [
+            {
+              "input": "lpt_eff",
+              "term": "high"
+            },
+            {
+              "input": "lpt_flow",
+              "term": "high"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF lpt_eff is low AND lpt_flow is low THEN LPT_damage = 1.0",
+        "IF lpt_eff is low AND lpt_flow is mid THEN LPT_damage = 1.0",
+        "IF lpt_eff is low AND lpt_flow is high THEN LPT_damage = 1.0",
+        "IF lpt_eff is mid AND lpt_flow is low THEN LPT_damage = 1.0",
+        "IF lpt_eff is mid AND lpt_flow is mid THEN LPT_damage = 0.5",
+        "IF lpt_eff is mid AND lpt_flow is high THEN LPT_damage = 0.5",
+        "IF lpt_eff is high AND lpt_flow is low THEN LPT_damage = 1.0",
+        "IF lpt_eff is high AND lpt_flow is mid THEN LPT_damage = 0.5",
+        "IF lpt_eff is high AND lpt_flow is high THEN LPT_damage = 0.0"
+      ]
+    },
+    {
+      "name": "lp",
+      "kind": "spool",
+      "output": "lp_damage",
+      "inputs": [
+        "fan",
+        "LPC",
+        "LPT"
+      ],
+      "n_rules": 64,
+      "membership_functions": {
+        "fan": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ],
+        "LPC": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ],
+        "LPT": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.00069
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.20815
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L0"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.01602
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.03748
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.39529
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.12111
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.19904
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.63393
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L3"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        }
+      ],
+      "readable": [
+        "IF fan is L0 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.0",
+        "IF fan is L0 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.00069",
+        "IF fan is L0 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.20815",
+        "IF fan is L0 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L3 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.01602",
+        "IF fan is L1 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.03748",
+        "IF fan is L1 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.39529",
+        "IF fan is L1 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L3 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.12111",
+        "IF fan is L2 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.19904",
+        "IF fan is L2 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.63393",
+        "IF fan is L2 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L3 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L0 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L1 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L2 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L3 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
+        "IF fan is L3 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0"
+      ]
+    },
+    {
+      "name": "hp",
+      "kind": "spool",
+      "output": "hp_damage",
+      "inputs": [
+        "HPC",
+        "HPT"
+      ],
+      "n_rules": 16,
+      "membership_functions": {
+        "HPC": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ],
+        "HPT": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L0"
+            },
+            {
+              "input": "HPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L0"
+            },
+            {
+              "input": "HPT",
+              "term": "L1"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L0"
+            },
+            {
+              "input": "HPT",
+              "term": "L2"
+            }
+          ],
+          "then": 0.40563
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L0"
+            },
+            {
+              "input": "HPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L1"
+            },
+            {
+              "input": "HPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.32847
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L1"
+            },
+            {
+              "input": "HPT",
+              "term": "L1"
+            }
+          ],
+          "then": 0.39382
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L1"
+            },
+            {
+              "input": "HPT",
+              "term": "L2"
+            }
+          ],
+          "then": 0.83242
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L1"
+            },
+            {
+              "input": "HPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L2"
+            },
+            {
+              "input": "HPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.75995
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L2"
+            },
+            {
+              "input": "HPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L2"
+            },
+            {
+              "input": "HPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L2"
+            },
+            {
+              "input": "HPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L3"
+            },
+            {
+              "input": "HPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L3"
+            },
+            {
+              "input": "HPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L3"
+            },
+            {
+              "input": "HPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "HPC",
+              "term": "L3"
+            },
+            {
+              "input": "HPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        }
+      ],
+      "readable": [
+        "IF HPC is L0 AND HPT is L0 THEN hp_damage = 0.0",
+        "IF HPC is L0 AND HPT is L1 THEN hp_damage = 0.0",
+        "IF HPC is L0 AND HPT is L2 THEN hp_damage = 0.40563",
+        "IF HPC is L0 AND HPT is L3 THEN hp_damage = 1.0",
+        "IF HPC is L1 AND HPT is L0 THEN hp_damage = 0.32847",
+        "IF HPC is L1 AND HPT is L1 THEN hp_damage = 0.39382",
+        "IF HPC is L1 AND HPT is L2 THEN hp_damage = 0.83242",
+        "IF HPC is L1 AND HPT is L3 THEN hp_damage = 1.0",
+        "IF HPC is L2 AND HPT is L0 THEN hp_damage = 0.75995",
+        "IF HPC is L2 AND HPT is L1 THEN hp_damage = 1.0",
+        "IF HPC is L2 AND HPT is L2 THEN hp_damage = 1.0",
+        "IF HPC is L2 AND HPT is L3 THEN hp_damage = 1.0",
+        "IF HPC is L3 AND HPT is L0 THEN hp_damage = 1.0",
+        "IF HPC is L3 AND HPT is L1 THEN hp_damage = 1.0",
+        "IF HPC is L3 AND HPT is L2 THEN hp_damage = 1.0",
+        "IF HPC is L3 AND HPT is L3 THEN hp_damage = 1.0"
+      ]
+    },
+    {
+      "name": "RUL",
+      "kind": "root",
+      "output": "RUL",
+      "inputs": [
+        "lp",
+        "hp"
+      ],
+      "n_rules": 16,
+      "membership_functions": {
+        "lp": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ],
+        "hp": [
+          {
+            "term": "L0",
+            "centre": 0.0
+          },
+          {
+            "term": "L1",
+            "centre": 0.33333
+          },
+          {
+            "term": "L2",
+            "centre": 0.66667
+          },
+          {
+            "term": "L3",
+            "centre": 1.0
+          }
+        ]
+      },
+      "rules": [
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L0"
+            },
+            {
+              "input": "hp",
+              "term": "L0"
+            }
+          ],
+          "then": 57.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L0"
+            },
+            {
+              "input": "hp",
+              "term": "L1"
+            }
+          ],
+          "then": 45.8214
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L0"
+            },
+            {
+              "input": "hp",
+              "term": "L2"
+            }
+          ],
+          "then": 28.63175
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L0"
+            },
+            {
+              "input": "hp",
+              "term": "L3"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L1"
+            },
+            {
+              "input": "hp",
+              "term": "L0"
+            }
+          ],
+          "then": 49.0386
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L1"
+            },
+            {
+              "input": "hp",
+              "term": "L1"
+            }
+          ],
+          "then": 37.86
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L1"
+            },
+            {
+              "input": "hp",
+              "term": "L2"
+            }
+          ],
+          "then": 26.10723
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L1"
+            },
+            {
+              "input": "hp",
+              "term": "L3"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L2"
+            },
+            {
+              "input": "hp",
+              "term": "L0"
+            }
+          ],
+          "then": 17.20593
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L2"
+            },
+            {
+              "input": "hp",
+              "term": "L1"
+            }
+          ],
+          "then": 15.49316
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L2"
+            },
+            {
+              "input": "hp",
+              "term": "L2"
+            }
+          ],
+          "then": 15.04393
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L2"
+            },
+            {
+              "input": "hp",
+              "term": "L3"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L3"
+            },
+            {
+              "input": "hp",
+              "term": "L0"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L3"
+            },
+            {
+              "input": "hp",
+              "term": "L1"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L3"
+            },
+            {
+              "input": "hp",
+              "term": "L2"
+            }
+          ],
+          "then": 0.0
+        },
+        {
+          "if": [
+            {
+              "input": "lp",
+              "term": "L3"
+            },
+            {
+              "input": "hp",
+              "term": "L3"
+            }
+          ],
+          "then": 0.0
+        }
+      ],
+      "readable": [
+        "IF lp is L0 AND hp is L0 THEN RUL = 57.0",
+        "IF lp is L0 AND hp is L1 THEN RUL = 45.8214",
+        "IF lp is L0 AND hp is L2 THEN RUL = 28.63175",
+        "IF lp is L0 AND hp is L3 THEN RUL = 0.0",
+        "IF lp is L1 AND hp is L0 THEN RUL = 49.0386",
+        "IF lp is L1 AND hp is L1 THEN RUL = 37.86",
+        "IF lp is L1 AND hp is L2 THEN RUL = 26.10723",
+        "IF lp is L1 AND hp is L3 THEN RUL = 0.0",
+        "IF lp is L2 AND hp is L0 THEN RUL = 17.20593",
+        "IF lp is L2 AND hp is L1 THEN RUL = 15.49316",
+        "IF lp is L2 AND hp is L2 THEN RUL = 15.04393",
+        "IF lp is L2 AND hp is L3 THEN RUL = 0.0",
+        "IF lp is L3 AND hp is L0 THEN RUL = 0.0",
+        "IF lp is L3 AND hp is L1 THEN RUL = 0.0",
+        "IF lp is L3 AND hp is L2 THEN RUL = 0.0",
+        "IF lp is L3 AND hp is L3 THEN RUL = 0.0"
+      ]
+    }
+  ]
+}

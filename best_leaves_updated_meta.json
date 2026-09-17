@@ -1,0 +1,86 @@
+{
+  "rho_floor": 0.5,
+  "spec_floor": 0.4,
+  "tags": [
+    {
+      "component": "HPC",
+      "target": "HPC_eff_mod",
+      "tag": "diagnostic",
+      "sensors": "T30+P15+P40",
+      "rho": 0.596,
+      "spec_xshaft": 0.751
+    },
+    {
+      "component": "HPC",
+      "target": "HPC_flow_mod",
+      "tag": "diagnostic",
+      "sensors": "T30+P15+P21",
+      "rho": 0.743,
+      "spec_xshaft": 0.73
+    },
+    {
+      "component": "HPT",
+      "target": "HPT_eff_mod",
+      "tag": "diagnostic",
+      "sensors": "Nc+Ps30+P50",
+      "rho": 0.711,
+      "spec_xshaft": 0.746
+    },
+    {
+      "component": "HPT",
+      "target": "HPT_flow_mod",
+      "tag": "diagnostic",
+      "sensors": "Wf+Nc+T30",
+      "rho": 0.721,
+      "spec_xshaft": 0.543
+    },
+    {
+      "component": "LPC",
+      "target": "LPC_eff_mod",
+      "tag": "prognostic_only",
+      "sensors": "Wf+T50+P21",
+      "rho": 0.696,
+      "spec_xshaft": 0.105
+    },
+    {
+      "component": "LPC",
+      "target": "LPC_flow_mod",
+      "tag": "diagnostic",
+      "sensors": "T24+T48+P40",
+      "rho": 0.529,
+      "spec_xshaft": 0.56
+    },
+    {
+      "component": "LPT",
+      "target": "LPT_eff_mod",
+      "tag": "diagnostic",
+      "sensors": "Nc+T30+T48",
+      "rho": 0.808,
+      "spec_xshaft": 0.646
+    },
+    {
+      "component": "LPT",
+      "target": "LPT_flow_mod",
+      "tag": "diagnostic",
+      "sensors": "Nc+T30+T48",
+      "rho": 0.888,
+      "spec_xshaft": 0.552
+    },
+    {
+      "component": "fan",
+      "target": "fan_eff_mod",
+      "tag": "diagnostic",
+      "sensors": "T24+T48+T50",
+      "rho": 0.609,
+      "spec_xshaft": 0.43
+    },
+    {
+      "component": "fan",
+      "target": "fan_flow_mod",
+      "tag": "diagnostic",
+      "sensors": "Nc+T24+T30",
+      "rho": 0.807,
+      "spec_xshaft": 0.696
+    }
+  ]
+}
