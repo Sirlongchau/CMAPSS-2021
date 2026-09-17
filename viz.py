@@ -259,9 +259,48 @@ def _input_domains(n, P, frame):
     return doms
 
 
+def plot_node_cube(model, frame, node, save, levels=(0.0, 0.5, 1.0), res=40):
+    """Full visualization of an n>=3-input FIS: one ROW per held input, one COLUMN per held
+    level (0/0.5/1), sweeping the OTHER two inputs over 0..1. Shows the OR cube ridge from
+    every face (e.g. LP: hold fan=1 -> whole panel saturates; hold fan=0 -> see LPC/LPT
+    structure). Shared colour scale across panels so saturation is comparable."""
+    P = gft.prep(frame, model["sensors"]) if node["kind"] == "leaf" else None
+    doms = _input_domains(node, P, frame)
+    cent = gft._live_centres(node, model["genome"])          # LEARNED centres, not placeholders
+    cons = gft._consequents(node, model["genome"])
+    inputs = list(node["inputs"]); d = len(inputs)
+    outlo, outhi = node["out"] if node["out"] else (0.0, 1.0)
+    fig, ax = plt.subplots(d, len(levels), figsize=(3.6 * len(levels), 3.1 * d), squeeze=False)
+    cf = None
+    for r in range(d):                                       # held input = r
+        sw = [j for j in range(d) if j != r][:2]             # sweep the other two
+        for c, lvl in enumerate(levels):
+            a = ax[r][c]
+            x0 = np.linspace(*doms[sw[0]], res); x1 = np.linspace(*doms[sw[1]], res)
+            X0, X1 = np.meshgrid(x0, x1)
+            cols = []
+            for j in range(d):
+                if j == sw[0]:   cols.append(X0.ravel())
+                elif j == sw[1]: cols.append(X1.ravel())
+                elif j == r:     cols.append(np.full(X0.size, doms[j][0] + lvl * (doms[j][1] - doms[j][0])))
+                else:            cols.append(np.full(X0.size, doms[j][0]))   # extra inputs held low
+            Z = gft._fis(cols, cent, cons).reshape(X0.shape)
+            cf = a.contourf(X0, X1, Z, levels=np.linspace(outlo, outhi, 21),
+                            cmap="viridis", vmin=outlo, vmax=outhi, extend="both")
+            a.set_title(f"{inputs[r]}={lvl:g}", fontsize=8)
+            a.set_xlabel(inputs[sw[0]], fontsize=8); a.set_ylabel(inputs[sw[1]], fontsize=8)
+    fig.colorbar(cf, ax=ax, shrink=0.6)
+    fig.suptitle(f"{node['name']} -> {_out_label(node)} : full cube "
+                 f"(each row holds one input at 0/0.5/1, sweeps the other two)")
+    fig.savefig(save, dpi=110); plt.close(fig)
+    return save
+
+
 def plot_control_surfaces(model, frame, outdir, res=45):
-    """Control surface of every FIS, grouped by node kind (one figure per kind). 1-input ->
-    1D curve; >=2 inputs -> 2D surface over the first two inputs, any others at their median."""
+    """Control surface of every FIS, grouped by node kind. 1-input -> 1D curve; 2-input ->
+    2D surface. For n>=3 inputs the per-kind figure shows a representative slice (others held
+    at 0, i.e. OFF the ridge) AND a dedicated full-cube figure is written per node. Uses the
+    LEARNED centres (gft._live_centres), so learnable spool/root knots are shown correctly."""
     P = gft.prep(frame, model["sensors"])
     by_kind = {}
     for n in model["meta"]:
@@ -272,11 +311,12 @@ def plot_control_surfaces(model, frame, outdir, res=45):
         fig, ax = plt.subplots(rows_g, cols_g, figsize=(4.2 * cols_g, 3.4 * rows_g), squeeze=False)
         for i, n in enumerate(nodes):
             a = ax[i // cols_g][i % cols_g]
+            cent = gft._live_centres(n, model["genome"])     # LEARNED centres
             cons = gft._consequents(n, model["genome"])
             doms = _input_domains(n, P, frame); d = len(n["inputs"])
             if d == 1:
                 x = np.linspace(*doms[0], 200)
-                a.plot(x, gft._fis([x], n["centres"], cons), color="steelblue")
+                a.plot(x, gft._fis([x], cent, cons), color="steelblue")
                 a.set_xlabel(n["inputs"][0]); a.set_ylabel(_out_label(n))
                 a.set_title(f"{n['name']} -> {_out_label(n)}", fontsize=9)
             else:
@@ -285,12 +325,14 @@ def plot_control_surfaces(model, frame, outdir, res=45):
                 cols = []
                 for j in range(d):
                     cols.append(X0.ravel() if j == 0 else X1.ravel() if j == 1
-                                else np.full(X0.size, float(np.mean(doms[j]))))
-                Z = gft._fis(cols, n["centres"], cons).reshape(X0.shape)
-                cf = a.contourf(X0, X1, Z, levels=20, cmap="viridis")
+                                else np.full(X0.size, float(doms[j][0])))   # hold OFF ridge (low)
+                Z = gft._fis(cols, cent, cons).reshape(X0.shape)
+                olo, ohi = n["out"] if n["out"] else (float(np.nanmin(Z)), float(np.nanmax(Z)))
+                cf = a.contourf(X0, X1, Z, levels=np.linspace(olo, ohi, 21),
+                                cmap="viridis", vmin=olo, vmax=ohi, extend="both")
                 fig.colorbar(cf, ax=a, shrink=0.85)
                 a.set_xlabel(n["inputs"][0]); a.set_ylabel(n["inputs"][1])
-                a.set_title(f"{n['name']} -> {_out_label(n)}" + (" (slice)" if d > 2 else ""),
+                a.set_title(f"{n['name']} -> {_out_label(n)}" + (" (slice, others=0)" if d > 2 else ""),
                             fontsize=8)
         for j in range(len(nodes), rows_g * cols_g):
             ax[j // cols_g][j % cols_g].axis("off")
@@ -298,6 +340,11 @@ def plot_control_surfaces(model, frame, outdir, res=45):
         fig.tight_layout(rect=[0, 0, 1, 0.96])
         p = os.path.join(outdir, f"control_surfaces_{kind}.png")
         fig.savefig(p, dpi=110); plt.close(fig); saved.append(p)
+    # dedicated full-cube figure for AGGREGATION nodes with >=3 inputs (LP spool, root+age)
+    for n in model["meta"]:
+        if len(n["inputs"]) >= 3 and n["kind"] in ("spool", "root"):
+            saved.append(plot_node_cube(model, frame, n,
+                                        os.path.join(outdir, f"control_surfaces_{n['name']}_cube.png")))
     return saved
 
 

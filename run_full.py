@@ -147,15 +147,26 @@ def leaf_block(pooled, leaves, train_ds, age=True, seed=0, leaf_gens=300, leaf_p
 # §4a-P2   leave-one-dataset-out
 # ==========================================================================
 
-def loso(pooled, leaves, ages=(False, True), grouping="shaft", gens=120, pop=120, seed=0):
+def loso(pooled, leaves, ages=(False, True), grouping="shaft", gens=120, pop=120, seed=0,
+         components="rulfit"):
     """Leave-one-dataset-out, per held-out mode + mean, for EACH age setting -- the age
-    trade-off on the generalization axis, not just in-distribution."""
+    trade-off on the generalization axis, not just in-distribution.
+    components: 'rulfit' (component nodes RUL-fit) or 'trapezoid' (deterministic component
+    damage, knees frozen from THIS FOLD'S TRAIN only, then spool+root RUL-fit). Use
+    'trapezoid' for the honest-architecture LOSO table."""
     out = []
     for age in ages:
         rows = []
         for tr, te, ds in data.leave_one_dataset_out(pooled):
-            m = gft.fit_decoupled(tr, leaves=leaves, grouping=grouping, age=age,
-                                  gens=gens, pop=pop, seed=seed)
+            if components == "trapezoid":
+                m, frozen = freeze_fit.freeze(tr, leaves, grouping=grouping, age=age,
+                                              seed=seed)
+                freeze_fit.freeze_components_trapezoid(m, tr)      # knees from fold-train only
+                m = freeze_fit.fit_rul(tr, m, frozen, gens=gens, pop=pop, seed=seed,
+                                       pin=("leaf", "component"))
+            else:
+                m = gft.fit_decoupled(tr, leaves=leaves, grouping=grouping, age=age,
+                                      gens=gens, pop=pop, seed=seed)
             r = freeze_fit.evaluate_on(m, te, f"LOSO:{ds}"); r["age"] = age
             rows.append(r)
         t = pd.DataFrame(rows)
@@ -198,6 +209,52 @@ def native_test(pooled, leaves, train_ds, ages=(False, True), grouping="shaft",
 # ==========================================================================
 # spool-degeneration A/B: does age slacken the damage representation?
 # ==========================================================================
+
+def component_freeze_ab(pooled, leaves, beta=1.0, age=False, grouping="shaft",
+                        leaf_gens=300, leaf_pop=80, gens=120, pop=120, seed=0,
+                        outdir="results"):
+    """Dev A/B for the honest-component-tier idea. Splits `pooled` by unit, freezes leaves
+    once, then fits TWO models on train:
+      baseline  -- components RUL-fit (pin=leaf only)              [current architecture]
+      frozen    -- components specificity-frozen (freeze_components), then spool+root RUL-fit
+    Reports per component the achievable specificity floor L_c and misdiag (baseline vs
+    frozen), and the dev RUL RMSE of each (the price of construction-honest components).
+    Returns dict(summary, per_component)."""
+    import os
+    os.makedirs(outdir, exist_ok=True)
+    tr, dev, _ = data.split(pooled, seed=seed)              # full pool -> healthy examples present
+    model, frozen = freeze_fit.freeze(tr, leaves, grouping=grouping, age=age,
+                                      leaf_gens=leaf_gens, leaf_pop=leaf_pop, seed=seed)
+
+    # baseline: components RUL-fit
+    mb = freeze_fit.fit_rul(tr, model, frozen.copy(), gens=gens, pop=pop, seed=seed,
+                            pin=("leaf",))
+    rmse_base = float(gft.evaluate(dev, mb)["RMSE"])
+    cd_base = freeze_fit.component_diag(mb, pooled).set_index("component")["misdiag_ratio"]
+
+    # frozen: specificity-freeze the component tier, then RUL-fit spool+root only
+    frozen_c, lc = freeze_fit.freeze_components(tr, model, frozen.copy(), beta=beta,
+                                               gens=gens, pop=max(12, pop // 3), seed=seed)
+    mf = freeze_fit.fit_rul(tr, model, frozen_c, gens=gens, pop=pop, seed=seed,
+                            pin=("leaf", "component"))
+    rmse_frz = float(gft.evaluate(dev, mf)["RMSE"])
+    cd_frz = freeze_fit.component_diag(mf, pooled).set_index("component")["misdiag_ratio"]
+
+    per = lc.set_index("component")
+    per["misdiag_baseline"] = cd_base
+    per["misdiag_frozen"] = cd_frz
+    per = per.reset_index()
+    summary = pd.DataFrame([{"dev_RMSE_baseline": rmse_base, "dev_RMSE_frozen": rmse_frz,
+                             "dRMSE": rmse_frz - rmse_base,
+                             "mean_misdiag_baseline": float(cd_base.mean()),
+                             "mean_misdiag_frozen": float(cd_frz.mean()), "beta": beta}])
+    print("component-freeze A/B (dev):")
+    print(summary.round(3).to_string(index=False))
+    print(per.round(3).to_string(index=False))
+    _w(summary, outdir, "component_freeze_summary.csv")
+    _w(per, outdir, "component_freeze_per_component.csv")
+    return {"summary": summary, "per_component": per}
+
 
 def spec_sweep(pooled, leaves, lambdas=(0.0, 0.5, 1.0, 2.0, 4.0, 8.0), age=False,
                grouping="shaft", leaf_gens=300, leaf_pop=80, gens=120, pop=120, seed=0,
@@ -365,6 +422,13 @@ def _self_test():
                     leaf_gens=8, leaf_pop=8, gens=8, pop=8, outdir="/tmp/results")
     assert {"lambda", "dev_RMSE", "mean_misdiag"} <= set(ss.columns)
     assert os.path.exists("/tmp/results/spec_sweep_pareto.png")
+
+    # component-freeze A/B (honest component tier vs RUL-fit)
+    print("\n-- component_freeze_ab --")
+    cfab = component_freeze_ab(pooled, leaves, beta=1.0,
+                              leaf_gens=8, leaf_pop=8, gens=8, pop=9, outdir="/tmp/results")
+    assert {"summary", "per_component"} <= set(cfab)
+    assert os.path.exists("/tmp/results/component_freeze_per_component.csv")
 
     print("\nrun_full self-test OK (all blocks + rule base; age off/on for LOSO+P3)")
 

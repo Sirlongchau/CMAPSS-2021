@@ -37,6 +37,9 @@ from features import (SENSORS, CONDITIONS, COMPONENTS, SHAFT, THETA, GROUPINGS,
 
 # ---- config --------------------------------------------------------------
 N_TERMS = 3            # fuzzy sets per input (low/mid/high)
+SPOOL_TERMS = 4        # fuzzy sets on SPOOL inputs (learnable knots; bump to 4 for more EOL resolution)
+ROOT_TERMS = 4         # fuzzy sets on the ROOT inputs (learnable knot positions)
+GAP_MIN = 0.05         # min gap gene for order-preserving learnable centres
 EWMA_SPAN = 7          # causal smoothing window on residualized sensors
 HEALTHY_FRAC = 0.2     # first fraction of a unit's life used to fit its baseline
 W_THETA = 3.0          # leaf supervision weight -- raised from 1.0: with 10 leaves
@@ -131,7 +134,7 @@ def _fis(cols, centres, singl):
     return (w @ singl) / np.where(den > 1e-12, den, 1.0)
 
 
-def _mono_decode(base, steps, shape, signs, out=None, anchor=False):
+def _mono_decode(base, steps, shape, signs, out=None, anchor=False, or_anchor=False):
     """Consequent grid from non-negative steps => monotone per axis (sign). If
     anchor: min-max normalise then scale into `out`, pinning both corners by
     construction (spool -> [0,1]; root -> [0, rul_cap] so RUL=0 at full damage)."""
@@ -146,7 +149,17 @@ def _mono_decode(base, steps, shape, signs, out=None, anchor=False):
     G = float(base) + G
     if anchor:
         lo_, hi_ = float(G.min()), float(G.max())
+        if or_anchor:
+            edge = np.zeros(G.shape, dtype=bool)         # ridge: any axis at its top index
+            for ax in range(G.ndim):                     # (centres ascending -> top = most degraded)
+                sl = [slice(None)] * G.ndim; sl[ax] = -1
+                edge[tuple(sl)] = True
+            if float(np.mean(signs)) > 0:                # increasing output (spool damage): ridge -> 1
+                hi_ = float(G[edge].min())
+            else:                                        # decreasing output (RUL): ridge -> 0
+                lo_ = float(G[edge].max())
         G = (G - lo_) / (hi_ - lo_) if (hi_ - lo_) > 1e-9 else np.zeros_like(G)
+        G = np.clip(G, 0.0, 1.0)                         # cells beyond the ridge clamp to max deg.
         if out is not None:
             G = float(out[0]) + G * (float(out[1]) - float(out[0]))
     elif out is not None:
@@ -253,12 +266,12 @@ def build_tree(spec, frame, rul_cap):
                 sub = t[deg.to_numpy()] if deg.any() else t
                 centres.append(_quantile_centres(sub if len(sub) else t))
             elif kind == "spool":                       # antecedent = a component damage [0,1]
-                centres.append(np.linspace(0.0, 1.0, N_TERMS))
+                centres.append(np.linspace(0.0, 1.0, SPOOL_TERMS))
             else:                                       # root inputs
                 if src == "age":                          # lifetime prior: age quantiles
-                    centres.append(_quantile_centres(frame["age"].to_numpy(float)))
+                    centres.append(_quantile_centres(frame["age"].to_numpy(float), n=ROOT_TERMS))
                 else:                                     # spool damage in [0,1]
-                    centres.append(np.linspace(0.0, 1.0, N_TERMS))
+                    centres.append(np.linspace(0.0, 1.0, ROOT_TERMS))
         shape = tuple(len(c) for c in centres)
         n_rules = int(np.prod(shape))
         mono = kind in ("component", "spool", "root")
@@ -288,14 +301,42 @@ def build_tree(spec, frame, rul_cap):
         lo += b_lo
         hi += b_hi
 
-        meta.append({"name": name, "kind": kind, "inputs": inputs,
-                     "target": n["target"], "centres": centres, "shape": shape,
-                     "signs": signs, "anchor": anchor, "out": out,
-                     "rules": slice(k, k + n_rules)})
+        node = {"name": name, "kind": kind, "inputs": inputs,
+                "target": n["target"], "centres": centres, "shape": shape,
+                "signs": signs, "anchor": anchor, "out": out,
+                "rules": slice(k, k + n_rules)}
         k += n_rules
+        if kind in ("spool", "root"):                   # LEARNABLE interior knots, edges PINNED
+            node["learn_centres"] = True
+            node["cdomains"] = [(float(min(c)), float(max(c))) for c in centres]
+            node["k_terms"] = [len(c) for c in centres]
+            ng = sum(kt - 1 for kt in node["k_terms"])  # k-1 interior gaps per input (ends fixed)
+            lo += [GAP_MIN] * ng
+            hi += [1.0] * ng
+            node["cgenes"] = slice(k, k + ng)
+            k += ng
+        meta.append(node)
 
     return {"meta": meta, "lo": np.array(lo), "hi": np.array(hi),
             "sensors": sensors, "rul_cap": float(rul_cap)}
+
+
+def _live_centres(node, genome):
+    """Centres a node's FIS should use now. Fixed nodes -> node['centres']. The root has
+    LEARNABLE knots gap-encoded in the genome: for each input, (k+1) non-negative gap genes
+    -> cumulative fractions -> k centres strictly increasing inside the input's domain. Order
+    (hence partition of unity) holds by construction, so interpretability is unchanged; only
+    the knot POSITIONS are learned by the RUL fit."""
+    if not node.get("learn_centres"):
+        return node["centres"]
+    g = genome[node["cgenes"]]
+    out, off = [], 0
+    for (dlo, dhi), kt in zip(node["cdomains"], node["k_terms"]):
+        n_gap = kt - 1                              # k-1 interior gaps -> k knots incl. both ends
+        w = np.maximum(g[off:off + n_gap], GAP_MIN); off += n_gap
+        frac = np.concatenate(([0.0], np.cumsum(w) / w.sum()))   # 0 ... 1 inclusive
+        out.append(dlo + (dhi - dlo) * frac)                     # c[0]=dlo, c[-1]=dhi pinned
+    return out
 
 
 def _consequents(node, genome):
@@ -305,7 +346,8 @@ def _consequents(node, genome):
     if node["kind"] == "leaf":
         return g
     return _mono_decode(g[0], g, node["shape"], node["signs"],
-                        out=node["out"], anchor=node["anchor"])
+                        out=node["out"], anchor=node["anchor"],
+                        or_anchor=(node["kind"] in ("spool", "root")))
 
 
 # ==========================================================================
@@ -323,7 +365,7 @@ def predict_tree(frame, model, genome):
         cols = [age_col if s == "age" else
                 (P[s].to_numpy() if n["kind"] == "leaf" else vals[s])
                 for s in n["inputs"]]
-        y = _fis(cols, n["centres"], _consequents(n, genome))
+        y = _fis(cols, _live_centres(n, genome), _consequents(n, genome))
         vals[n["name"]] = y
         if n["kind"] == "leaf":
             out[n["target"] + "_hat"] = y
@@ -530,7 +572,7 @@ def _rul_loss_fn(frame, model, lambda_spec=0.0):
         for n in model["meta"]:
             cols = [cols_cache[s] if (n["kind"] == "leaf" or s == "age") else vals[s]
                     for s in n["inputs"]]
-            vals[n["name"]] = _fis(cols, n["centres"], _consequents(n, genome))
+            vals[n["name"]] = _fis(cols, _live_centres(n, genome), _consequents(n, genome))
         base = rmse(y_rul, vals["RUL"]) / ystd
         if healthy:
             pen = np.mean([float(vals[c][m].mean()) for c, m in healthy.items()])
@@ -657,7 +699,15 @@ def _self_test():
             assert abs(M.sum(1) - 1).max() < 1e-9, "partition of unity broken"
             if n["kind"] in ("spool", "root"):
                 G = _consequents(n, g).reshape(n["shape"])
-                assert np.all(np.diff(G, axis=0) <= 1e-9), "spool/root not monotone"
+                for ax, sg in enumerate(n["signs"]):        # sign-aware monotonicity
+                    d = np.diff(G, axis=ax)
+                    ok = np.all(d <= 1e-9) if sg < 0 else np.all(d >= -1e-9)
+                    assert ok, "spool/root not monotone in the signed direction"
+            if n.get("learn_centres"):                      # decoded learnable knots: ordered + PoU
+                for c in _live_centres(n, g):
+                    assert np.all(np.diff(c) > 0), "learnable centres not strictly increasing"
+                    Mc = _memberships(np.linspace(float(c.min()), float(c.max()), 40), c)
+                    assert abs(Mc.sum(1) - 1).max() < 1e-9, "PoU broken on learnable centres"
     # anchored corners: root spans exactly [0, cap]; spool spans [0,1]
     root = [n for n in model["meta"] if n["kind"] == "root"][0]
     Groot = _consequents(root, g)

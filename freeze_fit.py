@@ -539,7 +539,7 @@ def plot_unit_debug(model, frame_unit, unit, save):
 
 
 def finalize_multi(pooled, leaves, train_ds, seeds=(0, 1, 2, 3, 4), age=False,
-                   grouping="shaft", leaf_gens=300, leaf_pop=80, gens=120, pop=120,
+                   grouping="shaft", leaf_gens=300, leaf_pop=200, gens=300, pop=200,
                    outdir="figures", also_eval_ds=None, debug_worst=True,
                    components="rulfit"):
     """Multi-seed dev/test finalization. Per seed: split by unit, freeze on train, fit RUL
@@ -712,8 +712,8 @@ def freeze_components_trapezoid(model, ref_frame, levels=(1.0, 0.5, 0.0), eps=1e
     return pd.DataFrame(rows)
 
 
-def fit_trapezoid(frame, leaves, grouping="shaft", age=False, leaf_gens=300, leaf_pop=80,
-                  gens=120, pop=120, seed=0, ref_frame=None):
+def fit_trapezoid(frame, leaves, grouping="shaft", age=False, leaf_gens=300, leaf_pop=200,
+                  gens=300, pop=200, seed=0, ref_frame=None):
     """Freeze leaves (theta) -> freeze component nodes as the deterministic trapezoid map
     (knees from `ref_frame` or `frame`) -> RUL-fit spool+root only (leaves+components pinned).
     Returns (model, knee_report)."""

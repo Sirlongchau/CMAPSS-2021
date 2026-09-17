@@ -2,7 +2,7 @@
   "n_nodes": 18,
   "n_rules_total": 411,
   "n_params": 432,
-  "rul_cap": 73.5,
+  "rul_cap": 57.0,
   "grouping": "shaft",
   "age": false,
   "nodes": [
@@ -20,43 +20,43 @@
         "T24": [
           {
             "term": "low",
-            "centre": -0.09301
+            "centre": -0.12995
           },
           {
             "term": "mid",
-            "centre": 0.03505
+            "centre": 0.03203
           },
           {
             "term": "high",
-            "centre": 0.53234
+            "centre": 0.36098
           }
         ],
         "T48": [
           {
             "term": "low",
-            "centre": -0.5935
+            "centre": -0.35011
           },
           {
             "term": "mid",
-            "centre": 1.29972
+            "centre": 2.23379
           },
           {
             "term": "high",
-            "centre": 20.72411
+            "centre": 21.97636
           }
         ],
         "T50": [
           {
             "term": "low",
-            "centre": -0.26947
+            "centre": -0.17455
           },
           {
             "term": "mid",
-            "centre": 1.12049
+            "centre": 1.88893
           },
           {
             "term": "high",
-            "centre": 17.06855
+            "centre": 18.97269
           }
         ]
       },
@@ -76,7 +76,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01132
+          "then": -0.00148
         },
         {
           "if": [
@@ -93,7 +93,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00014
+          "then": 6e-05
         },
         {
           "if": [
@@ -110,7 +110,7 @@
               "term": "high"
             }
           ],
-          "then": -0.0439
+          "then": -0.00749
         },
         {
           "if": [
@@ -127,7 +127,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00967
+          "then": -0.00082
         },
         {
           "if": [
@@ -144,7 +144,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00053
+          "then": -0.00197
         },
         {
           "if": [
@@ -161,7 +161,7 @@
               "term": "high"
             }
           ],
-          "then": -0.07917
+          "then": -0.01427
         },
         {
           "if": [
@@ -178,7 +178,7 @@
               "term": "low"
             }
           ],
-          "then": -0.15896
+          "then": -0.00335
         },
         {
           "if": [
@@ -195,7 +195,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.03267
+          "then": 0.00541
         },
         {
           "if": [
@@ -212,7 +212,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00482
+          "then": -0.01841
         },
         {
           "if": [
@@ -229,7 +229,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00428
+          "then": -0.00041
         },
         {
           "if": [
@@ -246,7 +246,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00606
+          "then": -0.00083
         },
         {
           "if": [
@@ -263,7 +263,7 @@
               "term": "high"
             }
           ],
-          "then": -0.07225
+          "then": -0.03226
         },
         {
           "if": [
@@ -280,7 +280,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00206
+          "then": -0.00088
         },
         {
           "if": [
@@ -297,7 +297,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00108
+          "then": -0.00152
         },
         {
           "if": [
@@ -314,7 +314,7 @@
               "term": "high"
             }
           ],
-          "then": 0.019
+          "then": -0.00398
         },
         {
           "if": [
@@ -331,7 +331,7 @@
               "term": "low"
             }
           ],
-          "then": -0.24436
+          "then": -0.01606
         },
         {
           "if": [
@@ -348,7 +348,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.02523
+          "then": -0.00578
         },
         {
           "if": [
@@ -365,7 +365,7 @@
               "term": "high"
             }
           ],
-          "then": -0.02214
+          "then": -0.0074
         },
         {
           "if": [
@@ -382,7 +382,7 @@
               "term": "low"
             }
           ],
-          "then": -0.08937
+          "then": -0.01305
         },
         {
           "if": [
@@ -399,7 +399,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.0468
+          "then": 0.00233
         },
         {
           "if": [
@@ -416,7 +416,7 @@
               "term": "high"
             }
           ],
-          "then": -0.22049
+          "then": -0.01539
         },
         {
           "if": [
@@ -433,7 +433,7 @@
               "term": "low"
             }
           ],
-          "then": -0.04913
+          "then": 0.00148
         },
         {
           "if": [
@@ -450,7 +450,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.01103
+          "then": -1e-05
         },
         {
           "if": [
@@ -467,7 +467,7 @@
               "term": "high"
             }
           ],
-          "then": 0.0146
+          "then": -0.00116
         },
         {
           "if": [
@@ -484,7 +484,7 @@
               "term": "low"
             }
           ],
-          "then": -0.16069
+          "then": -0.02365
         },
         {
           "if": [
@@ -501,7 +501,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01548
+          "then": -0.01025
         },
         {
           "if": [
@@ -518,37 +518,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00279
+          "then": -0.00761
         }
       ],
       "readable": [
-        "IF T24 is low AND T48 is low AND T50 is low THEN fan_eff_mod = -0.01132",
-        "IF T24 is low AND T48 is low AND T50 is mid THEN fan_eff_mod = 0.00014",
-        "IF T24 is low AND T48 is low AND T50 is high THEN fan_eff_mod = -0.0439",
-        "IF T24 is low AND T48 is mid AND T50 is low THEN fan_eff_mod = 0.00967",
-        "IF T24 is low AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00053",
-        "IF T24 is low AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.07917",
-        "IF T24 is low AND T48 is high AND T50 is low THEN fan_eff_mod = -0.15896",
-        "IF T24 is low AND T48 is high AND T50 is mid THEN fan_eff_mod = 0.03267",
-        "IF T24 is low AND T48 is high AND T50 is high THEN fan_eff_mod = -0.00482",
-        "IF T24 is mid AND T48 is low AND T50 is low THEN fan_eff_mod = 0.00428",
-        "IF T24 is mid AND T48 is low AND T50 is mid THEN fan_eff_mod = -0.00606",
-        "IF T24 is mid AND T48 is low AND T50 is high THEN fan_eff_mod = -0.07225",
-        "IF T24 is mid AND T48 is mid AND T50 is low THEN fan_eff_mod = 0.00206",
-        "IF T24 is mid AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00108",
-        "IF T24 is mid AND T48 is mid AND T50 is high THEN fan_eff_mod = 0.019",
-        "IF T24 is mid AND T48 is high AND T50 is low THEN fan_eff_mod = -0.24436",
-        "IF T24 is mid AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.02523",
-        "IF T24 is mid AND T48 is high AND T50 is high THEN fan_eff_mod = -0.02214",
-        "IF T24 is high AND T48 is low AND T50 is low THEN fan_eff_mod = -0.08937",
-        "IF T24 is high AND T48 is low AND T50 is mid THEN fan_eff_mod = -0.0468",
-        "IF T24 is high AND T48 is low AND T50 is high THEN fan_eff_mod = -0.22049",
-        "IF T24 is high AND T48 is mid AND T50 is low THEN fan_eff_mod = -0.04913",
-        "IF T24 is high AND T48 is mid AND T50 is mid THEN fan_eff_mod = 0.01103",
-        "IF T24 is high AND T48 is mid AND T50 is high THEN fan_eff_mod = 0.0146",
-        "IF T24 is high AND T48 is high AND T50 is low THEN fan_eff_mod = -0.16069",
-        "IF T24 is high AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.01548",
-        "IF T24 is high AND T48 is high AND T50 is high THEN fan_eff_mod = -0.00279"
+        "IF T24 is low AND T48 is low AND T50 is low THEN fan_eff_mod = -0.00148",
+        "IF T24 is low AND T48 is low AND T50 is mid THEN fan_eff_mod = 6e-05",
+        "IF T24 is low AND T48 is low AND T50 is high THEN fan_eff_mod = -0.00749",
+        "IF T24 is low AND T48 is mid AND T50 is low THEN fan_eff_mod = -0.00082",
+        "IF T24 is low AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00197",
+        "IF T24 is low AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.01427",
+        "IF T24 is low AND T48 is high AND T50 is low THEN fan_eff_mod = -0.00335",
+        "IF T24 is low AND T48 is high AND T50 is mid THEN fan_eff_mod = 0.00541",
+        "IF T24 is low AND T48 is high AND T50 is high THEN fan_eff_mod = -0.01841",
+        "IF T24 is mid AND T48 is low AND T50 is low THEN fan_eff_mod = -0.00041",
+        "IF T24 is mid AND T48 is low AND T50 is mid THEN fan_eff_mod = -0.00083",
+        "IF T24 is mid AND T48 is low AND T50 is high THEN fan_eff_mod = -0.03226",
+        "IF T24 is mid AND T48 is mid AND T50 is low THEN fan_eff_mod = -0.00088",
+        "IF T24 is mid AND T48 is mid AND T50 is mid THEN fan_eff_mod = -0.00152",
+        "IF T24 is mid AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.00398",
+        "IF T24 is mid AND T48 is high AND T50 is low THEN fan_eff_mod = -0.01606",
+        "IF T24 is mid AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.00578",
+        "IF T24 is mid AND T48 is high AND T50 is high THEN fan_eff_mod = -0.0074",
+        "IF T24 is high AND T48 is low AND T50 is low THEN fan_eff_mod = -0.01305",
+        "IF T24 is high AND T48 is low AND T50 is mid THEN fan_eff_mod = 0.00233",
+        "IF T24 is high AND T48 is low AND T50 is high THEN fan_eff_mod = -0.01539",
+        "IF T24 is high AND T48 is mid AND T50 is low THEN fan_eff_mod = 0.00148",
+        "IF T24 is high AND T48 is mid AND T50 is mid THEN fan_eff_mod = -1e-05",
+        "IF T24 is high AND T48 is mid AND T50 is high THEN fan_eff_mod = -0.00116",
+        "IF T24 is high AND T48 is high AND T50 is low THEN fan_eff_mod = -0.02365",
+        "IF T24 is high AND T48 is high AND T50 is mid THEN fan_eff_mod = -0.01025",
+        "IF T24 is high AND T48 is high AND T50 is high THEN fan_eff_mod = -0.00761"
       ]
     },
     {
@@ -565,43 +565,43 @@
         "Nc": [
           {
             "term": "low",
-            "centre": -11.83227
+            "centre": -8.7914
           },
           {
             "term": "mid",
-            "centre": -0.572
+            "centre": -1.01906
           },
           {
             "term": "high",
-            "centre": 4.19239
+            "centre": 1.53932
           }
         ],
         "T24": [
           {
             "term": "low",
-            "centre": -0.09301
+            "centre": -0.12995
           },
           {
             "term": "mid",
-            "centre": 0.03505
+            "centre": 0.03203
           },
           {
             "term": "high",
-            "centre": 0.53234
+            "centre": 0.36098
           }
         ],
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ]
       },
@@ -621,7 +621,7 @@
               "term": "low"
             }
           ],
-          "then": -0.03548
+          "then": -0.00532
         },
         {
           "if": [
@@ -638,7 +638,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00823
+          "then": -0.01477
         },
         {
           "if": [
@@ -655,7 +655,7 @@
               "term": "high"
             }
           ],
-          "then": -0.02022
+          "then": -0.03551
         },
         {
           "if": [
@@ -672,7 +672,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00399
+          "then": -0.0233
         },
         {
           "if": [
@@ -689,7 +689,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00661
+          "then": -0.00338
         },
         {
           "if": [
@@ -706,7 +706,7 @@
               "term": "high"
             }
           ],
-          "then": -0.03977
+          "then": -0.04059
         },
         {
           "if": [
@@ -723,7 +723,7 @@
               "term": "low"
             }
           ],
-          "then": 8e-05
+          "then": -0.0116
         },
         {
           "if": [
@@ -740,7 +740,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01191
+          "then": -0.00506
         },
         {
           "if": [
@@ -757,7 +757,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00352
+          "then": -0.005
         },
         {
           "if": [
@@ -774,7 +774,7 @@
               "term": "low"
             }
           ],
-          "then": 0.01271
+          "then": 0.0007
         },
         {
           "if": [
@@ -791,7 +791,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00169
+          "then": 0.00248
         },
         {
           "if": [
@@ -808,7 +808,7 @@
               "term": "high"
             }
           ],
-          "then": -0.02035
+          "then": -0.02211
         },
         {
           "if": [
@@ -825,7 +825,7 @@
               "term": "low"
             }
           ],
-          "then": 0.0
+          "then": 0.00053
         },
         {
           "if": [
@@ -842,7 +842,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00048
+          "then": -0.00265
         },
         {
           "if": [
@@ -859,7 +859,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00556
+          "then": 0.00168
         },
         {
           "if": [
@@ -876,7 +876,7 @@
               "term": "low"
             }
           ],
-          "then": 0.0303
+          "then": 0.01243
         },
         {
           "if": [
@@ -893,7 +893,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00525
+          "then": -0.00188
         },
         {
           "if": [
@@ -910,7 +910,7 @@
               "term": "high"
             }
           ],
-          "then": -0.0061
+          "then": -0.00442
         },
         {
           "if": [
@@ -927,7 +927,7 @@
               "term": "low"
             }
           ],
-          "then": -0.06856
+          "then": -0.00705
         },
         {
           "if": [
@@ -944,7 +944,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.0077
+          "then": 0.00011
         },
         {
           "if": [
@@ -961,7 +961,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01625
+          "then": -0.02688
         },
         {
           "if": [
@@ -978,7 +978,7 @@
               "term": "low"
             }
           ],
-          "then": -0.05597
+          "then": -0.00361
         },
         {
           "if": [
@@ -995,7 +995,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.001
+          "then": 2e-05
         },
         {
           "if": [
@@ -1012,7 +1012,7 @@
               "term": "high"
             }
           ],
-          "then": -0.02226
+          "then": 0.00288
         },
         {
           "if": [
@@ -1029,7 +1029,7 @@
               "term": "low"
             }
           ],
-          "then": 0.02937
+          "then": -0.02485
         },
         {
           "if": [
@@ -1046,7 +1046,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00901
+          "then": -0.00501
         },
         {
           "if": [
@@ -1063,37 +1063,37 @@
               "term": "high"
             }
           ],
-          "then": 0.00076
+          "then": -0.00443
         }
       ],
       "readable": [
-        "IF Nc is low AND T24 is low AND T30 is low THEN fan_flow_mod = -0.03548",
-        "IF Nc is low AND T24 is low AND T30 is mid THEN fan_flow_mod = -0.00823",
-        "IF Nc is low AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02022",
-        "IF Nc is low AND T24 is mid AND T30 is low THEN fan_flow_mod = 0.00399",
-        "IF Nc is low AND T24 is mid AND T30 is mid THEN fan_flow_mod = -0.00661",
-        "IF Nc is low AND T24 is mid AND T30 is high THEN fan_flow_mod = -0.03977",
-        "IF Nc is low AND T24 is high AND T30 is low THEN fan_flow_mod = 8e-05",
-        "IF Nc is low AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.01191",
-        "IF Nc is low AND T24 is high AND T30 is high THEN fan_flow_mod = 0.00352",
-        "IF Nc is mid AND T24 is low AND T30 is low THEN fan_flow_mod = 0.01271",
-        "IF Nc is mid AND T24 is low AND T30 is mid THEN fan_flow_mod = -0.00169",
-        "IF Nc is mid AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02035",
-        "IF Nc is mid AND T24 is mid AND T30 is low THEN fan_flow_mod = 0.0",
-        "IF Nc is mid AND T24 is mid AND T30 is mid THEN fan_flow_mod = 0.00048",
-        "IF Nc is mid AND T24 is mid AND T30 is high THEN fan_flow_mod = 0.00556",
-        "IF Nc is mid AND T24 is high AND T30 is low THEN fan_flow_mod = 0.0303",
-        "IF Nc is mid AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00525",
-        "IF Nc is mid AND T24 is high AND T30 is high THEN fan_flow_mod = -0.0061",
-        "IF Nc is high AND T24 is low AND T30 is low THEN fan_flow_mod = -0.06856",
-        "IF Nc is high AND T24 is low AND T30 is mid THEN fan_flow_mod = -0.0077",
-        "IF Nc is high AND T24 is low AND T30 is high THEN fan_flow_mod = -0.01625",
-        "IF Nc is high AND T24 is mid AND T30 is low THEN fan_flow_mod = -0.05597",
-        "IF Nc is high AND T24 is mid AND T30 is mid THEN fan_flow_mod = 0.001",
-        "IF Nc is high AND T24 is mid AND T30 is high THEN fan_flow_mod = -0.02226",
-        "IF Nc is high AND T24 is high AND T30 is low THEN fan_flow_mod = 0.02937",
-        "IF Nc is high AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00901",
-        "IF Nc is high AND T24 is high AND T30 is high THEN fan_flow_mod = 0.00076"
+        "IF Nc is low AND T24 is low AND T30 is low THEN fan_flow_mod = -0.00532",
+        "IF Nc is low AND T24 is low AND T30 is mid THEN fan_flow_mod = -0.01477",
+        "IF Nc is low AND T24 is low AND T30 is high THEN fan_flow_mod = -0.03551",
+        "IF Nc is low AND T24 is mid AND T30 is low THEN fan_flow_mod = -0.0233",
+        "IF Nc is low AND T24 is mid AND T30 is mid THEN fan_flow_mod = -0.00338",
+        "IF Nc is low AND T24 is mid AND T30 is high THEN fan_flow_mod = -0.04059",
+        "IF Nc is low AND T24 is high AND T30 is low THEN fan_flow_mod = -0.0116",
+        "IF Nc is low AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00506",
+        "IF Nc is low AND T24 is high AND T30 is high THEN fan_flow_mod = -0.005",
+        "IF Nc is mid AND T24 is low AND T30 is low THEN fan_flow_mod = 0.0007",
+        "IF Nc is mid AND T24 is low AND T30 is mid THEN fan_flow_mod = 0.00248",
+        "IF Nc is mid AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02211",
+        "IF Nc is mid AND T24 is mid AND T30 is low THEN fan_flow_mod = 0.00053",
+        "IF Nc is mid AND T24 is mid AND T30 is mid THEN fan_flow_mod = -0.00265",
+        "IF Nc is mid AND T24 is mid AND T30 is high THEN fan_flow_mod = 0.00168",
+        "IF Nc is mid AND T24 is high AND T30 is low THEN fan_flow_mod = 0.01243",
+        "IF Nc is mid AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00188",
+        "IF Nc is mid AND T24 is high AND T30 is high THEN fan_flow_mod = -0.00442",
+        "IF Nc is high AND T24 is low AND T30 is low THEN fan_flow_mod = -0.00705",
+        "IF Nc is high AND T24 is low AND T30 is mid THEN fan_flow_mod = 0.00011",
+        "IF Nc is high AND T24 is low AND T30 is high THEN fan_flow_mod = -0.02688",
+        "IF Nc is high AND T24 is mid AND T30 is low THEN fan_flow_mod = -0.00361",
+        "IF Nc is high AND T24 is mid AND T30 is mid THEN fan_flow_mod = 2e-05",
+        "IF Nc is high AND T24 is mid AND T30 is high THEN fan_flow_mod = 0.00288",
+        "IF Nc is high AND T24 is high AND T30 is low THEN fan_flow_mod = -0.02485",
+        "IF Nc is high AND T24 is high AND T30 is mid THEN fan_flow_mod = -0.00501",
+        "IF Nc is high AND T24 is high AND T30 is high THEN fan_flow_mod = -0.00443"
       ]
     },
     {
@@ -1110,43 +1110,43 @@
         "Wf": [
           {
             "term": "low",
-            "centre": -0.01063
+            "centre": -0.00532
           },
           {
             "term": "mid",
-            "centre": 0.00317
+            "centre": 0.00348
           },
           {
             "term": "high",
-            "centre": 0.03012
+            "centre": 0.02594
           }
         ],
         "T50": [
           {
             "term": "low",
-            "centre": -0.26947
+            "centre": -0.17455
           },
           {
             "term": "mid",
-            "centre": 1.12049
+            "centre": 1.88893
           },
           {
             "term": "high",
-            "centre": 17.06855
+            "centre": 18.97269
           }
         ],
         "P21": [
           {
             "term": "low",
-            "centre": -0.07217
+            "centre": -0.04554
           },
           {
             "term": "mid",
-            "centre": 0.00199
+            "centre": 0.00228
           },
           {
             "term": "high",
-            "centre": 0.07111
+            "centre": 0.08739
           }
         ]
       },
@@ -1166,7 +1166,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00216
+          "then": 0.00136
         },
         {
           "if": [
@@ -1183,7 +1183,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00015
+          "then": -0.00307
         },
         {
           "if": [
@@ -1200,7 +1200,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00417
+          "then": -0.00743
         },
         {
           "if": [
@@ -1217,7 +1217,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00078
+          "then": -0.00124
         },
         {
           "if": [
@@ -1234,7 +1234,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.0002
+          "then": -6e-05
         },
         {
           "if": [
@@ -1251,7 +1251,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01459
+          "then": -0.00586
         },
         {
           "if": [
@@ -1268,7 +1268,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01708
+          "then": -0.02771
         },
         {
           "if": [
@@ -1285,7 +1285,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00086
+          "then": -0.01358
         },
         {
           "if": [
@@ -1302,7 +1302,7 @@
               "term": "high"
             }
           ],
-          "then": -0.08272
+          "then": -0.03436
         },
         {
           "if": [
@@ -1319,7 +1319,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00865
+          "then": -0.00014
         },
         {
           "if": [
@@ -1336,7 +1336,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00117
+          "then": 0.00035
         },
         {
           "if": [
@@ -1353,7 +1353,7 @@
               "term": "high"
             }
           ],
-          "then": -0.0017
+          "then": -0.00014
         },
         {
           "if": [
@@ -1370,7 +1370,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00837
+          "then": 0.00191
         },
         {
           "if": [
@@ -1387,7 +1387,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00186
+          "then": -0.00131
         },
         {
           "if": [
@@ -1404,7 +1404,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00153
+          "then": 0.00178
         },
         {
           "if": [
@@ -1421,7 +1421,7 @@
               "term": "low"
             }
           ],
-          "then": -0.02085
+          "then": -0.01804
         },
         {
           "if": [
@@ -1438,7 +1438,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00551
+          "then": -0.01745
         },
         {
           "if": [
@@ -1455,7 +1455,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00254
+          "then": -0.0294
         },
         {
           "if": [
@@ -1472,7 +1472,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00715
+          "then": -0.03113
         },
         {
           "if": [
@@ -1489,7 +1489,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00282
+          "then": -0.00433
         },
         {
           "if": [
@@ -1506,7 +1506,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00488
+          "then": -0.00444
         },
         {
           "if": [
@@ -1523,7 +1523,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00381
+          "then": 0.01022
         },
         {
           "if": [
@@ -1540,7 +1540,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00059
+          "then": 0.00258
         },
         {
           "if": [
@@ -1557,7 +1557,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00286
+          "then": -0.00318
         },
         {
           "if": [
@@ -1574,7 +1574,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00797
+          "then": -0.03427
         },
         {
           "if": [
@@ -1591,7 +1591,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00742
+          "then": -0.00162
         },
         {
           "if": [
@@ -1608,37 +1608,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00634
+          "then": -0.01165
         }
       ],
       "readable": [
-        "IF Wf is low AND T50 is low AND P21 is low THEN LPC_eff_mod = 0.00216",
-        "IF Wf is low AND T50 is low AND P21 is mid THEN LPC_eff_mod = 0.00015",
-        "IF Wf is low AND T50 is low AND P21 is high THEN LPC_eff_mod = 0.00417",
-        "IF Wf is low AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.00078",
-        "IF Wf is low AND T50 is mid AND P21 is mid THEN LPC_eff_mod = 0.0002",
-        "IF Wf is low AND T50 is mid AND P21 is high THEN LPC_eff_mod = -0.01459",
-        "IF Wf is low AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.01708",
-        "IF Wf is low AND T50 is high AND P21 is mid THEN LPC_eff_mod = 0.00086",
-        "IF Wf is low AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.08272",
-        "IF Wf is mid AND T50 is low AND P21 is low THEN LPC_eff_mod = -0.00865",
-        "IF Wf is mid AND T50 is low AND P21 is mid THEN LPC_eff_mod = 0.00117",
-        "IF Wf is mid AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.0017",
-        "IF Wf is mid AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.00837",
-        "IF Wf is mid AND T50 is mid AND P21 is mid THEN LPC_eff_mod = -0.00186",
-        "IF Wf is mid AND T50 is mid AND P21 is high THEN LPC_eff_mod = 0.00153",
-        "IF Wf is mid AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.02085",
-        "IF Wf is mid AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.00551",
-        "IF Wf is mid AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.00254",
-        "IF Wf is high AND T50 is low AND P21 is low THEN LPC_eff_mod = 0.00715",
-        "IF Wf is high AND T50 is low AND P21 is mid THEN LPC_eff_mod = -0.00282",
-        "IF Wf is high AND T50 is low AND P21 is high THEN LPC_eff_mod = 0.00488",
-        "IF Wf is high AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.00381",
-        "IF Wf is high AND T50 is mid AND P21 is mid THEN LPC_eff_mod = 0.00059",
-        "IF Wf is high AND T50 is mid AND P21 is high THEN LPC_eff_mod = 0.00286",
-        "IF Wf is high AND T50 is high AND P21 is low THEN LPC_eff_mod = 0.00797",
-        "IF Wf is high AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.00742",
-        "IF Wf is high AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.00634"
+        "IF Wf is low AND T50 is low AND P21 is low THEN LPC_eff_mod = 0.00136",
+        "IF Wf is low AND T50 is low AND P21 is mid THEN LPC_eff_mod = -0.00307",
+        "IF Wf is low AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00743",
+        "IF Wf is low AND T50 is mid AND P21 is low THEN LPC_eff_mod = -0.00124",
+        "IF Wf is low AND T50 is mid AND P21 is mid THEN LPC_eff_mod = -6e-05",
+        "IF Wf is low AND T50 is mid AND P21 is high THEN LPC_eff_mod = -0.00586",
+        "IF Wf is low AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.02771",
+        "IF Wf is low AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.01358",
+        "IF Wf is low AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.03436",
+        "IF Wf is mid AND T50 is low AND P21 is low THEN LPC_eff_mod = -0.00014",
+        "IF Wf is mid AND T50 is low AND P21 is mid THEN LPC_eff_mod = 0.00035",
+        "IF Wf is mid AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00014",
+        "IF Wf is mid AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.00191",
+        "IF Wf is mid AND T50 is mid AND P21 is mid THEN LPC_eff_mod = -0.00131",
+        "IF Wf is mid AND T50 is mid AND P21 is high THEN LPC_eff_mod = 0.00178",
+        "IF Wf is mid AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.01804",
+        "IF Wf is mid AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.01745",
+        "IF Wf is mid AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.0294",
+        "IF Wf is high AND T50 is low AND P21 is low THEN LPC_eff_mod = -0.03113",
+        "IF Wf is high AND T50 is low AND P21 is mid THEN LPC_eff_mod = -0.00433",
+        "IF Wf is high AND T50 is low AND P21 is high THEN LPC_eff_mod = -0.00444",
+        "IF Wf is high AND T50 is mid AND P21 is low THEN LPC_eff_mod = 0.01022",
+        "IF Wf is high AND T50 is mid AND P21 is mid THEN LPC_eff_mod = 0.00258",
+        "IF Wf is high AND T50 is mid AND P21 is high THEN LPC_eff_mod = -0.00318",
+        "IF Wf is high AND T50 is high AND P21 is low THEN LPC_eff_mod = -0.03427",
+        "IF Wf is high AND T50 is high AND P21 is mid THEN LPC_eff_mod = -0.00162",
+        "IF Wf is high AND T50 is high AND P21 is high THEN LPC_eff_mod = -0.01165"
       ]
     },
     {
@@ -1655,43 +1655,43 @@
         "T24": [
           {
             "term": "low",
-            "centre": -0.09301
+            "centre": -0.12995
           },
           {
             "term": "mid",
-            "centre": 0.03505
+            "centre": 0.03203
           },
           {
             "term": "high",
-            "centre": 0.53234
+            "centre": 0.36098
           }
         ],
         "T48": [
           {
             "term": "low",
-            "centre": -0.5935
+            "centre": -0.35011
           },
           {
             "term": "mid",
-            "centre": 1.29972
+            "centre": 2.23379
           },
           {
             "term": "high",
-            "centre": 20.72411
+            "centre": 21.97636
           }
         ],
         "P40": [
           {
             "term": "low",
-            "centre": -1.47964
+            "centre": -1.02896
           },
           {
             "term": "mid",
-            "centre": -0.04456
+            "centre": 0.04152
           },
           {
             "term": "high",
-            "centre": 0.94907
+            "centre": 1.14464
           }
         ]
       },
@@ -1711,7 +1711,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00057
+          "then": -0.00353
         },
         {
           "if": [
@@ -1728,7 +1728,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00034
+          "then": -0.00014
         },
         {
           "if": [
@@ -1745,7 +1745,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00083
+          "then": -0.00054
         },
         {
           "if": [
@@ -1762,7 +1762,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00101
+          "then": -0.00408
         },
         {
           "if": [
@@ -1779,7 +1779,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.0011
+          "then": -0.00016
         },
         {
           "if": [
@@ -1796,24 +1796,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00389
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "low"
-            },
-            {
-              "input": "T48",
-              "term": "high"
-            },
-            {
-              "input": "P40",
-              "term": "low"
-            }
-          ],
-          "then": -0.02522
+          "then": -0.00245
         },
         {
           "if": [
@@ -1827,10 +1810,27 @@
             },
             {
               "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.03726
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            },
+            {
+              "input": "P40",
               "term": "mid"
             }
           ],
-          "then": -0.02486
+          "then": -0.02857
         },
         {
           "if": [
@@ -1847,7 +1847,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00373
+          "then": -0.00659
         },
         {
           "if": [
@@ -1864,7 +1864,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00299
+          "then": 0.00231
         },
         {
           "if": [
@@ -1881,7 +1881,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00021
+          "then": 0.0
         },
         {
           "if": [
@@ -1898,7 +1898,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00019
+          "then": 0.00024
         },
         {
           "if": [
@@ -1915,7 +1915,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00029
+          "then": -0.00239
         },
         {
           "if": [
@@ -1932,7 +1932,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00094
+          "then": -0.00189
         },
         {
           "if": [
@@ -1949,7 +1949,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00124
+          "then": -0.00209
         },
         {
           "if": [
@@ -1966,7 +1966,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01807
+          "then": -0.01886
         },
         {
           "if": [
@@ -1983,7 +1983,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00427
+          "then": -0.00893
         },
         {
           "if": [
@@ -1994,6 +1994,108 @@
             {
               "input": "T48",
               "term": "high"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.00462
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": -0.02009
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00341
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            },
+            {
+              "input": "P40",
+              "term": "high"
+            }
+          ],
+          "then": -0.01679
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "low"
+            }
+          ],
+          "then": 0.00258
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            },
+            {
+              "input": "P40",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00146
+        },
+        {
+          "if": [
+            {
+              "input": "T24",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
             },
             {
               "input": "P40",
@@ -2010,108 +2112,6 @@
             },
             {
               "input": "T48",
-              "term": "low"
-            },
-            {
-              "input": "P40",
-              "term": "low"
-            }
-          ],
-          "then": -0.05335
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "low"
-            },
-            {
-              "input": "P40",
-              "term": "mid"
-            }
-          ],
-          "then": -0.01725
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "low"
-            },
-            {
-              "input": "P40",
-              "term": "high"
-            }
-          ],
-          "then": -0.03062
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            },
-            {
-              "input": "P40",
-              "term": "low"
-            }
-          ],
-          "then": 0.00128
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            },
-            {
-              "input": "P40",
-              "term": "mid"
-            }
-          ],
-          "then": 0.00296
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            },
-            {
-              "input": "P40",
-              "term": "high"
-            }
-          ],
-          "then": -0.00057
-        },
-        {
-          "if": [
-            {
-              "input": "T24",
-              "term": "high"
-            },
-            {
-              "input": "T48",
               "term": "high"
             },
             {
@@ -2119,7 +2119,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00077
+          "then": -0.01436
         },
         {
           "if": [
@@ -2136,7 +2136,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00548
+          "then": -0.00718
         },
         {
           "if": [
@@ -2153,37 +2153,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00334
+          "then": -0.00907
         }
       ],
       "readable": [
-        "IF T24 is low AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.00057",
-        "IF T24 is low AND T48 is low AND P40 is mid THEN LPC_flow_mod = 0.00034",
-        "IF T24 is low AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.00083",
-        "IF T24 is low AND T48 is mid AND P40 is low THEN LPC_flow_mod = -0.00101",
-        "IF T24 is low AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.0011",
-        "IF T24 is low AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00389",
-        "IF T24 is low AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.02522",
-        "IF T24 is low AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.02486",
-        "IF T24 is low AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00373",
-        "IF T24 is mid AND T48 is low AND P40 is low THEN LPC_flow_mod = 0.00299",
-        "IF T24 is mid AND T48 is low AND P40 is mid THEN LPC_flow_mod = -0.00021",
-        "IF T24 is mid AND T48 is low AND P40 is high THEN LPC_flow_mod = 0.00019",
-        "IF T24 is mid AND T48 is mid AND P40 is low THEN LPC_flow_mod = 0.00029",
-        "IF T24 is mid AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.00094",
-        "IF T24 is mid AND T48 is mid AND P40 is high THEN LPC_flow_mod = 0.00124",
-        "IF T24 is mid AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.01807",
-        "IF T24 is mid AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00427",
-        "IF T24 is mid AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00175",
-        "IF T24 is high AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.05335",
-        "IF T24 is high AND T48 is low AND P40 is mid THEN LPC_flow_mod = -0.01725",
-        "IF T24 is high AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.03062",
-        "IF T24 is high AND T48 is mid AND P40 is low THEN LPC_flow_mod = 0.00128",
-        "IF T24 is high AND T48 is mid AND P40 is mid THEN LPC_flow_mod = 0.00296",
-        "IF T24 is high AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00057",
-        "IF T24 is high AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.00077",
-        "IF T24 is high AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00548",
-        "IF T24 is high AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00334"
+        "IF T24 is low AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.00353",
+        "IF T24 is low AND T48 is low AND P40 is mid THEN LPC_flow_mod = -0.00014",
+        "IF T24 is low AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.00054",
+        "IF T24 is low AND T48 is mid AND P40 is low THEN LPC_flow_mod = -0.00408",
+        "IF T24 is low AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.00016",
+        "IF T24 is low AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00245",
+        "IF T24 is low AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.03726",
+        "IF T24 is low AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.02857",
+        "IF T24 is low AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00659",
+        "IF T24 is mid AND T48 is low AND P40 is low THEN LPC_flow_mod = 0.00231",
+        "IF T24 is mid AND T48 is low AND P40 is mid THEN LPC_flow_mod = 0.0",
+        "IF T24 is mid AND T48 is low AND P40 is high THEN LPC_flow_mod = 0.00024",
+        "IF T24 is mid AND T48 is mid AND P40 is low THEN LPC_flow_mod = -0.00239",
+        "IF T24 is mid AND T48 is mid AND P40 is mid THEN LPC_flow_mod = -0.00189",
+        "IF T24 is mid AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00209",
+        "IF T24 is mid AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.01886",
+        "IF T24 is mid AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00893",
+        "IF T24 is mid AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00462",
+        "IF T24 is high AND T48 is low AND P40 is low THEN LPC_flow_mod = -0.02009",
+        "IF T24 is high AND T48 is low AND P40 is mid THEN LPC_flow_mod = 0.00341",
+        "IF T24 is high AND T48 is low AND P40 is high THEN LPC_flow_mod = -0.01679",
+        "IF T24 is high AND T48 is mid AND P40 is low THEN LPC_flow_mod = 0.00258",
+        "IF T24 is high AND T48 is mid AND P40 is mid THEN LPC_flow_mod = 0.00146",
+        "IF T24 is high AND T48 is mid AND P40 is high THEN LPC_flow_mod = -0.00175",
+        "IF T24 is high AND T48 is high AND P40 is low THEN LPC_flow_mod = -0.01436",
+        "IF T24 is high AND T48 is high AND P40 is mid THEN LPC_flow_mod = -0.00718",
+        "IF T24 is high AND T48 is high AND P40 is high THEN LPC_flow_mod = -0.00907"
       ]
     },
     {
@@ -2200,43 +2200,43 @@
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ],
         "P15": [
           {
             "term": "low",
-            "centre": -0.07109
+            "centre": -0.04485
           },
           {
             "term": "mid",
-            "centre": 0.00196
+            "centre": 0.00224
           },
           {
             "term": "high",
-            "centre": 0.07005
+            "centre": 0.08608
           }
         ],
         "P40": [
           {
             "term": "low",
-            "centre": -1.47964
+            "centre": -1.02896
           },
           {
             "term": "mid",
-            "centre": -0.04456
+            "centre": 0.04152
           },
           {
             "term": "high",
-            "centre": 0.94907
+            "centre": 1.14464
           }
         ]
       },
@@ -2256,7 +2256,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00043
+          "then": -0.00268
         },
         {
           "if": [
@@ -2273,7 +2273,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00183
+          "then": 0.00087
         },
         {
           "if": [
@@ -2290,7 +2290,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01969
+          "then": -0.02905
         },
         {
           "if": [
@@ -2307,7 +2307,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00028
+          "then": -0.00311
         },
         {
           "if": [
@@ -2324,7 +2324,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00112
+          "then": -0.00023
         },
         {
           "if": [
@@ -2341,7 +2341,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01257
+          "then": -0.00397
         },
         {
           "if": [
@@ -2358,7 +2358,7 @@
               "term": "low"
             }
           ],
-          "then": -0.0037
+          "then": -0.00461
         },
         {
           "if": [
@@ -2375,7 +2375,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00091
+          "then": -0.00067
         },
         {
           "if": [
@@ -2392,7 +2392,7 @@
               "term": "high"
             }
           ],
-          "then": 3e-05
+          "then": -0.00158
         },
         {
           "if": [
@@ -2409,7 +2409,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00094
+          "then": -0.00173
         },
         {
           "if": [
@@ -2426,7 +2426,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00064
+          "then": -0.00084
         },
         {
           "if": [
@@ -2443,7 +2443,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00515
+          "then": -0.00262
         },
         {
           "if": [
@@ -2460,7 +2460,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00235
+          "then": -0.00122
         },
         {
           "if": [
@@ -2477,7 +2477,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00046
+          "then": -0.00108
         },
         {
           "if": [
@@ -2494,7 +2494,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00177
+          "then": 0.00237
         },
         {
           "if": [
@@ -2511,7 +2511,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00032
+          "then": 0.00659
         },
         {
           "if": [
@@ -2528,7 +2528,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00128
+          "then": -0.00323
         },
         {
           "if": [
@@ -2545,7 +2545,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00016
+          "then": -0.00103
         },
         {
           "if": [
@@ -2562,7 +2562,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01017
+          "then": -0.00977
         },
         {
           "if": [
@@ -2579,7 +2579,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00186
+          "then": -0.00583
         },
         {
           "if": [
@@ -2596,7 +2596,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00074
+          "then": -0.00689
         },
         {
           "if": [
@@ -2613,7 +2613,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01491
+          "then": -0.01902
         },
         {
           "if": [
@@ -2630,7 +2630,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00631
+          "then": -0.00635
         },
         {
           "if": [
@@ -2647,7 +2647,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00757
+          "then": -0.00851
         },
         {
           "if": [
@@ -2664,7 +2664,7 @@
               "term": "low"
             }
           ],
-          "then": -0.03189
+          "then": -0.01499
         },
         {
           "if": [
@@ -2681,7 +2681,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.0194
+          "then": -0.01736
         },
         {
           "if": [
@@ -2698,37 +2698,37 @@
               "term": "high"
             }
           ],
-          "then": -0.0087
+          "then": -0.00819
         }
       ],
       "readable": [
-        "IF T30 is low AND P15 is low AND P40 is low THEN HPC_eff_mod = 0.00043",
-        "IF T30 is low AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00183",
-        "IF T30 is low AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.01969",
-        "IF T30 is low AND P15 is mid AND P40 is low THEN HPC_eff_mod = 0.00028",
-        "IF T30 is low AND P15 is mid AND P40 is mid THEN HPC_eff_mod = 0.00112",
-        "IF T30 is low AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.01257",
-        "IF T30 is low AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.0037",
-        "IF T30 is low AND P15 is high AND P40 is mid THEN HPC_eff_mod = 0.00091",
-        "IF T30 is low AND P15 is high AND P40 is high THEN HPC_eff_mod = 3e-05",
-        "IF T30 is mid AND P15 is low AND P40 is low THEN HPC_eff_mod = 0.00094",
-        "IF T30 is mid AND P15 is low AND P40 is mid THEN HPC_eff_mod = 0.00064",
-        "IF T30 is mid AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.00515",
-        "IF T30 is mid AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.00235",
-        "IF T30 is mid AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00046",
-        "IF T30 is mid AND P15 is mid AND P40 is high THEN HPC_eff_mod = 0.00177",
-        "IF T30 is mid AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.00032",
-        "IF T30 is mid AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.00128",
-        "IF T30 is mid AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00016",
-        "IF T30 is high AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.01017",
-        "IF T30 is high AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00186",
-        "IF T30 is high AND P15 is low AND P40 is high THEN HPC_eff_mod = 0.00074",
-        "IF T30 is high AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.01491",
-        "IF T30 is high AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00631",
-        "IF T30 is high AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.00757",
-        "IF T30 is high AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.03189",
-        "IF T30 is high AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.0194",
-        "IF T30 is high AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.0087"
+        "IF T30 is low AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00268",
+        "IF T30 is low AND P15 is low AND P40 is mid THEN HPC_eff_mod = 0.00087",
+        "IF T30 is low AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.02905",
+        "IF T30 is low AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.00311",
+        "IF T30 is low AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00023",
+        "IF T30 is low AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.00397",
+        "IF T30 is low AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.00461",
+        "IF T30 is low AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.00067",
+        "IF T30 is low AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00158",
+        "IF T30 is mid AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00173",
+        "IF T30 is mid AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00084",
+        "IF T30 is mid AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.00262",
+        "IF T30 is mid AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.00122",
+        "IF T30 is mid AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00108",
+        "IF T30 is mid AND P15 is mid AND P40 is high THEN HPC_eff_mod = 0.00237",
+        "IF T30 is mid AND P15 is high AND P40 is low THEN HPC_eff_mod = 0.00659",
+        "IF T30 is mid AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.00323",
+        "IF T30 is mid AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00103",
+        "IF T30 is high AND P15 is low AND P40 is low THEN HPC_eff_mod = -0.00977",
+        "IF T30 is high AND P15 is low AND P40 is mid THEN HPC_eff_mod = -0.00583",
+        "IF T30 is high AND P15 is low AND P40 is high THEN HPC_eff_mod = -0.00689",
+        "IF T30 is high AND P15 is mid AND P40 is low THEN HPC_eff_mod = -0.01902",
+        "IF T30 is high AND P15 is mid AND P40 is mid THEN HPC_eff_mod = -0.00635",
+        "IF T30 is high AND P15 is mid AND P40 is high THEN HPC_eff_mod = -0.00851",
+        "IF T30 is high AND P15 is high AND P40 is low THEN HPC_eff_mod = -0.01499",
+        "IF T30 is high AND P15 is high AND P40 is mid THEN HPC_eff_mod = -0.01736",
+        "IF T30 is high AND P15 is high AND P40 is high THEN HPC_eff_mod = -0.00819"
       ]
     },
     {
@@ -2745,43 +2745,43 @@
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ],
         "P15": [
           {
             "term": "low",
-            "centre": -0.07109
+            "centre": -0.04485
           },
           {
             "term": "mid",
-            "centre": 0.00196
+            "centre": 0.00224
           },
           {
             "term": "high",
-            "centre": 0.07005
+            "centre": 0.08608
           }
         ],
         "P21": [
           {
             "term": "low",
-            "centre": -0.07217
+            "centre": -0.04554
           },
           {
             "term": "mid",
-            "centre": 0.00199
+            "centre": 0.00228
           },
           {
             "term": "high",
-            "centre": 0.07111
+            "centre": 0.08739
           }
         ]
       },
@@ -2801,7 +2801,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00081
+          "then": -0.01233
         },
         {
           "if": [
@@ -2818,7 +2818,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00401
+          "then": 0.00042
         },
         {
           "if": [
@@ -2835,7 +2835,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00798
+          "then": -0.01382
         },
         {
           "if": [
@@ -2852,7 +2852,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00242
+          "then": -0.00491
         },
         {
           "if": [
@@ -2869,7 +2869,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00167
+          "then": -0.00096
         },
         {
           "if": [
@@ -2886,7 +2886,7 @@
               "term": "high"
             }
           ],
-          "then": 0.01077
+          "then": 0.00229
         },
         {
           "if": [
@@ -2903,7 +2903,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00318
+          "then": -0.00377
         },
         {
           "if": [
@@ -2920,7 +2920,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01852
+          "then": -0.00424
         },
         {
           "if": [
@@ -2937,7 +2937,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00145
+          "then": -0.00153
         },
         {
           "if": [
@@ -2954,7 +2954,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00087
+          "then": 0.00076
         },
         {
           "if": [
@@ -2971,7 +2971,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00158
+          "then": -0.00184
         },
         {
           "if": [
@@ -2988,7 +2988,7 @@
               "term": "high"
             }
           ],
-          "then": -0.0587
+          "then": -0.00909
         },
         {
           "if": [
@@ -3005,7 +3005,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00389
+          "then": -0.00341
         },
         {
           "if": [
@@ -3022,7 +3022,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00038
+          "then": -0.00083
         },
         {
           "if": [
@@ -3039,7 +3039,7 @@
               "term": "high"
             }
           ],
-          "then": 0.0163
+          "then": 0.00127
         },
         {
           "if": [
@@ -3056,7 +3056,7 @@
               "term": "low"
             }
           ],
-          "then": -0.07628
+          "then": -0.01329
         },
         {
           "if": [
@@ -3073,7 +3073,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01524
+          "then": -0.00447
         },
         {
           "if": [
@@ -3090,7 +3090,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00098
+          "then": -0.00242
         },
         {
           "if": [
@@ -3107,7 +3107,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00749
+          "then": -0.01572
         },
         {
           "if": [
@@ -3124,7 +3124,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.03819
+          "then": -0.01688
         },
         {
           "if": [
@@ -3141,7 +3141,7 @@
               "term": "high"
             }
           ],
-          "then": -0.0652
+          "then": -0.01736
         },
         {
           "if": [
@@ -3158,7 +3158,7 @@
               "term": "low"
             }
           ],
-          "then": -0.0078
+          "then": -0.00215
         },
         {
           "if": [
@@ -3175,7 +3175,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.02014
+          "then": -0.0088
         },
         {
           "if": [
@@ -3192,7 +3192,7 @@
               "term": "high"
             }
           ],
-          "then": -0.03227
+          "then": -0.0053
         },
         {
           "if": [
@@ -3209,7 +3209,7 @@
               "term": "low"
             }
           ],
-          "then": -0.02255
+          "then": -0.01622
         },
         {
           "if": [
@@ -3226,7 +3226,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.01657
+          "then": -0.00929
         },
         {
           "if": [
@@ -3243,37 +3243,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00895
+          "then": -0.00606
         }
       ],
       "readable": [
-        "IF T30 is low AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.00081",
-        "IF T30 is low AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.00401",
-        "IF T30 is low AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.00798",
-        "IF T30 is low AND P15 is mid AND P21 is low THEN HPC_flow_mod = 0.00242",
-        "IF T30 is low AND P15 is mid AND P21 is mid THEN HPC_flow_mod = 0.00167",
-        "IF T30 is low AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.01077",
-        "IF T30 is low AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.00318",
-        "IF T30 is low AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.01852",
-        "IF T30 is low AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00145",
-        "IF T30 is mid AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.00087",
-        "IF T30 is mid AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.00158",
-        "IF T30 is mid AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.0587",
-        "IF T30 is mid AND P15 is mid AND P21 is low THEN HPC_flow_mod = 0.00389",
-        "IF T30 is mid AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.00038",
-        "IF T30 is mid AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.0163",
-        "IF T30 is mid AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.07628",
-        "IF T30 is mid AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.01524",
-        "IF T30 is mid AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00098",
-        "IF T30 is high AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.00749",
-        "IF T30 is high AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.03819",
-        "IF T30 is high AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.0652",
-        "IF T30 is high AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.0078",
-        "IF T30 is high AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.02014",
-        "IF T30 is high AND P15 is mid AND P21 is high THEN HPC_flow_mod = -0.03227",
-        "IF T30 is high AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.02255",
-        "IF T30 is high AND P15 is high AND P21 is mid THEN HPC_flow_mod = 0.01657",
-        "IF T30 is high AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00895"
+        "IF T30 is low AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.01233",
+        "IF T30 is low AND P15 is low AND P21 is mid THEN HPC_flow_mod = 0.00042",
+        "IF T30 is low AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.01382",
+        "IF T30 is low AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00491",
+        "IF T30 is low AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.00096",
+        "IF T30 is low AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.00229",
+        "IF T30 is low AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.00377",
+        "IF T30 is low AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00424",
+        "IF T30 is low AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00153",
+        "IF T30 is mid AND P15 is low AND P21 is low THEN HPC_flow_mod = 0.00076",
+        "IF T30 is mid AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.00184",
+        "IF T30 is mid AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.00909",
+        "IF T30 is mid AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00341",
+        "IF T30 is mid AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.00083",
+        "IF T30 is mid AND P15 is mid AND P21 is high THEN HPC_flow_mod = 0.00127",
+        "IF T30 is mid AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.01329",
+        "IF T30 is mid AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00447",
+        "IF T30 is mid AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00242",
+        "IF T30 is high AND P15 is low AND P21 is low THEN HPC_flow_mod = -0.01572",
+        "IF T30 is high AND P15 is low AND P21 is mid THEN HPC_flow_mod = -0.01688",
+        "IF T30 is high AND P15 is low AND P21 is high THEN HPC_flow_mod = -0.01736",
+        "IF T30 is high AND P15 is mid AND P21 is low THEN HPC_flow_mod = -0.00215",
+        "IF T30 is high AND P15 is mid AND P21 is mid THEN HPC_flow_mod = -0.0088",
+        "IF T30 is high AND P15 is mid AND P21 is high THEN HPC_flow_mod = -0.0053",
+        "IF T30 is high AND P15 is high AND P21 is low THEN HPC_flow_mod = -0.01622",
+        "IF T30 is high AND P15 is high AND P21 is mid THEN HPC_flow_mod = -0.00929",
+        "IF T30 is high AND P15 is high AND P21 is high THEN HPC_flow_mod = -0.00606"
       ]
     },
     {
@@ -3290,43 +3290,43 @@
         "Nc": [
           {
             "term": "low",
-            "centre": -11.83227
+            "centre": -8.7914
           },
           {
             "term": "mid",
-            "centre": -0.572
+            "centre": -1.01906
           },
           {
             "term": "high",
-            "centre": 4.19239
+            "centre": 1.53932
           }
         ],
         "Ps30": [
           {
             "term": "low",
-            "centre": -1.35687
+            "centre": -0.80074
           },
           {
             "term": "mid",
-            "centre": -0.02721
+            "centre": 0.07981
           },
           {
             "term": "high",
-            "centre": 0.97069
+            "centre": 1.2563
           }
         ],
         "P50": [
           {
             "term": "low",
-            "centre": -0.05808
+            "centre": -0.03752
           },
           {
             "term": "mid",
-            "centre": 0.00182
+            "centre": 0.00296
           },
           {
             "term": "high",
-            "centre": 0.0727
+            "centre": 0.09349
           }
         ]
       },
@@ -3346,7 +3346,7 @@
               "term": "low"
             }
           ],
-          "then": -0.0001
+          "then": -0.00399
         },
         {
           "if": [
@@ -3363,7 +3363,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00849
+          "then": -0.00588
         },
         {
           "if": [
@@ -3380,7 +3380,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01043
+          "then": 0.00261
         },
         {
           "if": [
@@ -3397,7 +3397,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01441
+          "then": -0.01365
         },
         {
           "if": [
@@ -3414,7 +3414,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00949
+          "then": -0.00961
         },
         {
           "if": [
@@ -3431,7 +3431,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00757
+          "then": -0.00033
         },
         {
           "if": [
@@ -3448,7 +3448,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00486
+          "then": -0.00488
         },
         {
           "if": [
@@ -3465,7 +3465,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01339
+          "then": -0.00993
         },
         {
           "if": [
@@ -3482,7 +3482,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00847
+          "then": -0.00799
         },
         {
           "if": [
@@ -3499,7 +3499,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00046
+          "then": -0.00296
         },
         {
           "if": [
@@ -3516,7 +3516,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00234
+          "then": -0.00097
         },
         {
           "if": [
@@ -3533,7 +3533,7 @@
               "term": "high"
             }
           ],
-          "then": 0.0023
+          "then": -0.01333
         },
         {
           "if": [
@@ -3550,7 +3550,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00132
+          "then": -0.00027
         },
         {
           "if": [
@@ -3565,260 +3565,260 @@
             {
               "input": "P50",
               "term": "mid"
-            }
-          ],
-          "then": -0.00057
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "Ps30",
-              "term": "mid"
-            },
-            {
-              "input": "P50",
-              "term": "high"
-            }
-          ],
-          "then": 0.0011
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "low"
-            }
-          ],
-          "then": -0.00657
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "mid"
-            }
-          ],
-          "then": -0.00128
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "high"
-            }
-          ],
-          "then": -0.00025
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "low"
-            },
-            {
-              "input": "P50",
-              "term": "low"
-            }
-          ],
-          "then": 0.00026
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "low"
-            },
-            {
-              "input": "P50",
-              "term": "mid"
-            }
-          ],
-          "then": -0.00082
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "low"
-            },
-            {
-              "input": "P50",
-              "term": "high"
-            }
-          ],
-          "then": -0.00211
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "mid"
-            },
-            {
-              "input": "P50",
-              "term": "low"
-            }
-          ],
-          "then": 0.00026
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "mid"
-            },
-            {
-              "input": "P50",
-              "term": "mid"
-            }
-          ],
-          "then": 0.00045
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "mid"
-            },
-            {
-              "input": "P50",
-              "term": "high"
-            }
-          ],
-          "then": -0.00051
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "low"
-            }
-          ],
-          "then": -0.00827
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "mid"
-            }
-          ],
-          "then": -0.00177
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "high"
-            },
-            {
-              "input": "Ps30",
-              "term": "high"
-            },
-            {
-              "input": "P50",
-              "term": "high"
             }
           ],
           "then": -0.00066
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00034
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.01107
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00529
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": 0.00092
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.00088
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00066
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "low"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00439
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": -0.0023
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00052
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "mid"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00049
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "low"
+            }
+          ],
+          "then": 0.00384
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00319
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "high"
+            },
+            {
+              "input": "Ps30",
+              "term": "high"
+            },
+            {
+              "input": "P50",
+              "term": "high"
+            }
+          ],
+          "then": -0.00245
         }
       ],
       "readable": [
-        "IF Nc is low AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.0001",
-        "IF Nc is low AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00849",
-        "IF Nc is low AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.01043",
-        "IF Nc is low AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.01441",
-        "IF Nc is low AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00949",
-        "IF Nc is low AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00757",
-        "IF Nc is low AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.00486",
-        "IF Nc is low AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.01339",
-        "IF Nc is low AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00847",
-        "IF Nc is mid AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00046",
-        "IF Nc is mid AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = 0.00234",
-        "IF Nc is mid AND Ps30 is low AND P50 is high THEN HPT_eff_mod = 0.0023",
-        "IF Nc is mid AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.00132",
-        "IF Nc is mid AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00057",
-        "IF Nc is mid AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = 0.0011",
-        "IF Nc is mid AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.00657",
-        "IF Nc is mid AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00128",
-        "IF Nc is mid AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00025",
-        "IF Nc is high AND Ps30 is low AND P50 is low THEN HPT_eff_mod = 0.00026",
-        "IF Nc is high AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00082",
-        "IF Nc is high AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.00211",
-        "IF Nc is high AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = 0.00026",
-        "IF Nc is high AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = 0.00045",
-        "IF Nc is high AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00051",
-        "IF Nc is high AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.00827",
-        "IF Nc is high AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00177",
-        "IF Nc is high AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00066"
+        "IF Nc is low AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00399",
+        "IF Nc is low AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00588",
+        "IF Nc is low AND Ps30 is low AND P50 is high THEN HPT_eff_mod = 0.00261",
+        "IF Nc is low AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.01365",
+        "IF Nc is low AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00961",
+        "IF Nc is low AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00033",
+        "IF Nc is low AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.00488",
+        "IF Nc is low AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00993",
+        "IF Nc is low AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00799",
+        "IF Nc is mid AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00296",
+        "IF Nc is mid AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00097",
+        "IF Nc is mid AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.01333",
+        "IF Nc is mid AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.00027",
+        "IF Nc is mid AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00066",
+        "IF Nc is mid AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00034",
+        "IF Nc is mid AND Ps30 is high AND P50 is low THEN HPT_eff_mod = -0.01107",
+        "IF Nc is mid AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00529",
+        "IF Nc is mid AND Ps30 is high AND P50 is high THEN HPT_eff_mod = 0.00092",
+        "IF Nc is high AND Ps30 is low AND P50 is low THEN HPT_eff_mod = -0.00088",
+        "IF Nc is high AND Ps30 is low AND P50 is mid THEN HPT_eff_mod = -0.00066",
+        "IF Nc is high AND Ps30 is low AND P50 is high THEN HPT_eff_mod = -0.00439",
+        "IF Nc is high AND Ps30 is mid AND P50 is low THEN HPT_eff_mod = -0.0023",
+        "IF Nc is high AND Ps30 is mid AND P50 is mid THEN HPT_eff_mod = -0.00052",
+        "IF Nc is high AND Ps30 is mid AND P50 is high THEN HPT_eff_mod = -0.00049",
+        "IF Nc is high AND Ps30 is high AND P50 is low THEN HPT_eff_mod = 0.00384",
+        "IF Nc is high AND Ps30 is high AND P50 is mid THEN HPT_eff_mod = -0.00319",
+        "IF Nc is high AND Ps30 is high AND P50 is high THEN HPT_eff_mod = -0.00245"
       ]
     },
     {
@@ -3835,43 +3835,43 @@
         "Wf": [
           {
             "term": "low",
-            "centre": -0.01063
+            "centre": -0.00532
           },
           {
             "term": "mid",
-            "centre": 0.00317
+            "centre": 0.00348
           },
           {
             "term": "high",
-            "centre": 0.03012
+            "centre": 0.02594
           }
         ],
         "Nc": [
           {
             "term": "low",
-            "centre": -11.83227
+            "centre": -8.7914
           },
           {
             "term": "mid",
-            "centre": -0.572
+            "centre": -1.01906
           },
           {
             "term": "high",
-            "centre": 4.19239
+            "centre": 1.53932
           }
         ],
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ]
       },
@@ -3891,7 +3891,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00076
+          "then": -0.00781
         },
         {
           "if": [
@@ -3908,7 +3908,7 @@
               "term": "mid"
             }
           ],
-          "then": -3e-05
+          "then": 0.0047
         },
         {
           "if": [
@@ -3925,7 +3925,7 @@
               "term": "high"
             }
           ],
-          "then": -0.03292
+          "then": -0.02599
         },
         {
           "if": [
@@ -3942,7 +3942,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00057
+          "then": -0.00033
         },
         {
           "if": [
@@ -3959,7 +3959,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00039
+          "then": -0.00296
         },
         {
           "if": [
@@ -3976,7 +3976,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01062
+          "then": -0.01973
         },
         {
           "if": [
@@ -3993,7 +3993,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01605
+          "then": 0.00134
         },
         {
           "if": [
@@ -4010,7 +4010,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00097
+          "then": -0.00037
         },
         {
           "if": [
@@ -4027,7 +4027,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00065
+          "then": 0.00039
         },
         {
           "if": [
@@ -4044,7 +4044,7 @@
               "term": "low"
             }
           ],
-          "then": -4e-05
+          "then": -0.00391
         },
         {
           "if": [
@@ -4061,7 +4061,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00661
+          "then": -0.00609
         },
         {
           "if": [
@@ -4078,7 +4078,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00257
+          "then": 0.00202
         },
         {
           "if": [
@@ -4095,7 +4095,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00271
+          "then": -0.00026
         },
         {
           "if": [
@@ -4112,7 +4112,7 @@
               "term": "mid"
             }
           ],
-          "then": 5e-05
+          "then": -0.00022
         },
         {
           "if": [
@@ -4129,7 +4129,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00819
+          "then": -0.0118
         },
         {
           "if": [
@@ -4146,7 +4146,7 @@
               "term": "low"
             }
           ],
-          "then": -0.02249
+          "then": 0.00124
         },
         {
           "if": [
@@ -4163,7 +4163,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00115
+          "then": -0.00102
         },
         {
           "if": [
@@ -4180,7 +4180,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00092
+          "then": -0.00338
         },
         {
           "if": [
@@ -4197,7 +4197,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00027
+          "then": -0.00674
         },
         {
           "if": [
@@ -4214,7 +4214,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00281
+          "then": -0.00796
         },
         {
           "if": [
@@ -4231,7 +4231,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01113
+          "then": -0.01321
         },
         {
           "if": [
@@ -4248,7 +4248,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00441
+          "then": 0.00114
         },
         {
           "if": [
@@ -4265,7 +4265,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00061
+          "then": -0.00261
         },
         {
           "if": [
@@ -4282,7 +4282,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00161
+          "then": -0.00373
         },
         {
           "if": [
@@ -4299,7 +4299,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00064
+          "then": -0.03174
         },
         {
           "if": [
@@ -4316,7 +4316,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00201
+          "then": 0.00277
         },
         {
           "if": [
@@ -4333,37 +4333,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00062
+          "then": -0.0118
         }
       ],
       "readable": [
-        "IF Wf is low AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00076",
-        "IF Wf is low AND Nc is low AND T30 is mid THEN HPT_flow_mod = -3e-05",
-        "IF Wf is low AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.03292",
-        "IF Wf is low AND Nc is mid AND T30 is low THEN HPT_flow_mod = 0.00057",
-        "IF Wf is low AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00039",
-        "IF Wf is low AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.01062",
-        "IF Wf is low AND Nc is high AND T30 is low THEN HPT_flow_mod = -0.01605",
-        "IF Wf is low AND Nc is high AND T30 is mid THEN HPT_flow_mod = 0.00097",
-        "IF Wf is low AND Nc is high AND T30 is high THEN HPT_flow_mod = 0.00065",
-        "IF Wf is mid AND Nc is low AND T30 is low THEN HPT_flow_mod = -4e-05",
-        "IF Wf is mid AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00661",
-        "IF Wf is mid AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.00257",
-        "IF Wf is mid AND Nc is mid AND T30 is low THEN HPT_flow_mod = 0.00271",
-        "IF Wf is mid AND Nc is mid AND T30 is mid THEN HPT_flow_mod = 5e-05",
-        "IF Wf is mid AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.00819",
-        "IF Wf is mid AND Nc is high AND T30 is low THEN HPT_flow_mod = -0.02249",
-        "IF Wf is mid AND Nc is high AND T30 is mid THEN HPT_flow_mod = -0.00115",
-        "IF Wf is mid AND Nc is high AND T30 is high THEN HPT_flow_mod = 0.00092",
-        "IF Wf is high AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00027",
-        "IF Wf is high AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00281",
-        "IF Wf is high AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.01113",
-        "IF Wf is high AND Nc is mid AND T30 is low THEN HPT_flow_mod = 0.00441",
-        "IF Wf is high AND Nc is mid AND T30 is mid THEN HPT_flow_mod = 0.00061",
-        "IF Wf is high AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.00161",
-        "IF Wf is high AND Nc is high AND T30 is low THEN HPT_flow_mod = 0.00064",
-        "IF Wf is high AND Nc is high AND T30 is mid THEN HPT_flow_mod = 0.00201",
-        "IF Wf is high AND Nc is high AND T30 is high THEN HPT_flow_mod = -0.00062"
+        "IF Wf is low AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00781",
+        "IF Wf is low AND Nc is low AND T30 is mid THEN HPT_flow_mod = 0.0047",
+        "IF Wf is low AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.02599",
+        "IF Wf is low AND Nc is mid AND T30 is low THEN HPT_flow_mod = -0.00033",
+        "IF Wf is low AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00296",
+        "IF Wf is low AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.01973",
+        "IF Wf is low AND Nc is high AND T30 is low THEN HPT_flow_mod = 0.00134",
+        "IF Wf is low AND Nc is high AND T30 is mid THEN HPT_flow_mod = -0.00037",
+        "IF Wf is low AND Nc is high AND T30 is high THEN HPT_flow_mod = 0.00039",
+        "IF Wf is mid AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00391",
+        "IF Wf is mid AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00609",
+        "IF Wf is mid AND Nc is low AND T30 is high THEN HPT_flow_mod = 0.00202",
+        "IF Wf is mid AND Nc is mid AND T30 is low THEN HPT_flow_mod = -0.00026",
+        "IF Wf is mid AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00022",
+        "IF Wf is mid AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.0118",
+        "IF Wf is mid AND Nc is high AND T30 is low THEN HPT_flow_mod = 0.00124",
+        "IF Wf is mid AND Nc is high AND T30 is mid THEN HPT_flow_mod = -0.00102",
+        "IF Wf is mid AND Nc is high AND T30 is high THEN HPT_flow_mod = -0.00338",
+        "IF Wf is high AND Nc is low AND T30 is low THEN HPT_flow_mod = -0.00674",
+        "IF Wf is high AND Nc is low AND T30 is mid THEN HPT_flow_mod = -0.00796",
+        "IF Wf is high AND Nc is low AND T30 is high THEN HPT_flow_mod = -0.01321",
+        "IF Wf is high AND Nc is mid AND T30 is low THEN HPT_flow_mod = 0.00114",
+        "IF Wf is high AND Nc is mid AND T30 is mid THEN HPT_flow_mod = -0.00261",
+        "IF Wf is high AND Nc is mid AND T30 is high THEN HPT_flow_mod = -0.00373",
+        "IF Wf is high AND Nc is high AND T30 is low THEN HPT_flow_mod = -0.03174",
+        "IF Wf is high AND Nc is high AND T30 is mid THEN HPT_flow_mod = 0.00277",
+        "IF Wf is high AND Nc is high AND T30 is high THEN HPT_flow_mod = -0.0118"
       ]
     },
     {
@@ -4380,43 +4380,43 @@
         "Nc": [
           {
             "term": "low",
-            "centre": -11.83227
+            "centre": -8.7914
           },
           {
             "term": "mid",
-            "centre": -0.572
+            "centre": -1.01906
           },
           {
             "term": "high",
-            "centre": 4.19239
+            "centre": 1.53932
           }
         ],
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ],
         "T48": [
           {
             "term": "low",
-            "centre": -0.5935
+            "centre": -0.35011
           },
           {
             "term": "mid",
-            "centre": 1.29972
+            "centre": 2.23379
           },
           {
             "term": "high",
-            "centre": 20.72411
+            "centre": 21.97636
           }
         ]
       },
@@ -4436,7 +4436,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00019
+          "then": -0.00308
         },
         {
           "if": [
@@ -4453,166 +4453,13 @@
               "term": "mid"
             }
           ],
-          "then": -0.0022
+          "then": -0.00356
         },
         {
           "if": [
             {
               "input": "Nc",
               "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "low"
-            },
-            {
-              "input": "T48",
-              "term": "high"
-            }
-          ],
-          "then": -0.00268
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "mid"
-            },
-            {
-              "input": "T48",
-              "term": "low"
-            }
-          ],
-          "then": -0.01268
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "mid"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            }
-          ],
-          "then": 0.00511
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "mid"
-            },
-            {
-              "input": "T48",
-              "term": "high"
-            }
-          ],
-          "then": -0.01054
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "low"
-            }
-          ],
-          "then": 0.00087
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            }
-          ],
-          "then": 0.00499
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "low"
-            },
-            {
-              "input": "T30",
-              "term": "high"
-            },
-            {
-              "input": "T48",
-              "term": "high"
-            }
-          ],
-          "then": -0.01326
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "T30",
-              "term": "low"
-            },
-            {
-              "input": "T48",
-              "term": "low"
-            }
-          ],
-          "then": 0.00124
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
-            },
-            {
-              "input": "T30",
-              "term": "low"
-            },
-            {
-              "input": "T48",
-              "term": "mid"
-            }
-          ],
-          "then": -0.00282
-        },
-        {
-          "if": [
-            {
-              "input": "Nc",
-              "term": "mid"
             },
             {
               "input": "T30",
@@ -4623,13 +4470,13 @@
               "term": "high"
             }
           ],
-          "then": 0.00639
+          "then": -0.00192
         },
         {
           "if": [
             {
               "input": "Nc",
-              "term": "mid"
+              "term": "low"
             },
             {
               "input": "T30",
@@ -4646,6 +4493,159 @@
           "if": [
             {
               "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00045
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00885
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00385
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": 0.00667
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "low"
+            },
+            {
+              "input": "T30",
+              "term": "high"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.01397
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00055
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "mid"
+            }
+          ],
+          "then": -0.00158
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "low"
+            },
+            {
+              "input": "T48",
+              "term": "high"
+            }
+          ],
+          "then": -0.00121
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
+              "term": "mid"
+            },
+            {
+              "input": "T30",
+              "term": "mid"
+            },
+            {
+              "input": "T48",
+              "term": "low"
+            }
+          ],
+          "then": -0.00148
+        },
+        {
+          "if": [
+            {
+              "input": "Nc",
               "term": "mid"
             },
             {
@@ -4657,7 +4657,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00039
+          "then": -0.00079
         },
         {
           "if": [
@@ -4674,7 +4674,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01959
+          "then": -0.0105
         },
         {
           "if": [
@@ -4691,7 +4691,7 @@
               "term": "low"
             }
           ],
-          "then": -0.01569
+          "then": -0.02034
         },
         {
           "if": [
@@ -4708,7 +4708,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00443
+          "then": -0.00507
         },
         {
           "if": [
@@ -4725,7 +4725,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00601
+          "then": -0.00663
         },
         {
           "if": [
@@ -4742,7 +4742,7 @@
               "term": "low"
             }
           ],
-          "then": -0.02872
+          "then": -0.00143
         },
         {
           "if": [
@@ -4759,7 +4759,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01318
+          "then": 0.00337
         },
         {
           "if": [
@@ -4776,7 +4776,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00926
+          "then": -0.02232
         },
         {
           "if": [
@@ -4793,7 +4793,7 @@
               "term": "low"
             }
           ],
-          "then": 0.0017
+          "then": 0.00095
         },
         {
           "if": [
@@ -4810,7 +4810,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.0006
+          "then": -0.00226
         },
         {
           "if": [
@@ -4827,7 +4827,7 @@
               "term": "high"
             }
           ],
-          "then": -0.03111
+          "then": 0.00587
         },
         {
           "if": [
@@ -4844,7 +4844,7 @@
               "term": "low"
             }
           ],
-          "then": -0.0184
+          "then": -0.01052
         },
         {
           "if": [
@@ -4861,7 +4861,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00462
+          "then": 0.00283
         },
         {
           "if": [
@@ -4878,37 +4878,37 @@
               "term": "high"
             }
           ],
-          "then": -0.00088
+          "then": -0.01762
         }
       ],
       "readable": [
-        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_eff_mod = 0.00019",
-        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.0022",
-        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00268",
-        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_eff_mod = -0.01268",
-        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_eff_mod = 0.00511",
-        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.01054",
-        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_eff_mod = 0.00087",
-        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00499",
-        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.01326",
-        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_eff_mod = 0.00124",
-        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.00282",
-        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_eff_mod = 0.00639",
-        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_eff_mod = 1e-05",
-        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00039",
-        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.01959",
-        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.01569",
-        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00443",
-        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.00601",
-        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.02872",
-        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.01318",
-        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00926",
-        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_eff_mod = 0.0017",
-        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_eff_mod = 0.0006",
-        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.03111",
-        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.0184",
-        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00462",
-        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.00088"
+        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00308",
+        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.00356",
+        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00192",
+        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_eff_mod = 1e-05",
+        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00045",
+        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.00885",
+        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.00385",
+        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00667",
+        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.01397",
+        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00055",
+        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_eff_mod = -0.00158",
+        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.00121",
+        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_eff_mod = -0.00148",
+        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00079",
+        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_eff_mod = -0.0105",
+        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.02034",
+        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_eff_mod = -0.00507",
+        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.00663",
+        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_eff_mod = -0.00143",
+        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_eff_mod = 0.00337",
+        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_eff_mod = -0.02232",
+        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_eff_mod = 0.00095",
+        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_eff_mod = -0.00226",
+        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_eff_mod = 0.00587",
+        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_eff_mod = -0.01052",
+        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_eff_mod = 0.00283",
+        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_eff_mod = -0.01762"
       ]
     },
     {
@@ -4925,43 +4925,43 @@
         "Nc": [
           {
             "term": "low",
-            "centre": -11.83227
+            "centre": -8.7914
           },
           {
             "term": "mid",
-            "centre": -0.572
+            "centre": -1.01906
           },
           {
             "term": "high",
-            "centre": 4.19239
+            "centre": 1.53932
           }
         ],
         "T30": [
           {
             "term": "low",
-            "centre": -1.91993
+            "centre": -0.40584
           },
           {
             "term": "mid",
-            "centre": 0.00622
+            "centre": 0.26964
           },
           {
             "term": "high",
-            "centre": 4.6521
+            "centre": 4.234
           }
         ],
         "T48": [
           {
             "term": "low",
-            "centre": -0.5935
+            "centre": -0.35011
           },
           {
             "term": "mid",
-            "centre": 1.29972
+            "centre": 2.23379
           },
           {
             "term": "high",
-            "centre": 20.72411
+            "centre": 21.97636
           }
         ]
       },
@@ -4981,7 +4981,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00046
+          "then": -0.00183
         },
         {
           "if": [
@@ -4998,7 +4998,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.01039
+          "then": -0.00289
         },
         {
           "if": [
@@ -5015,7 +5015,7 @@
               "term": "high"
             }
           ],
-          "then": -0.008
+          "then": -0.0161
         },
         {
           "if": [
@@ -5032,7 +5032,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00205
+          "then": -0.00803
         },
         {
           "if": [
@@ -5049,7 +5049,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00339
+          "then": -0.00115
         },
         {
           "if": [
@@ -5066,7 +5066,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01205
+          "then": -0.00501
         },
         {
           "if": [
@@ -5083,7 +5083,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00439
+          "then": -0.0094
         },
         {
           "if": [
@@ -5100,7 +5100,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.0022
+          "then": -0.00148
         },
         {
           "if": [
@@ -5117,7 +5117,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01067
+          "then": -0.01178
         },
         {
           "if": [
@@ -5134,7 +5134,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00023
+          "then": -6e-05
         },
         {
           "if": [
@@ -5151,7 +5151,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.0035
+          "then": -0.00088
         },
         {
           "if": [
@@ -5168,7 +5168,7 @@
               "term": "high"
             }
           ],
-          "then": 0.00574
+          "then": -0.02367
         },
         {
           "if": [
@@ -5185,7 +5185,7 @@
               "term": "low"
             }
           ],
-          "then": 7e-05
+          "then": -0.0014
         },
         {
           "if": [
@@ -5202,7 +5202,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.00154
+          "then": -0.00122
         },
         {
           "if": [
@@ -5219,7 +5219,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01624
+          "then": -0.01197
         },
         {
           "if": [
@@ -5236,7 +5236,7 @@
               "term": "low"
             }
           ],
-          "then": 0.00106
+          "then": -0.00808
         },
         {
           "if": [
@@ -5253,7 +5253,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00411
+          "then": -0.00104
         },
         {
           "if": [
@@ -5270,7 +5270,7 @@
               "term": "high"
             }
           ],
-          "then": -0.00416
+          "then": -0.00671
         },
         {
           "if": [
@@ -5287,7 +5287,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00714
+          "then": -0.0025
         },
         {
           "if": [
@@ -5304,7 +5304,7 @@
               "term": "mid"
             }
           ],
-          "then": -0.0272
+          "then": -0.00723
         },
         {
           "if": [
@@ -5321,7 +5321,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01707
+          "then": -0.02782
         },
         {
           "if": [
@@ -5338,7 +5338,7 @@
               "term": "low"
             }
           ],
-          "then": -0.00033
+          "then": 0.0014
         },
         {
           "if": [
@@ -5355,7 +5355,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00069
+          "then": -0.00172
         },
         {
           "if": [
@@ -5372,7 +5372,7 @@
               "term": "high"
             }
           ],
-          "then": -0.01676
+          "then": -0.00652
         },
         {
           "if": [
@@ -5389,7 +5389,7 @@
               "term": "low"
             }
           ],
-          "then": -0.02138
+          "then": -0.01745
         },
         {
           "if": [
@@ -5406,7 +5406,7 @@
               "term": "mid"
             }
           ],
-          "then": 0.00167
+          "then": 0.00241
         },
         {
           "if": [
@@ -5423,37 +5423,37 @@
               "term": "high"
             }
           ],
-          "then": -0.0005
+          "then": -0.01019
         }
       ],
       "readable": [
-        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_flow_mod = 0.00046",
-        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.01039",
-        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.008",
-        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.00205",
-        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_flow_mod = 0.00339",
-        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.01205",
-        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_flow_mod = 0.00439",
-        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_flow_mod = 0.0022",
-        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.01067",
-        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_flow_mod = 0.00023",
-        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_flow_mod = 0.0035",
-        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_flow_mod = 0.00574",
-        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_flow_mod = 7e-05",
-        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00154",
-        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.01624",
-        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_flow_mod = 0.00106",
-        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_flow_mod = 0.00411",
-        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.00416",
-        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_flow_mod = -0.00714",
-        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.0272",
-        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.01707",
-        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.00033",
-        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_flow_mod = 0.00069",
-        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.01676",
-        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.02138",
-        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_flow_mod = 0.00167",
-        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.0005"
+        "IF Nc is low AND T30 is low AND T48 is low THEN LPT_flow_mod = -0.00183",
+        "IF Nc is low AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00289",
+        "IF Nc is low AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.0161",
+        "IF Nc is low AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.00803",
+        "IF Nc is low AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00115",
+        "IF Nc is low AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.00501",
+        "IF Nc is low AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.0094",
+        "IF Nc is low AND T30 is high AND T48 is mid THEN LPT_flow_mod = -0.00148",
+        "IF Nc is low AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.01178",
+        "IF Nc is mid AND T30 is low AND T48 is low THEN LPT_flow_mod = -6e-05",
+        "IF Nc is mid AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00088",
+        "IF Nc is mid AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.02367",
+        "IF Nc is mid AND T30 is mid AND T48 is low THEN LPT_flow_mod = -0.0014",
+        "IF Nc is mid AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00122",
+        "IF Nc is mid AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.01197",
+        "IF Nc is mid AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.00808",
+        "IF Nc is mid AND T30 is high AND T48 is mid THEN LPT_flow_mod = -0.00104",
+        "IF Nc is mid AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.00671",
+        "IF Nc is high AND T30 is low AND T48 is low THEN LPT_flow_mod = -0.0025",
+        "IF Nc is high AND T30 is low AND T48 is mid THEN LPT_flow_mod = -0.00723",
+        "IF Nc is high AND T30 is low AND T48 is high THEN LPT_flow_mod = -0.02782",
+        "IF Nc is high AND T30 is mid AND T48 is low THEN LPT_flow_mod = 0.0014",
+        "IF Nc is high AND T30 is mid AND T48 is mid THEN LPT_flow_mod = -0.00172",
+        "IF Nc is high AND T30 is mid AND T48 is high THEN LPT_flow_mod = -0.00652",
+        "IF Nc is high AND T30 is high AND T48 is low THEN LPT_flow_mod = -0.01745",
+        "IF Nc is high AND T30 is high AND T48 is mid THEN LPT_flow_mod = 0.00241",
+        "IF Nc is high AND T30 is high AND T48 is high THEN LPT_flow_mod = -0.01019"
       ]
     },
     {
@@ -5469,29 +5469,29 @@
         "fan_eff": [
           {
             "term": "low",
-            "centre": -0.01308
+            "centre": -0.0056
           },
           {
             "term": "mid",
-            "centre": -0.00153
+            "centre": -0.00132
           },
           {
             "term": "high",
-            "centre": -0.00055
+            "centre": -0.00058
           }
         ],
         "fan_flow": [
           {
             "term": "low",
-            "centre": -0.01528
+            "centre": -0.00902
           },
           {
             "term": "mid",
-            "centre": -0.00188
+            "centre": -0.0015
           },
           {
             "term": "high",
-            "centre": -0.00063
+            "centre": -0.00061
           }
         ]
       },
@@ -5639,29 +5639,29 @@
         "lpc_eff": [
           {
             "term": "low",
-            "centre": -0.01073
+            "centre": -0.00781
           },
           {
             "term": "mid",
-            "centre": -0.00158
+            "centre": -0.00146
           },
           {
             "term": "high",
-            "centre": -0.00054
+            "centre": -0.00045
           }
         ],
         "lpc_flow": [
           {
             "term": "low",
-            "centre": -0.00894
+            "centre": -0.00826
           },
           {
             "term": "mid",
-            "centre": -0.00152
+            "centre": -0.0014
           },
           {
             "term": "high",
-            "centre": -0.00049
+            "centre": -0.00043
           }
         ]
       },
@@ -5809,7 +5809,21 @@
         "hpc_eff": [
           {
             "term": "low",
-            "centre": -0.00764
+            "centre": -0.0049
+          },
+          {
+            "term": "mid",
+            "centre": -0.00129
+          },
+          {
+            "term": "high",
+            "centre": -0.00052
+          }
+        ],
+        "hpc_flow": [
+          {
+            "term": "low",
+            "centre": -0.00661
           },
           {
             "term": "mid",
@@ -5817,21 +5831,7 @@
           },
           {
             "term": "high",
-            "centre": -0.0005
-          }
-        ],
-        "hpc_flow": [
-          {
-            "term": "low",
-            "centre": -0.00955
-          },
-          {
-            "term": "mid",
-            "centre": -0.00172
-          },
-          {
-            "term": "high",
-            "centre": -0.00071
+            "centre": -0.00053
           }
         ]
       },
@@ -5979,15 +5979,15 @@
         "hpt_eff": [
           {
             "term": "low",
-            "centre": -0.00662
+            "centre": -0.00505
           },
           {
             "term": "mid",
-            "centre": -0.00149
+            "centre": -0.00128
           },
           {
             "term": "high",
-            "centre": -0.00061
+            "centre": -0.00053
           }
         ],
         "hpt_flow": [
@@ -6149,29 +6149,29 @@
         "lpt_eff": [
           {
             "term": "low",
-            "centre": -0.00651
+            "centre": -0.0054
           },
           {
             "term": "mid",
-            "centre": -0.0014
+            "centre": -0.00135
           },
           {
             "term": "high",
-            "centre": -0.00051
+            "centre": -0.00057
           }
         ],
         "lpt_flow": [
           {
             "term": "low",
-            "centre": -0.00935
+            "centre": -0.00641
           },
           {
             "term": "mid",
-            "centre": -0.00162
+            "centre": -0.00154
           },
           {
             "term": "high",
-            "centre": -0.00053
+            "centre": -0.00058
           }
         ]
       },
@@ -6405,7 +6405,7 @@
               "term": "L1"
             }
           ],
-          "then": 0.69382
+          "then": 1.0
         },
         {
           "if": [
@@ -6422,7 +6422,7 @@
               "term": "L2"
             }
           ],
-          "then": 0.75531
+          "then": 1.0
         },
         {
           "if": [
@@ -6456,7 +6456,7 @@
               "term": "L0"
             }
           ],
-          "then": 0.09372
+          "then": 0.00069
         },
         {
           "if": [
@@ -6524,7 +6524,7 @@
               "term": "L0"
             }
           ],
-          "then": 0.83191
+          "then": 0.20815
         },
         {
           "if": [
@@ -6660,7 +6660,7 @@
               "term": "L0"
             }
           ],
-          "then": 0.1769
+          "then": 0.01602
         },
         {
           "if": [
@@ -6677,23 +6677,6 @@
               "term": "L1"
             }
           ],
-          "then": 0.87921
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L0"
-            },
-            {
-              "input": "LPT",
-              "term": "L2"
-            }
-          ],
           "then": 1.0
         },
         {
@@ -6708,57 +6691,6 @@
             },
             {
               "input": "LPT",
-              "term": "L3"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L1"
-            },
-            {
-              "input": "LPT",
-              "term": "L0"
-            }
-          ],
-          "then": 0.35074
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L1"
-            },
-            {
-              "input": "LPT",
-              "term": "L1"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L1"
-            },
-            {
-              "input": "LPT",
               "term": "L2"
             }
           ],
@@ -6769,210 +6701,6 @@
             {
               "input": "fan",
               "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L1"
-            },
-            {
-              "input": "LPT",
-              "term": "L3"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L2"
-            },
-            {
-              "input": "LPT",
-              "term": "L0"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L2"
-            },
-            {
-              "input": "LPT",
-              "term": "L1"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L2"
-            },
-            {
-              "input": "LPT",
-              "term": "L2"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L2"
-            },
-            {
-              "input": "LPT",
-              "term": "L3"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L3"
-            },
-            {
-              "input": "LPT",
-              "term": "L0"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L3"
-            },
-            {
-              "input": "LPT",
-              "term": "L1"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L3"
-            },
-            {
-              "input": "LPT",
-              "term": "L2"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L1"
-            },
-            {
-              "input": "LPC",
-              "term": "L3"
-            },
-            {
-              "input": "LPT",
-              "term": "L3"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L2"
-            },
-            {
-              "input": "LPC",
-              "term": "L0"
-            },
-            {
-              "input": "LPT",
-              "term": "L0"
-            }
-          ],
-          "then": 0.19569
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L2"
-            },
-            {
-              "input": "LPC",
-              "term": "L0"
-            },
-            {
-              "input": "LPT",
-              "term": "L1"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L2"
-            },
-            {
-              "input": "LPC",
-              "term": "L0"
-            },
-            {
-              "input": "LPT",
-              "term": "L2"
-            }
-          ],
-          "then": 1.0
-        },
-        {
-          "if": [
-            {
-              "input": "fan",
-              "term": "L2"
             },
             {
               "input": "LPC",
@@ -6989,6 +6717,278 @@
           "if": [
             {
               "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.03748
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L1"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.39529
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L2"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L1"
+            },
+            {
+              "input": "LPC",
+              "term": "L3"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L0"
+            }
+          ],
+          "then": 0.12111
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L1"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L2"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
+              "term": "L2"
+            },
+            {
+              "input": "LPC",
+              "term": "L0"
+            },
+            {
+              "input": "LPT",
+              "term": "L3"
+            }
+          ],
+          "then": 1.0
+        },
+        {
+          "if": [
+            {
+              "input": "fan",
               "term": "L2"
             },
             {
@@ -7000,7 +7000,7 @@
               "term": "L0"
             }
           ],
-          "then": 1.0
+          "then": 0.19904
         },
         {
           "if": [
@@ -7068,7 +7068,7 @@
               "term": "L0"
             }
           ],
-          "then": 1.0
+          "then": 0.63393
         },
         {
           "if": [
@@ -7464,14 +7464,14 @@
       ],
       "readable": [
         "IF fan is L0 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.0",
-        "IF fan is L0 AND LPC is L0 AND LPT is L1 THEN lp_damage = 0.69382",
-        "IF fan is L0 AND LPC is L0 AND LPT is L2 THEN lp_damage = 0.75531",
+        "IF fan is L0 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
+        "IF fan is L0 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L0 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.09372",
+        "IF fan is L0 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.00069",
         "IF fan is L0 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L0 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.83191",
+        "IF fan is L0 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.20815",
         "IF fan is L0 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
@@ -7479,15 +7479,15 @@
         "IF fan is L0 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L0 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L1 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.1769",
-        "IF fan is L1 AND LPC is L0 AND LPT is L1 THEN lp_damage = 0.87921",
+        "IF fan is L1 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.01602",
+        "IF fan is L1 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L1 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.35074",
+        "IF fan is L1 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.03748",
         "IF fan is L1 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L1 AND LPC is L2 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L1 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.39529",
         "IF fan is L1 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
@@ -7495,15 +7495,15 @@
         "IF fan is L1 AND LPC is L3 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L3 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L1 AND LPC is L3 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L2 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.19569",
+        "IF fan is L2 AND LPC is L0 AND LPT is L0 THEN lp_damage = 0.12111",
         "IF fan is L2 AND LPC is L0 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L0 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L0 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L2 AND LPC is L1 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L1 AND LPT is L0 THEN lp_damage = 0.19904",
         "IF fan is L2 AND LPC is L1 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L1 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L1 AND LPT is L3 THEN lp_damage = 1.0",
-        "IF fan is L2 AND LPC is L2 AND LPT is L0 THEN lp_damage = 1.0",
+        "IF fan is L2 AND LPC is L2 AND LPT is L0 THEN lp_damage = 0.63393",
         "IF fan is L2 AND LPC is L2 AND LPT is L1 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L2 AND LPT is L2 THEN lp_damage = 1.0",
         "IF fan is L2 AND LPC is L2 AND LPT is L3 THEN lp_damage = 1.0",
@@ -7601,7 +7601,7 @@
               "term": "L1"
             }
           ],
-          "then": 0.14437
+          "then": 0.0
         },
         {
           "if": [
@@ -7614,7 +7614,7 @@
               "term": "L2"
             }
           ],
-          "then": 0.5853
+          "then": 0.40563
         },
         {
           "if": [
@@ -7640,7 +7640,7 @@
               "term": "L0"
             }
           ],
-          "then": 0.07247
+          "then": 0.32847
         },
         {
           "if": [
@@ -7653,7 +7653,7 @@
               "term": "L1"
             }
           ],
-          "then": 0.21753
+          "then": 0.39382
         },
         {
           "if": [
@@ -7666,7 +7666,7 @@
               "term": "L2"
             }
           ],
-          "then": 0.93198
+          "then": 0.83242
         },
         {
           "if": [
@@ -7692,7 +7692,7 @@
               "term": "L0"
             }
           ],
-          "then": 0.5985
+          "then": 0.75995
         },
         {
           "if": [
@@ -7705,7 +7705,7 @@
               "term": "L1"
             }
           ],
-          "then": 0.77465
+          "then": 1.0
         },
         {
           "if": [
@@ -7788,15 +7788,15 @@
       ],
       "readable": [
         "IF HPC is L0 AND HPT is L0 THEN hp_damage = 0.0",
-        "IF HPC is L0 AND HPT is L1 THEN hp_damage = 0.14437",
-        "IF HPC is L0 AND HPT is L2 THEN hp_damage = 0.5853",
+        "IF HPC is L0 AND HPT is L1 THEN hp_damage = 0.0",
+        "IF HPC is L0 AND HPT is L2 THEN hp_damage = 0.40563",
         "IF HPC is L0 AND HPT is L3 THEN hp_damage = 1.0",
-        "IF HPC is L1 AND HPT is L0 THEN hp_damage = 0.07247",
-        "IF HPC is L1 AND HPT is L1 THEN hp_damage = 0.21753",
-        "IF HPC is L1 AND HPT is L2 THEN hp_damage = 0.93198",
+        "IF HPC is L1 AND HPT is L0 THEN hp_damage = 0.32847",
+        "IF HPC is L1 AND HPT is L1 THEN hp_damage = 0.39382",
+        "IF HPC is L1 AND HPT is L2 THEN hp_damage = 0.83242",
         "IF HPC is L1 AND HPT is L3 THEN hp_damage = 1.0",
-        "IF HPC is L2 AND HPT is L0 THEN hp_damage = 0.5985",
-        "IF HPC is L2 AND HPT is L1 THEN hp_damage = 0.77465",
+        "IF HPC is L2 AND HPT is L0 THEN hp_damage = 0.75995",
+        "IF HPC is L2 AND HPT is L1 THEN hp_damage = 1.0",
         "IF HPC is L2 AND HPT is L2 THEN hp_damage = 1.0",
         "IF HPC is L2 AND HPT is L3 THEN hp_damage = 1.0",
         "IF HPC is L3 AND HPT is L0 THEN hp_damage = 1.0",
@@ -7864,7 +7864,7 @@
               "term": "L0"
             }
           ],
-          "then": 73.5
+          "then": 57.0
         },
         {
           "if": [
@@ -7877,7 +7877,7 @@
               "term": "L1"
             }
           ],
-          "then": 53.41991
+          "then": 45.8214
         },
         {
           "if": [
@@ -7890,7 +7890,7 @@
               "term": "L2"
             }
           ],
-          "then": 33.6237
+          "then": 28.63175
         },
         {
           "if": [
@@ -7916,7 +7916,7 @@
               "term": "L0"
             }
           ],
-          "then": 57.654
+          "then": 49.0386
         },
         {
           "if": [
@@ -7929,7 +7929,7 @@
               "term": "L1"
             }
           ],
-          "then": 37.57391
+          "then": 37.86
         },
         {
           "if": [
@@ -7942,7 +7942,7 @@
               "term": "L2"
             }
           ],
-          "then": 22.93955
+          "then": 26.10723
         },
         {
           "if": [
@@ -7968,7 +7968,7 @@
               "term": "L0"
             }
           ],
-          "then": 28.37981
+          "then": 17.20593
         },
         {
           "if": [
@@ -7981,7 +7981,7 @@
               "term": "L1"
             }
           ],
-          "then": 20.05388
+          "then": 15.49316
         },
         {
           "if": [
@@ -7994,7 +7994,7 @@
               "term": "L2"
             }
           ],
-          "then": 13.66814
+          "then": 15.04393
         },
         {
           "if": [
@@ -8063,17 +8063,17 @@
         }
       ],
       "readable": [
-        "IF lp is L0 AND hp is L0 THEN RUL = 73.5",
-        "IF lp is L0 AND hp is L1 THEN RUL = 53.41991",
-        "IF lp is L0 AND hp is L2 THEN RUL = 33.6237",
+        "IF lp is L0 AND hp is L0 THEN RUL = 57.0",
+        "IF lp is L0 AND hp is L1 THEN RUL = 45.8214",
+        "IF lp is L0 AND hp is L2 THEN RUL = 28.63175",
         "IF lp is L0 AND hp is L3 THEN RUL = 0.0",
-        "IF lp is L1 AND hp is L0 THEN RUL = 57.654",
-        "IF lp is L1 AND hp is L1 THEN RUL = 37.57391",
-        "IF lp is L1 AND hp is L2 THEN RUL = 22.93955",
+        "IF lp is L1 AND hp is L0 THEN RUL = 49.0386",
+        "IF lp is L1 AND hp is L1 THEN RUL = 37.86",
+        "IF lp is L1 AND hp is L2 THEN RUL = 26.10723",
         "IF lp is L1 AND hp is L3 THEN RUL = 0.0",
-        "IF lp is L2 AND hp is L0 THEN RUL = 28.37981",
-        "IF lp is L2 AND hp is L1 THEN RUL = 20.05388",
-        "IF lp is L2 AND hp is L2 THEN RUL = 13.66814",
+        "IF lp is L2 AND hp is L0 THEN RUL = 17.20593",
+        "IF lp is L2 AND hp is L1 THEN RUL = 15.49316",
+        "IF lp is L2 AND hp is L2 THEN RUL = 15.04393",
         "IF lp is L2 AND hp is L3 THEN RUL = 0.0",
         "IF lp is L3 AND hp is L0 THEN RUL = 0.0",
         "IF lp is L3 AND hp is L1 THEN RUL = 0.0",
